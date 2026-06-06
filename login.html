@@ -368,7 +368,7 @@
         </form>
 
         <div class="auth-footer" id="signupRow">
-          New here? <a href="signup.html">Create an account</a>
+New here? <a href="signup.html" id="createAccountLink">Create an account</a>
         </div>
 
         <div class="demo-note">
@@ -431,15 +431,18 @@
       event.currentTarget.classList.add('selected');
       document.getElementById('roleLabel').textContent = LABELS[role];
 
-      // Only tutors / volunteers can sign up; admins are created manually,
-      // students get accounts through admin.
       const signupRow = document.getElementById('signupRow');
-      if (role === 'tutor' || role === 'volunteer') {
-        signupRow.style.display = 'block';
-      } else {
-        signupRow.style.display = 'none';
-      }
+      const createAccountLink = document.getElementById('createAccountLink');
 
+  if (role === 'tutor') {
+  createAccountLink.href = 'signup.html';
+  signupRow.style.display = 'block';
+} else if (role === 'volunteer') {
+  createAccountLink.href = 'volunteer.html';
+  signupRow.style.display = 'block';
+} else {
+  signupRow.style.display = 'none';
+}
       const card = document.getElementById('authCard');
       card.classList.add('show');
       setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'center' }), 50);
@@ -467,7 +470,7 @@
       link.addEventListener('click', e => {
         e.preventDefault();
         document.body.classList.add('is-leaving');
-        setTimeout(() => { window.location.href = href; }, 250);
+        setTimeout(() => { window.location.href = link.getAttribute('href'); }, 250);
       });
     });
     window.addEventListener('pageshow', e => {
