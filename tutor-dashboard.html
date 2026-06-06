@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/jpeg" href="Images/SeedsOfSuccess_pic.jpeg" />
+  <title>Tutor Dashboard | Seeds of Success</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ---------------------------------------------------------
+       Seeds of Success — Tutor Dashboard (static preview)
+       --------------------------------------------------------- */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Poppins', system-ui, -apple-system, sans-serif;
+      color: #1f2d2a;
+      background: #f5f9f7;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+    .container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+
+    /* Header */
+    .site-header {
+      position: sticky; top: 0; z-index: 100;
+      background: #ffffff;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+    .nav-wrap { display: flex; align-items: center; justify-content: space-between; padding: 18px 0; }
+    .brand { display: flex; align-items: center; gap: 12px; font-family: 'Playfair Display', serif; font-weight: 700; font-size: 22px; color: #0d6e4f; }
+    .brand-mark {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: linear-gradient(135deg, #0d6e4f, #f5a623);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 20px; font-weight: 700;
+      object-fit: cover;
+    }
+    .nav-links { display: flex; gap: 8px; list-style: none; align-items: center; }
+    .nav-links a { padding: 10px 16px; font-weight: 500; font-size: 15px; color: #1f2d2a; border-radius: 8px; transition: all 0.25s ease; }
+    .nav-links a:hover { background: #f5f9f7; color: #0d6e4f; }
+    .nav-links a.active { color: #0d6e4f; font-weight: 600; }
+    .nav-cta { background: #c9302c; color: #fff !important; padding: 10px 22px !important; border-radius: 30px !important; font-weight: 600 !important; }
+    .nav-cta:hover { background: #a82420 !important; }
+
+    .hamburger { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 8px; }
+    .hamburger span { display: block; width: 26px; height: 3px; background: #0d6e4f; border-radius: 2px; transition: all 0.3s ease; }
+    .hamburger.open span:nth-child(1) { transform: translateY(8px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
+
+    /* Welcome strip */
+    .welcome-strip {
+      background: linear-gradient(135deg, #0d6e4f, #14906a);
+      color: #fff;
+      padding: 50px 0 60px;
+    }
+    .welcome-strip h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(28px, 4vw, 38px);
+      margin-bottom: 8px;
+    }
+    .welcome-strip p { opacity: 0.9; font-size: 16px; }
+
+    /* Stat tiles */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+      margin-top: -40px;
+      position: relative;
+      z-index: 2;
+    }
+    .stat-tile {
+      background: #fff;
+      border-radius: 14px;
+      padding: 22px 20px;
+      box-shadow: 0 6px 20px rgba(13,110,79,0.08);
+      border: 1px solid #e8efec;
+    }
+    .stat-tile .num {
+      font-family: 'Playfair Display', serif;
+      font-size: 30px;
+      color: #0d6e4f;
+      font-weight: 700;
+    }
+    .stat-tile .lbl { color: #5a6b66; font-size: 13px; margin-top: 4px; }
+
+    /* Sections */
+    .section { padding: 50px 0; }
+    .section-title {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 22px;
+    }
+    .section-title h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 24px;
+      color: #0d6e4f;
+    }
+    .section-title small { color: #5a6b66; font-size: 13px; }
+
+    /* Card */
+    .card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 28px;
+      border: 1px solid #e8efec;
+      box-shadow: 0 4px 14px rgba(13,110,79,0.05);
+    }
+
+    /* Two-column layout */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 24px;
+    }
+
+    /* Student list */
+    .student-list { list-style: none; }
+    .student-list li {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 0;
+      border-bottom: 1px solid #eef3f0;
+    }
+    .student-list li:last-child { border-bottom: none; }
+    .student-info { display: flex; align-items: center; gap: 14px; }
+    .avatar {
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #0d6e4f, #14906a);
+      color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 600;
+      font-size: 16px;
+    }
+    .avatar.alt { background: linear-gradient(135deg, #f5a623, #f7b945); color: #1f2d2a; }
+    .student-info h4 { font-size: 15px; color: #1f2d2a; font-weight: 600; }
+    .student-info p { font-size: 13px; color: #5a6b66; }
+    .pill {
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      background: #e6f4ee;
+      color: #0d6e4f;
+    }
+    .pill.alt { background: #fff3dc; color: #a06b00; }
+
+    /* Form */
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 13px; font-weight: 500; color: #1f2d2a; margin-bottom: 6px; }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 11px 13px;
+      border: 1.5px solid #d8e2dd;
+      border-radius: 10px;
+      font-size: 14px;
+      font-family: inherit;
+      color: #1f2d2a;
+      background: #ffffff;
+      transition: all 0.2s ease;
+    }
+    .form-group textarea { min-height: 80px; resize: vertical; }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+      outline: none;
+      border-color: #0d6e4f;
+      box-shadow: 0 0 0 3px rgba(13,110,79,0.10);
+    }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    .btn {
+      display: inline-block; padding: 12px 26px; border-radius: 30px;
+      font-weight: 600; font-size: 14px; transition: all 0.25s ease;
+      border: none; cursor: pointer;
+    }
+    .btn-primary { background: #0d6e4f; color: #fff; }
+    .btn-primary:hover { background: #0a5239; transform: translateY(-1px); }
+
+    /* Sessions table */
+    table {
+
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    th, td {
+      text-align: left;
+      padding: 12px 10px;
+      border-bottom: 1px solid #eef3f0;
+    }
+    th {
+      font-weight: 600;
+      color: #5a6b66;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .progress-bar {
+      width: 70px; height: 6px;
+      background: #e8efec;
+      border-radius: 3px;
+      overflow: hidden;
+      display: inline-block;
+      vertical-align: middle;
+    }
+    .progress-bar span {
+      display: block;
+      height: 100%;
+      background: linear-gradient(90deg, #0d6e4f, #14906a);
+      border-radius: 3px;
+    }
+    .topic-dropdown {
+      border: 1px solid #e8efec;
+      border-radius: 10px;
+      background: #fff;
+      padding: 8px 10px;
+    }
+    .topic-dropdown summary {
+      cursor: pointer;
+      color: #0d6e4f;
+      font-weight: 600;
+      list-style-position: inside;
+    }
+    .topic-checks {
+      margin-top: 8px;
+      color: #5a6b66;
+      font-size: 13px;
+      line-height: 1.9;
+    }
+    .topic-checks input { margin-right: 6px; accent-color: #0d6e4f; }
+    .student-link {
+      color: #0d6e4f;
+      font-weight: 600;
+      border-bottom: 1px dotted rgba(13,110,79,0.45);
+    }
+    .progress-card {
+      display: block;
+      color: inherit;
+      cursor: pointer;
+    }
+    .progress-card:hover strong { color: #0d6e4f; }
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(16,42,35,0.48);
+      z-index: 200;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal-card {
+      width: min(560px, 100%);
+      max-height: 86vh;
+      overflow: auto;
+      background: #fff;
+      border-radius: 14px;
+      border: 1px solid #e8efec;
+      box-shadow: 0 18px 45px rgba(16,42,35,0.22);
+      padding: 26px;
+    }
+    .modal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .modal-head h3 {
+      font-family: 'Playfair Display', serif;
+      color: #0d6e4f;
+      font-size: 24px;
+    }
+    .modal-close {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: 1px solid #d8e2dd;
+      background: #fff;
+      color: #1f2d2a;
+      cursor: pointer;
+      font-size: 20px;
+      line-height: 1;
+    }
+    .detail-list {
+      margin: 8px 0 16px 18px;
+      color: #5a6b66;
+      font-size: 14px;
+    }
+    .detail-list li { margin-bottom: 6px; }
+
+    /* Footer */
+    .site-footer { background: #102a23; color: #c8d6d1; padding: 60px 0 24px; margin-top: 40px; }
+    .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 40px; margin-bottom: 40px; }
+    .footer-grid h4 { color: #fff; font-size: 16px; margin-bottom: 18px; letter-spacing: 1px; text-transform: uppercase; }
+    .footer-grid p, .footer-grid a, .footer-grid li { font-size: 14px; line-height: 1.9; }
+    .footer-grid a:hover { color: #f5a623; }
+    .footer-grid ul { list-style: none; }
+    .footer-bottom { border-top: 1px solid #1f3d35; padding-top: 22px; text-align: center; font-size: 13px; color: #8aa39c; }
+
+    /* Responsive */
+    @media (max-width: 960px) {
+      .two-col { grid-template-columns: 1fr; }
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 768px) {
+      .hamburger { display: flex; }
+      .nav-links {
+        position: absolute; top: 100%; left: 0; right: 0;
+        background: #fff; flex-direction: column;
+        padding: 20px; gap: 4px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+        transform: translateY(-10px);
+        opacity: 0; pointer-events: none;
+        transition: all 0.25s ease;
+      }
+      .nav-links.show { transform: translateY(0); opacity: 1; pointer-events: auto; }
+      .nav-links a { display: block; width: 100%; }
+      .nav-cta { text-align: center; }
+      .form-row { grid-template-columns: 1fr; }
+      .footer-grid { grid-template-columns: 1fr; text-align: center; }
+      table { font-size: 13px; }
+    }
+
+    /* Mobile responsiveness fix — no horizontal scroll, fits viewport */
+    html, body { overflow-x: hidden; max-width: 100%; }
+    img, table { max-width: 100%; }
+    @media (max-width: 600px) {
+      .container { padding: 0 14px; }
+      .card { padding: 22px 18px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      th, td { padding: 10px 6px; font-size: 13px; }
+      .stat-tile { padding: 18px 14px; }
+      .stat-tile .num { font-size: 26px; }
+      .card-head, .section-title { flex-wrap: wrap; gap: 6px; }
+      .welcome-strip { padding: 40px 0 50px; }
+      .stats-row { gap: 12px; }
+    }
+
+    body { animation: pageFadeIn 0.35s ease both; }
+    body.is-leaving { animation: pageFadeOut 0.25s ease forwards; }
+    @keyframes pageFadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes pageFadeOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-6px); } }
+    @media (prefers-reduced-motion: reduce) { body, body.is-leaving { animation: none !important; } }
+  </style>
+</head>
+
+<body>
+
+  <header class="site-header">
+    <div class="container nav-wrap">
+      <a href="index.html" class="brand">
+        <img src="Images/SeedsOfSuccess_pic.jpeg" alt="Seeds of Success logo" class="brand-mark" />
+        <span>Seeds of Success</span>
+      </a>
+      <button class="hamburger" id="hamburger" aria-label="Open menu"><span></span><span></span><span></span></button>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="ourstudents.html">Our Students</a></li>
+        <li><a href="getinvolved.html">Get Involved</a></li>
+        <li><a href="tutor-dashboard.html" class="active">Dashboard</a></li>
+        <li><a href="login.html" class="nav-cta">Logout</a></li>
+      </ul>
+    </div>
+  </header>
+
+  <!-- Welcome -->
+  <section class="welcome-strip">
+    <div class="container">
+      <h1>Welcome back, Priya 👋</h1>
+      <p>Here's a quick view of your students and recent sessions.</p>
+    </div>
+  </section>
+
+  <!-- Stat tiles -->
+  <section class="container">
+    <div class="stats-row">
+      <div class="stat-tile">
+        <div class="num">3</div>
+        <div class="lbl">Active Students</div>
+      </div>
+      <div class="stat-tile">
+        <div class="num">12</div>
+        <div class="lbl">Sessions This Month</div>
+      </div>
+      <div class="stat-tile">
+        <div class="num">28</div>
+        <div class="lbl">Completed Sessions</div>
+      </div>
+      <div class="stat-tile">
+        <div class="num">4.6</div>
+        <div class="lbl">Avg. Progress (1–5)</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Profile Section -->
+  <section class="section">
+    <div class="container">
+      <div class="card">
+        <div class="section-title">
+          <h2>My Profile</h2>
+          <small>Keep your details up to date</small>
+        </div>
+        <div style="display:grid; grid-template-columns: auto 1fr; gap:24px; align-items:center;">
+          <div class="avatar" style="width:90px; height:90px; font-size:32px; font-family:'Playfair Display',serif;">P</div>
+          <div>
+            <h3 style="font-family:'Playfair Display',serif; color:#0d6e4f; font-size:22px;">Priya Krishnan</h3>
+            <p style="color:#5a6b66; font-size:14px; margin-top:2px;">📍 Virginia, USA · priya.k@example.com</p>
+            <div style="margin-top:14px; display:flex; flex-wrap:wrap; gap:8px;">
+              <span class="pill">English</span>
+              <span class="pill">Tamil</span>
+              <span class="pill">Phonics</span>
+              <span class="pill">Storytelling</span>
+            </div>
+            <div style="margin-top:14px; font-size:14px; color:#5a6b66;">
+              <strong style="color:#1f2d2a;">Availability:</strong> Sat &amp; Sun · 5–7 PM IST
+            </div>
+            <button class="btn btn-primary" style="margin-top:18px;" onclick="alert('In the live site, this would open the edit-profile form.')">✏️ Edit Profile</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main two-column area -->
+  <section class="section">
+    <div class="container two-col">
+
+      <!-- My students -->
+      <div class="card">
+        <div class="section-title">
+          <h2>My Students</h2>
+          <small>Assigned by admin</small>
+        </div>
+        <ul class="student-list" id="studentCards">
+          <li>
+            <div class="student-info">
+              <div class="avatar">A</div>
+              <div>
+                <h4>Arun K.</h4>
+                <p>Grade 5 · Govt. School, Madurai</p>
+              </div>
+            </div>
+            <span class="pill">Active</span>
+          </li>
+          <li>
+            <div class="student-info">
+              <div class="avatar alt">M</div>
+              <div>
+                <h4>Meena R.</h4>
+                <p>Grade 4 · Panchayat School, Trichy</p>
+              </div>
+            </div>
+            <span class="pill">Active</span>
+          </li>
+          <li>
+            <div class="student-info">
+              <div class="avatar">S</div>
+              <div>
+                <h4>Sundar V.</h4>
+                <p>Grade 6 · Govt. School, Salem</p>
+              </div>
+            </div>
+            <span class="pill alt">Paused</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Log a session -->
+      <div class="card">
+        <div class="section-title">
+          <h2>Log a Session</h2>
+          <small>Stay on track 📒</small>
+        </div>
+        <form onsubmit="logSession(event)">
+          <div class="form-group">
+            <label for="student">Student</label>
+            <select id="student" required>
+              <option>Arun K.</option>
+              <option>Meena R.</option>
+              <option>Sundar V.</option>
+            </select>
+          </div>
+          <div class="form-group">
+  <label for="time">Time</label>
+
+  <input type="number" id="hour" min="1" max="12" placeholder="Hour" required>
+
+  <input type="number" id="minute" min="0" max="59" placeholder="Minute" required>
+
+  <select id="ampm" required>
+    <option value="AM">AM</option>
+    <option value="PM">PM</option>
+  </select>
+</div>
+          <div class="form-group">
+            <label for="notes">Session Notes</label>
+            <textarea id="notes" placeholder="What did you cover today?" required></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary">Save Session</button>
+          <p id="logMsg" style="display:none; margin-top:14px; color:#0d6e4f; font-weight:500;">
+            ✓ Session saved (demo only).
+          </p>
+        </form>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- sessions -->
+  <section class="section" style="padding-top:0;">
+    <div class="container">
+      <div class="card">
+        <div class="section-title">
+          <h2>Session</h2>
+          <small>Last 5 sessions</small>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Student</th>
+              <th>Topic</th>
+              <th>Progress</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr data-progress-row>
+              <td>
+                <a href="#" class="student-link" data-student="Rajaram" title="View details">Rajaram</a>
+              </td>
+              <td>
+                <details class="topic-dropdown" open>
+                  <summary data-topic-summary>Assigned subjects/topics</summary>
+                  <div class="topic-checks" data-topics>
+                  <label><input type="checkbox" class="topic-box" data-topic /> Reading comprehension</label><br />
+                  <label><input type="checkbox" class="topic-box" data-topic /> Short stories</label><br />
+                                    <label><input type="checkbox" class="topic-box" data-topic checked /> Corrections</label><br />
+                  <label><input type="checkbox" class="topic-box" data-topic /> Grammar basics</label><br />
+                  <label><input type="checkbox" class="topic-box" data-topic /> Reading practice</label><br />
+                  </div>
+                </details>
+              </td>
+              <td>
+                <span class="progress-text" data-progress-text>0 / 5</span>
+                <span class="progress-bar"><span class="progress-fill" data-progress-fill style="width:0%"></span></span>
+              </td>
+            </tr>
+
+            <tr data-progress-row>
+              <td><a href="#" class="student-link" data-student="Tamil Iniyan" title="View details">Tamil Iniyan</a></td>
+              <td>
+                <details class="topic-dropdown">
+                  <summary data-topic-summary>Assigned subjects/topics</summary>
+                  <div class="topic-checks" data-topics>
+                  <label><input type="checkbox" class="topic-box" data-topic checked /> Phonics</label><br />
+                  <label><input type="checkbox" class="topic-box" data-topic checked /> Basic vocabulary</label><br />
+                  <label><input type="checkbox" class="topic-box" data-topic checked /> Reading drill</label><br />
+                  <label><input type="checkbox" class="topic-box" data-topic checked /> Writing practice</label><br />
+                  <label><input type="checkbox" class="topic-box" data-topic checked /> Conversation</label><br />
+                  </div>
+                </details>
+              </td>
+              <td>
+                <span class="progress-text" data-progress-text>0 / 5</span>
+                <span class="progress-bar"><span class="progress-fill" data-progress-fill style="width:0%"></span></span>
+              </td>
+            </tr>
+
+            <tr data-progress-row>
+              <td><a href="#" class="student-link" data-student="Sri Pooja" title="View details">Sri Pooja</a></td>
+              <td>
+                <details class="topic-dropdown">
+                  <summary data-topic-summary>Assigned subjects/topics</summary>
+                  <div class="topic-checks" data-topics>
+                  <label><input type="checkbox" class="topic-box" data-topic checked /> Sentence building</label><br />
+                  <label><input type="checkbox" class="topic-box" data-topic checked /> Practice exercises</label><br />
+                  <label><input type="checkbox" class="topic-box" data-topic checked /> Corrections</label><br />
+                  <label><input type="checkbox" class="topic-box" data-topic /> Grammar basics</label><br />
+                  <label><input type="checkbox" class="topic-box" data-topic /> Reading practice</label><br />
+                  </div>
+                </details>
+              </td>
+              <td>
+                <span class="progress-text" data-progress-text>0 / 5</span>
+                <span class="progress-bar"><span class="progress-fill" data-progress-fill style="width:0%"></span></span>
+              </td>
+            </tr>
+
+            <tr data-progress-row>
+              <td><a href="#" class="student-link" data-student="Keerthi Sri" title="View details">Keerthi Sri</a></td>
+              <td>
+                <details class="topic-dropdown">
+                  <summary data-topic-summary>Assigned subjects/topics</summary>
+                  <div class="topic-checks" data-topics>
+                  <label><input type="checkbox" class="topic-box" data-topic checked /> Greetings</label><br />
+                  <label><input type="checkbox" class="topic-box" data-topic checked /> Introductions</label><br />
+                  <label><input type="checkbox" class="topic-box" data-topic checked /> Short dialogues</label><br />
+                  <label><input type="checkbox" class="topic-box" data-topic /> Polite phrases</label><br />
+                  <label><input type="checkbox" class="topic-box" data-topic /> Listening reinforcement</label><br />
+                  </div>
+                </details>
+              </td>
+              <td>
+                <span class="progress-text" data-progress-text>0 / 5</span>
+                <span class="progress-bar"><span class="progress-fill" data-progress-fill style="width:0%"></span></span>
+              </td>
+            </tr>
+
+            <tr data-progress-row>
+              <td><a href="#" class="student-link" data-student="Thangamuthu Pechi" title="View details">Thangamuthu Pechi</a></td>
+              <td>
+                <details class="topic-dropdown">
+                  <summary data-topic-summary>Assigned subjects/topics</summary>
+                  <div class="topic-checks" data-topics>
+                  <label><input type="checkbox" class="topic-box" data-topic checked /> Listening</label><br />
+                  <label><input type="checkbox" class="topic-box" data-topic checked /> Song lyrics</label><br />
+                  <label><input type="checkbox" class="topic-box" data-topic checked /> Comprehension</label><br />
+                  <label><input type="checkbox" class="topic-box" data-topic checked /> Vocabulary from audio</label><br />
+                  <label><input type="checkbox" class="topic-box" data-topic checked /> Summary practice</label><br />
+                  </div>
+                </details>
+              </td>
+              <td>
+                <span class="progress-text" data-progress-text>0 / 5</span>
+                <span class="progress-bar"><span class="progress-fill" data-progress-fill style="width:0%"></span></span>
+              </td>
+            </tr>
+            <tr data-progress-row>
+              <td><a href="#" class="student-link" data-student="Sibiraj" title="View details">Sibiraj</a></td>
+              <td>
+                <details class="topic-dropdown">
+                  <summary data-topic-summary>Assigned subjects/topics</summary>
+                  <div class="topic-checks" data-topics>
+                  <label><input type="checkbox" class="topic-box" data-topic checked /> Listening</label><br />
+                  <label><input type="checkbox" class="topic-box" data-topic checked /> Song lyrics</label><br />
+                  <label><input type="checkbox" class="topic-box" data-topic checked /> Comprehension</label><br />
+                  <label><input type="checkbox" class="topic-box" data-topic checked /> Vocabulary from audio</label><br />
+                  <label><input type="checkbox" class="topic-box" data-topic checked /> Summary practice</label><br />
+                  </div>
+                </details>
+              </td>
+              <td>
+                <span class="progress-text" data-progress-text>0 / 5</span>
+                <span class="progress-bar"><span class="progress-fill" data-progress-fill style="width:0%"></span></span>
+              </td>
+            </tr>
+            <tr data-progress-row>
+              <td><a href="#" class="student-link" data-student="Lakshitha" title="View details">Lakshitha</a></td>
+              <td>
+                <details class="topic-dropdown">
+                  <summary data-topic-summary>Assigned subjects/topics</summary>
+                  <div class="topic-checks" data-topics>
+                  <label><input type="checkbox" class="topic-box" data-topic checked /> Sentence building</label><br />
+                  <label><input type="checkbox" class="topic-box" data-topic checked /> Practice exercises</label><br />
+                  <label><input type="checkbox" class="topic-box" data-topic checked /> Corrections</label><br />
+                  <label><input type="checkbox" class="topic-box" data-topic /> Grammar basics</label><br />
+                  <label><input type="checkbox" class="topic-box" data-topic /> Reading practice</label><br />
+                  </div>
+                </details>
+              </td>
+              <td>
+                <span class="progress-text" data-progress-text>0 / 5</span>
+                <span class="progress-bar"><span class="progress-fill" data-progress-fill style="width:0%"></span></span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Progress Tracking + Schedule -->
+  <section class="section" style="padding-top:0;">
+    <div class="container two-col">
+
+      <!-- Progress tracking -->
+      <div class="card">
+        <div class="section-title">
+          <h2>Progress Tracking</h2>
+          <small>Student performance &amp; improvements</small>
+        </div>
+
+        <div style="padding:14px 0; border-bottom:1px solid #eef3f0;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <a href="#" class="progress-card student-link" data-student="Tamil Iniyan"><strong style="font-size:15px;">Tamil Iniyan</strong></a>
+            <span style="font-size:13px; color:#0d6e4f; font-weight:600;">80% · ▲ 12%</span>
+          </div>
+          <span class="progress-bar" style="width:100%; display:block; height:8px;"><span style="width:80%"></span></span>
+          <p style="font-size:13px; color:#5a6b66; margin-top:6px;">Reading fluency improved noticeably this month.</p>
+        </div>
+
+        <div style="padding:14px 0; border-bottom:1px solid #eef3f0;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <a href="#" class="progress-card student-link" data-student="Lakshitha"><strong style="font-size:15px;">Lakshitha</strong></a>
+            <span style="font-size:13px; color:#0d6e4f; font-weight:600;">92% · ▲ 8%</span>
+          </div>
+          <span class="progress-bar" style="width:100%; display:block; height:8px;"><span style="width:92%"></span></span>
+          <p style="font-size:13px; color:#5a6b66; margin-top:6px;">Excellent grasp of phonics &amp; vocabulary.</p>
+        </div>
+
+        <div style="padding:14px 0;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <a href="#" class="progress-card student-link" data-student="Sibiraj"><strong style="font-size:15px;">Sibiraj</strong></a>
+            <span style="font-size:13px; color:#a06b00; font-weight:600;">55% · needs focus</span>
+          </div>
+          <span class="progress-bar" style="width:100%; display:block; height:8px;"><span style="width:55%"></span></span>
+          <p style="font-size:13px; color:#5a6b66; margin-top:6px;">Recommend extra practice on greetings.</p>
+        </div>
+      </div>
+
+      <!-- Schedule -->
+      <div class="card">
+        <div class="section-title">
+          <h2>Schedule</h2>
+          <small>Upcoming sessions 📅</small>
+        </div>
+
+        <div style="display:flex; gap:14px; padding:14px 0; border-bottom:1px solid #eef3f0;">
+          <div style="flex-shrink:0; width:60px; text-align:center; background:#fff8eb; border-radius:10px; padding:10px 4px;">
+            <div style="font-family:'Playfair Display',serif; font-size:24px; color:#0d6e4f; font-weight:700;">05</div>
+            <div style="font-size:11px; color:#a06b00; font-weight:600; text-transform:uppercase;">May</div>
+          </div>
+          <div>
+            <h4 style="font-size:15px; font-weight:600;">Arun K. — Reading &amp; Storytelling</h4>
+            <p style="font-size:13px; color:#5a6b66;">⏰ 5:00 PM IST · 45 min</p>
+          </div>
+        </div>
+
+        <div style="display:flex; gap:14px; padding:14px 0; border-bottom:1px solid #eef3f0;">
+          <div style="flex-shrink:0; width:60px; text-align:center; background:#fff8eb; border-radius:10px; padding:10px 4px;">
+            <div style="font-family:'Playfair Display',serif; font-size:24px; color:#0d6e4f; font-weight:700;">07</div>
+            <div style="font-size:11px; color:#a06b00; font-weight:600; text-transform:uppercase;">May</div>
+          </div>
+          <div>
+            <h4 style="font-size:15px; font-weight:600;">Meena R. — Vocabulary Game</h4>
+            <p style="font-size:13px; color:#5a6b66;">⏰ 6:00 PM IST · 30 min</p>
+          </div>
+        </div>
+
+        <div style="display:flex; gap:14px; padding:14px 0; border-bottom:1px solid #eef3f0;">
+          <div style="flex-shrink:0; width:60px; text-align:center; background:#fff8eb; border-radius:10px; padding:10px 4px;">
+            <div style="font-family:'Playfair Display',serif; font-size:24px; color:#0d6e4f; font-weight:700;">12</div>
+            <div style="font-size:11px; color:#a06b00; font-weight:600; text-transform:uppercase;">May</div>
+          </div>
+          <div>
+            <h4 style="font-size:15px; font-weight:600;">Sundar V. — Grammar Practice</h4>
+            <p style="font-size:13px; color:#5a6b66;">⏰ 5:00 PM IST · 45 min</p>
+          </div>
+        </div>
+
+        <div style="display:flex; gap:14px; padding:14px 0;">
+          <div style="flex-shrink:0; width:60px; text-align:center; background:#fff8eb; border-radius:10px; padding:10px 4px;">
+            <div style="font-family:'Playfair Display',serif; font-size:24px; color:#0d6e4f; font-weight:700;">19</div>
+            <div style="font-size:11px; color:#a06b00; font-weight:600; text-transform:uppercase;">May</div>
+          </div>
+          <div>
+            <h4 style="font-size:15px; font-weight:600;">Arun K. — Sentence Building</h4>
+            <p style="font-size:13px; color:#5a6b66;">⏰ 5:00 PM IST · 45 min</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <div class="modal-backdrop" id="studentDetailPopup" role="dialog" aria-modal="true" aria-labelledby="studentDetailTitle">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3 id="studentDetailTitle">Student Progress</h3>
+        <button class="modal-close" id="studentDetailPopupClose" type="button" aria-label="Close student details">&times;</button>
+      </div>
+      <p id="studentDetailOverall" style="color:#0d6e4f; font-weight:600; margin-bottom:14px;">0 / 0 Completed</p>
+      <h4 style="font-size:14px; color:#1f2d2a; margin-bottom:6px;">Completed Topics</h4>
+      <ul class="detail-list" id="studentDetailTopics"></ul>
+      <h4 style="font-size:14px; color:#1f2d2a; margin-bottom:6px;">Scores &amp; Marks</h4>
+      <ul class="detail-list" id="studentDetailScores"></ul>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <h4>Seeds of Success</h4>
+          <p>A youth-led, registered nonprofit in Virginia, USA — connecting Tamil-origin tutors abroad with rural children in Tamil Nadu through meaningful 1-on-1 English tutoring partnerships.</p>
+        </div>
+        <div>
+          <h4>Quick Links</h4>
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="ourteam.html">Our Team</a></li>
+            <li><a href="ourstudents.html">Our Students</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Get In Touch</h4>
+          <ul>
+            <li><a href="getinvolved.html">Get Involved</a></li>
+            <li><a href="volunteer.html">Volunteer</a></li>
+            <li><a href="mailto:contact@soslearn.org">contact@soslearn.org</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">© 2025 Seeds of Success. All rights reserved.</div>
+    </div>
+  </footer>
+
+  <script>
+    const hamburger = document.getElementById('hamburger');
+    const navLinks  = document.getElementById('navLinks');
+    hamburger.addEventListener('click', () => {
+      hamburger.classList.toggle('open');
+      navLinks.classList.toggle('show');
+    });
+
+    function logSession(e) {
+      e.preventDefault();
+      document.getElementById('logMsg').style.display = 'block';
+      e.target.reset();
+    }
+
+    // Sessions table: checkbox => progress (0..5)
+    function updateProgressRow(row) {
+      const boxes = row.querySelectorAll('input.topic-box[data-topic]');
+      const total = boxes.length;
+      const checkedCount = Array.from(boxes).filter(b => b.checked).length;
+      const pct = total ? (checkedCount / total) * 100 : 0;
+
+      const textEl = row.querySelector('[data-progress-text]');
+      const fillEl = row.querySelector('[data-progress-fill]');
+      const summaryEl = row.querySelector('[data-topic-summary]');
+      if (textEl) textEl.textContent = `${checkedCount}/${total} Completed`;
+      if (fillEl) fillEl.style.width = `${pct}%`;
+      if (summaryEl) summaryEl.textContent = `${checkedCount}/${total} Completed`;
+    }
+
+    document.querySelectorAll('tr[data-progress-row]').forEach(row => {
+      updateProgressRow(row);
+      row.querySelectorAll('input.topic-box[data-topic]').forEach(cb => {
+        cb.addEventListener('change', () => updateProgressRow(row));
+      });
+    });
+
+    // Progress Tracking: clicking a student name opens a detailed popup
+    const popup = document.getElementById('studentDetailPopup');
+    const popupClose = document.getElementById('studentDetailPopupClose');
+    const popupTitle = document.getElementById('studentDetailTitle');
+    const popupTopics = document.getElementById('studentDetailTopics');
+    const popupScores = document.getElementById('studentDetailScores');
+    const popupOverall = document.getElementById('studentDetailOverall');
+
+    function closePopup() {
+      if (!popup) return;
+      popup.classList.remove('open');
+    }
+
+    document.querySelectorAll('.student-link').forEach(a => {
+      a.addEventListener('click', (e) => {
+        e.preventDefault();
+        const studentName = a.dataset.student;
+
+        const row = a.closest('tr[data-progress-row]') ||
+          Array.from(document.querySelectorAll('tr[data-progress-row]')).find(progressRow => {
+            const link = progressRow.querySelector('.student-link');
+            return link && link.dataset.student === studentName;
+          });
+        const boxes = row ? row.querySelectorAll('input.topic-box[data-topic]') : [];
+        const topics = Array.from(boxes).map(cb => {
+          const label = cb.parentElement.textContent.trim();
+          return { label, checked: cb.checked };
+        });
+        const completed = topics.filter(t => t.checked);
+        const total = topics.length;
+        const checkedCount = completed.length;
+
+        if (popupTitle) popupTitle.textContent = studentName;
+        if (popupTopics) {
+          popupTopics.innerHTML = completed.length
+            ? completed.map(t => `<li>${t.label}</li>`).join('')
+            : '<li><em>No completed topics yet.</em></li>';
+        }
+
+        // Demo-only scores/overall marks (until backend is wired)
+        const score = total ? Math.round((checkedCount / total) * 100) : 0;
+        const overall = `${checkedCount}/${total} Completed`;
+        if (popupOverall) popupOverall.textContent = overall;
+        if (popupScores) {
+          popupScores.innerHTML = completed.length
+            ? `<li>Completed Topics: <strong>${checkedCount}</strong></li><li>Topic Score: <strong>${score}%</strong></li><li>Overall Marks: <strong>${score} / 100</strong></li>`
+            : `<li><em>No scores available yet.</em></li>`;
+        }
+
+        popup.classList.add('open');
+      });
+    });
+
+    if (popupClose) popupClose.addEventListener('click', closePopup);
+    if (popup) popup.addEventListener('click', (e) => {
+      if (e.target === popup) closePopup();
+    });
+
+
+    document.querySelectorAll('a[href]').forEach(link => {
+      const href = link.getAttribute('href');
+      if (!href || href.startsWith('#') || href.startsWith('http') ||
+          href.startsWith('mailto:') || href.startsWith('tel:') ||
+          link.target === '_blank') return;
+      link.addEventListener('click', e => {
+        e.preventDefault();
+        document.body.classList.add('is-leaving');
+        setTimeout(() => { window.location.href = href; }, 250);
+      });
+    });
+    window.addEventListener('pageshow', e => {
+      if (e.persisted) document.body.classList.remove('is-leaving');
+    });
+  </script>
+</body>
+</html>

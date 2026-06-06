@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/jpeg" href="Images/SeedsOfSuccess_pic.jpeg" />
+  <title>Get Involved | Seeds of Success</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ---------------------------------------------------------
+       Seeds of Success — Get Involved Page
+       --------------------------------------------------------- */
+
+    /* 1. Reset */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Poppins', system-ui, -apple-system, sans-serif;
+      color: #1f2d2a;
+      background: #ffffff;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* 2. Header & nav */
+    .site-header {
+      position: sticky; top: 0; z-index: 100;
+      background: #ffffff;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+    .nav-wrap {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 0;
+    }
+    .brand {
+      display: flex; align-items: center; gap: 12px;
+      font-family: 'Playfair Display', serif;
+      font-weight: 700; font-size: 22px; color: #0d6e4f;
+    }
+    .brand-mark {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: linear-gradient(135deg, #0d6e4f, #f5a623);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 20px; font-weight: 700;
+      object-fit: cover;
+    }
+    .nav-links {
+      display: flex; gap: 8px; list-style: none; align-items: center;
+    }
+    .nav-links a {
+      padding: 10px 16px; font-weight: 500; font-size: 15px;
+      color: #1f2d2a; border-radius: 8px;
+      transition: all 0.25s ease;
+    }
+    .nav-links a:hover { background: #f5f9f7; color: #0d6e4f; }
+    .nav-links a.active { color: #0d6e4f; font-weight: 600; }
+    .nav-cta {
+      background: #0d6e4f; color: #fff !important;
+      padding: 10px 22px !important; border-radius: 30px !important;
+      font-weight: 600 !important;
+    }
+    .nav-cta:hover { background: #0a5239 !important; color: #fff !important; }
+
+    /* 3. Hamburger */
+    .hamburger {
+      display: none; flex-direction: column; gap: 5px;
+      background: none; border: none; cursor: pointer; padding: 8px;
+    }
+    .hamburger span {
+      display: block; width: 26px; height: 3px;
+      background: #0d6e4f; border-radius: 2px;
+      transition: all 0.3s ease;
+    }
+    .hamburger.open span:nth-child(1) { transform: translateY(8px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
+
+    /* 4. Page hero */
+    .page-hero {
+      background: linear-gradient(135deg, #0d6e4f, #14906a);
+      color: #fff;
+      padding: 90px 0 80px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .page-hero::after {
+      content: "";
+      position: absolute; inset: 0;
+      background: radial-gradient(circle at 30% 70%, rgba(245,166,35,0.18), transparent 50%);
+    }
+    .page-hero-inner { position: relative; }
+    .page-hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(34px, 5vw, 50px);
+      margin-bottom: 14px;
+    }
+    .page-hero p { font-size: 18px; opacity: 0.92; max-width: 680px; margin: 0 auto; }
+
+    /* 5. Intro section */
+    .section { padding: 80px 0; }
+    .intro {
+      max-width: 820px;
+      margin: 0 auto;
+      text-align: center;
+      color: #3e4d49;
+      font-size: 17px;
+    }
+    .intro h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(26px, 3.5vw, 36px);
+      color: #0d6e4f;
+      margin-bottom: 14px;
+    }
+    .intro p { margin-bottom: 16px; }
+    .intro .highlight {
+      background: #fff8eb;
+      border-left: 4px solid #f5a623;
+      padding: 18px 22px;
+      border-radius: 8px;
+      text-align: left;
+      margin-top: 24px;
+    }
+    .intro .highlight strong { color: #0d6e4f; }
+
+    /* 6. Roles grid */
+    .section-soft { background: #f5f9f7; }
+    .section-title {
+      text-align: center;
+      margin-bottom: 50px;
+    }
+    .section-title h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(26px, 3.5vw, 36px);
+      color: #0d6e4f;
+      margin-bottom: 10px;
+    }
+    .section-title p { color: #5a6b66; max-width: 620px; margin: 0 auto; }
+    .section-title::after {
+      content: "";
+      display: block;
+      width: 60px; height: 4px;
+      background: #f5a623;
+      margin: 18px auto 0;
+      border-radius: 2px;
+    }
+
+    .roles-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+    }
+    .role-card {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 36px 28px;
+      box-shadow: 0 4px 18px rgba(13,110,79,0.08);
+      border: 1px solid #e8efec;
+      transition: all 0.3s ease;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .role-card::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 5px;
+      background: linear-gradient(90deg, #0d6e4f, #f5a623);
+    }
+    .role-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 14px 32px rgba(13,110,79,0.18);
+    }
+    .role-icon {
+      width: 70px; height: 70px;
+      margin: 0 auto 18px;
+      background: linear-gradient(135deg, #0d6e4f, #14906a);
+      border-radius: 50%;
+      display: flex;
+      align-items: center; justify-content: center;
+      color: #fff; font-size: 30px;
+    }
+    .role-icon.alt { background: linear-gradient(135deg, #f5a623, #f7b945); color: #1f2d2a; }
+    .role-card h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      color: #0d6e4f;
+      margin-bottom: 12px;
+    }
+    .role-card p {
+      color: #5a6b66;
+      font-size: 15px;
+    }
+
+    /* 7a. Donation section */
+    .donate-section { padding: 80px 0; background: #ffffff; }
+    .donate-card {
+      max-width: 880px;
+      margin: 0 auto;
+      background: linear-gradient(135deg, #fff8eb 0%, #ffffff 100%);
+      border: 1px solid #f4e4c1;
+      border-radius: 20px;
+      padding: 50px 44px;
+      text-align: center;
+      box-shadow: 0 12px 40px rgba(245,166,35,0.10);
+    }
+    .donate-card h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(26px, 3.5vw, 34px);
+      color: #0d6e4f;
+      margin-bottom: 12px;
+    }
+    .donate-card .lead {
+      width: 60px; height: 4px;
+      background: #f5a623;
+      border-radius: 2px;
+      margin: 14px auto 22px;
+    }
+    .donate-card p { color: #3e4d49; font-size: 16px; max-width: 620px; margin: 0 auto 28px; }
+    .amount-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      max-width: 560px;
+      margin: 0 auto 24px;
+    }
+    .amount-btn {
+      padding: 16px 10px;
+      background: #ffffff;
+      border: 2px solid #e8efec;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 16px;
+      color: #1f2d2a;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+    .amount-btn:hover {
+      border-color: #0d6e4f;
+      color: #0d6e4f;
+      transform: translateY(-2px);
+    }
+    .amount-btn.active {
+      background: #0d6e4f;
+      color: #fff;
+      border-color: #0d6e4f;
+    }
+    .donate-actions {
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+    .btn-donate {
+      background: #f5a623;
+      color: #1f2d2a;
+      padding: 14px 36px;
+      border-radius: 30px;
+      font-weight: 600;
+      font-size: 15px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+    .btn-donate:hover { background: #e29515; transform: translateY(-2px); }
+    .btn-donate-outline {
+      background: transparent;
+      color: #0d6e4f;
+      border: 2px solid #0d6e4f;
+      padding: 12px 32px;
+      border-radius: 30px;
+      font-weight: 600;
+      font-size: 15px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      font-family: inherit;
+    }
+    .btn-donate-outline:hover { background: #0d6e4f; color: #fff; }
+    .donate-tags {
+      display: flex;
+      justify-content: center;
+      gap: 18px;
+      margin-top: 26px;
+      flex-wrap: wrap;
+      font-size: 13px;
+      color: #5a6b66;
+    }
+    .donate-tags span { display: inline-flex; align-items: center; gap: 6px; }
+    .donate-tags strong { color: #0d6e4f; }
+
+    @media (max-width: 600px) {
+      .amount-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    /* 7. Closing message */
+    .closing-band {
+      background: linear-gradient(135deg, #0d6e4f, #14906a);
+      color: #fff;
+      padding: 80px 0;
+      text-align: center;
+    }
+    .closing-band h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(26px, 3.5vw, 36px);
+      margin-bottom: 16px;
+    }
+    .closing-band p {
+      max-width: 720px;
+      margin: 0 auto 30px;
+      font-size: 18px;
+      opacity: 0.95;
+    }
+    .btn {
+      display: inline-block;
+      padding: 14px 34px;
+      border-radius: 30px;
+      font-weight: 600;
+      font-size: 15px;
+      transition: all 0.25s ease;
+      border: none;
+      cursor: pointer;
+    }
+    .btn-amber {
+      background: #f5a623;
+      color: #1f2d2a;
+    }
+    .btn-amber:hover { background: #e29515; transform: translateY(-2px); }
+
+    /* 8. Footer */
+    .site-footer {
+      background: #102a23; color: #c8d6d1;
+      padding: 60px 0 24px;
+    }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: 40px;
+      margin-bottom: 40px;
+    }
+    .footer-grid h4 {
+      color: #fff; font-size: 16px; margin-bottom: 18px;
+      letter-spacing: 1px; text-transform: uppercase;
+    }
+    .footer-grid p, .footer-grid a, .footer-grid li {
+      font-size: 14px; line-height: 1.9;
+    }
+    .footer-grid a:hover { color: #f5a623; }
+    .footer-grid ul { list-style: none; }
+    .footer-bottom {
+      border-top: 1px solid #1f3d35;
+      padding-top: 22px; text-align: center;
+      font-size: 13px; color: #8aa39c;
+    }
+
+    /* 9. Responsive */
+    @media (max-width: 960px) {
+      .roles-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 768px) {
+      .hamburger { display: flex; }
+      .nav-links {
+        position: absolute; top: 100%; left: 0; right: 0;
+        background: #fff; flex-direction: column;
+        padding: 20px; gap: 4px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+        transform: translateY(-10px);
+        opacity: 0; pointer-events: none;
+        transition: all 0.25s ease;
+      }
+      .nav-links.show {
+        transform: translateY(0);
+        opacity: 1; pointer-events: auto;
+      }
+      .nav-links a { display: block; width: 100%; }
+      .nav-cta { text-align: center; }
+    }
+    @media (max-width: 600px) {
+      .roles-grid { grid-template-columns: 1fr; }
+      .footer-grid { grid-template-columns: 1fr; text-align: center; }
+    }
+
+    /* 10. Page transitions */
+    body { animation: pageFadeIn 0.35s ease both; }
+    body.is-leaving { animation: pageFadeOut 0.25s ease forwards; }
+    @keyframes pageFadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pageFadeOut {
+      from { opacity: 1; transform: translateY(0); }
+      to   { opacity: 0; transform: translateY(-6px); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      body, body.is-leaving { animation: none !important; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ============== HEADER ============== -->
+  <header class="site-header">
+    <div class="container nav-wrap">
+      <a href="index.html" class="brand">
+        <img src="Images/SeedsOfSuccess_pic.jpeg" alt="Seeds of Success logo" class="brand-mark" />
+        <span>Seeds of Success</span>
+      </a>
+      <button class="hamburger" id="hamburger" aria-label="Open menu">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="ourteam.html">Our Team</a></li>
+        <li><a href="ourstudents.html">Our Students</a></li>
+        <li><a href="getinvolved.html" class="active">Get Involved</a></li>
+        <li><a href="login.html">Login</a></li>
+        <li><a href="volunteer.html" class="nav-cta">Volunteer</a></li>
+      </ul>
+    </div>
+  </header>
+
+  <!-- ============== PAGE HERO ============== -->
+  <section class="page-hero">
+    <div class="container page-hero-inner">
+      <h1>Support Us</h1>
+      <p>It takes many hearts and helping hands to plant a seed of success.</p>
+    </div>
+  </section>
+
+  <!-- ============== INTRO ============== -->
+  <section class="section">
+    <div class="container">
+      <div class="intro">
+        <h2>Be Part of the Journey</h2>
+        <p>Our goal for <strong>2025</strong> is to expand to teach as many kids as possible from rural Tamil Nadu.</p>
+        <p>It takes many hearts and helping hands to run a program like this — tutors, coordinators, technology helpers, curriculum developers, and supporters. Whether you are a student looking to volunteer, a parent who wants to get involved, or a well-wisher who wants to support with resources, you are welcome to be part of this journey.</p>
+        <div class="highlight">
+          By partnering with us, you are not just helping teach English. You are <strong>connecting cultures, preserving roots, and empowering futures.</strong>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== ROLES GRID ============== -->
+  <section class="section section-soft">
+    <div class="container">
+      <div class="section-title">
+        <h2>Ways to Help</h2>
+        <p>Choose a role that fits your time, talent and passion.</p>
+      </div>
+
+      <div class="roles-grid">
+
+        <div class="role-card">
+          <div class="role-icon">📚</div>
+          <h3>Become a Tutor</h3>
+          <p>Teach a child English 1-on-1 through fun, structured online sessions and become their guide for life.</p>
+        </div>
+
+        <div class="role-card">
+          <div class="role-icon alt">🤝</div>
+          <h3>Mentor / Coordinator</h3>
+          <p>Help match tutors with students, schedule sessions, and ensure smooth communication on both sides.</p>
+        </div>
+
+        <div class="role-card">
+          <div class="role-icon">📖</div>
+          <h3>Curriculum Developer</h3>
+          <p>Design lessons, worksheets and activities that make English engaging, practical and culturally relevant.</p>
+        </div>
+
+        <div class="role-card">
+          <div class="role-icon alt">💻</div>
+          <h3>Technology Implementor</h3>
+          <p>Help build and maintain the tools that power our tutoring platform, website and student tracking systems.</p>
+        </div>
+
+        <div class="role-card">
+          <div class="role-icon">✨</div>
+          <h3>Behind-the-Scene Helper</h3>
+          <p>Support outreach, content creation, social media, fundraising, or anywhere else your skills can shine.</p>
+        </div>
+
+        <div class="role-card">
+          <div class="role-icon alt">❤️</div>
+          <h3>Well-Wisher / Supporter</h3>
+          <p>Spread the word, donate resources, or simply cheer us on. Every act of support helps a child grow.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== DONATE SECTION ============== -->
+  <section class="donate-section">
+    <div class="container">
+      <div class="donate-card">
+        <h2>Make a Donation</h2>
+        <div class="lead"></div>
+        <p>Every contribution helps us reach more children in rural Tamil Nadu — funding learning materials, internet connectivity, and tutor training. Choose an amount, or enter your own.</p>
+
+        <div class="amount-grid">
+          <button type="button" class="amount-btn" onclick="pickAmount(this, 250)">₹250</button>
+          <button type="button" class="amount-btn active" onclick="pickAmount(this, 500)">₹500</button>
+          <button type="button" class="amount-btn" onclick="pickAmount(this, 1000)">₹1,000</button>
+          <button type="button" class="amount-btn" onclick="pickAmount(this, 2500)">₹2,500</button>
+        </div>
+
+        <div class="donate-actions">
+          <button type="button" class="btn-donate" onclick="donate()">Donate <span id="donateAmount">₹500</span></button>
+          <button type="button" class="btn-donate-outline" onclick="donate('custom')">Other Amount</button>
+        </div>
+
+        <div class="donate-tags">
+          <span>🔒 <strong>Secure</strong> payments</span>
+          <span>🧾 <strong>Tax-deductible</strong> in India &amp; USA</span>
+          <span>💳 UPI · Card · Netbanking</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== CLOSING CTA ============== -->
+  <section class="closing-band">
+    <div class="container">
+      <h2>Ready to make a difference?</h2>
+      <p>Fill out our short volunteer form and we'll connect with you to find the perfect role.</p>
+      <a href="volunteer.html" class="btn btn-amber">Sign Up to Volunteer</a>
+    </div>
+  </section>
+
+  <!-- ============== FOOTER ============== -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <h4>Seeds of Success</h4>
+          <p>A youth-led, registered nonprofit in Virginia, USA — connecting Tamil-origin tutors abroad with rural children in Tamil Nadu through meaningful 1-on-1 English tutoring partnerships.</p>
+        </div>
+        <div>
+          <h4>Quick Links</h4>
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="ourteam.html">Our Team</a></li>
+            <li><a href="ourstudents.html">Our Students</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Get In Touch</h4>
+          <ul>
+            <li><a href="getinvolved.html">Get Involved</a></li>
+            <li><a href="volunteer.html">Volunteer</a></li>
+            <li><a href="mailto:contact@soslearn.org">contact@soslearn.org</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        © 2025 Seeds of Success. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const hamburger = document.getElementById('hamburger');
+    const navLinks  = document.getElementById('navLinks');
+    hamburger.addEventListener('click', () => {
+      hamburger.classList.toggle('open');
+      navLinks.classList.toggle('show');
+    });
+
+    // Static-only donation flow
+    let selectedAmount = 500;
+    function pickAmount(btn, amt) {
+      document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      selectedAmount = amt;
+      document.getElementById('donateAmount').textContent = '₹' + amt.toLocaleString('en-IN');
+    }
+    function donate(mode) {
+      if (mode === 'custom') {
+        const v = prompt('Enter the amount you would like to donate (₹):', '500');
+        if (!v || isNaN(v) || Number(v) <= 0) return;
+        selectedAmount = Number(v);
+      }
+      alert('Thank you for your generosity! In the live site this would open a secure payment popup for ₹' + selectedAmount.toLocaleString('en-IN') + '.');
+    }
+
+    // Smooth page transitions for internal links
+    document.querySelectorAll('a[href]').forEach(link => {
+      const href = link.getAttribute('href');
+      if (!href || href.startsWith('#') || href.startsWith('http') ||
+          href.startsWith('mailto:') || href.startsWith('tel:') ||
+          link.target === '_blank') return;
+      link.addEventListener('click', e => {
+        e.preventDefault();
+        document.body.classList.add('is-leaving');
+        setTimeout(() => { window.location.href = href; }, 250);
+      });
+    });
+    window.addEventListener('pageshow', e => {
+      if (e.persisted) document.body.classList.remove('is-leaving');
+    });
+  </script>
+
+</body>
+</html>

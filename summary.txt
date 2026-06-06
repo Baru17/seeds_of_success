@@ -1,0 +1,26 @@
+Summary of the current project (Seeds of Success)
+
+- Type: Static website (HTML + inline CSS and a small amount of inline JavaScript). No backend code is shown in the repo.
+- Purpose: NGO nonprofit site for “Seeds of Success,” focused on connecting Tamil-origin tutors abroad with rural children in Tamil Nadu through 1-on-1 English tutoring.
+- Current pages present (HTML):
+  - index.html (Home)
+  - about.html
+  - ourteam.html
+  - ourstudents.html
+  - getinvolved.html
+  - volunteer.html
+  - login.html
+  - signup.html
+  - admin.html
+  - student-dashboard.html
+  - tutor-dashboard.html
+  - volunteer-dashboard.html
+- Assets/folders:
+  - Images/ (e.g., the site logo is referenced as Images/SeedsOfSuccess_pic.jpeg)
+  - Students/ (student-related assets/content)
+- Blueprint / future direction:
+  - BLUEPRINT.md specifies a target architecture to turn the site into a dynamic, serverless (no PHP), browser-only app using Supabase + Vanilla JS.
+  - It proposes a new folder structure with src/js/ modules for Supabase client, auth helpers, dashboards, application handling, sessions/progress tracking, and testimonials.
+  - It also outlines target Supabase tables (profiles, applications, students, sessions, testimonials) and emphasizes enabling RLS policies.
+
+Net: You currently have a working marketing/static site plus a clear plan to evolve it into a Supabase-backed platform with authentication, dashboards, and dynamic content.

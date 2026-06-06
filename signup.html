@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/jpeg" href="Images/SeedsOfSuccess_pic.jpeg" />
+  <title>Sign Up | Seeds of Success</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ---------------------------------------------------------
+       Seeds of Success — Tutor Sign-up Page (static)
+       --------------------------------------------------------- */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Poppins', system-ui, -apple-system, sans-serif;
+      color: #1f2d2a;
+      background: #ffffff;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+    .container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+
+    .site-header {
+      position: sticky; top: 0; z-index: 100;
+      background: #ffffff;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+    .nav-wrap { display: flex; align-items: center; justify-content: space-between; padding: 18px 0; }
+    .brand { display: flex; align-items: center; gap: 12px; font-family: 'Playfair Display', serif; font-weight: 700; font-size: 22px; color: #0d6e4f; }
+    .brand-mark {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: linear-gradient(135deg, #0d6e4f, #f5a623);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 20px; font-weight: 700;
+      object-fit: cover;
+    }
+    .nav-links { display: flex; gap: 8px; list-style: none; align-items: center; }
+    .nav-links a { padding: 10px 16px; font-weight: 500; font-size: 15px; color: #1f2d2a; border-radius: 8px; transition: all 0.25s ease; }
+    .nav-links a:hover { background: #f5f9f7; color: #0d6e4f; }
+    .nav-cta { background: #0d6e4f; color: #fff !important; padding: 10px 22px !important; border-radius: 30px !important; font-weight: 600 !important; }
+    .nav-cta:hover { background: #0a5239 !important; color: #fff !important; }
+
+    .hamburger { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 8px; }
+    .hamburger span { display: block; width: 26px; height: 3px; background: #0d6e4f; border-radius: 2px; transition: all 0.3s ease; }
+    .hamburger.open span:nth-child(1) { transform: translateY(8px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
+
+    .page-hero {
+      background: linear-gradient(135deg, #0d6e4f, #14906a);
+      color: #fff;
+      padding: 90px 0 80px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .page-hero::after {
+      content: ""; position: absolute; inset: 0;
+      background: radial-gradient(circle at 30% 70%, rgba(245,166,35,0.18), transparent 50%);
+    }
+    .page-hero-inner { position: relative; }
+    .page-hero h1 { font-family: 'Playfair Display', serif; font-size: clamp(34px, 5vw, 50px); margin-bottom: 14px; }
+    .page-hero p { font-size: 18px; opacity: 0.92; max-width: 680px; margin: 0 auto; }
+
+    .auth-section { padding: 80px 0; background: #f5f9f7; }
+    .auth-card {
+      max-width: 560px; margin: 0 auto;
+      background: #ffffff;
+      border-radius: 20px;
+      padding: 50px 44px;
+      box-shadow: 0 12px 40px rgba(13,110,79,0.10);
+      border: 1px solid #e8efec;
+    }
+    .auth-card h2 { font-family: 'Playfair Display', serif; font-size: clamp(24px, 3vw, 30px); color: #0d6e4f; margin-bottom: 8px; text-align: center; }
+    .auth-card .lead { width: 50px; height: 4px; background: #f5a623; border-radius: 2px; margin: 14px auto 26px; }
+    .auth-card p.sub { text-align: center; color: #5a6b66; font-size: 15px; margin-bottom: 28px; }
+
+    .form-group { margin-bottom: 18px; }
+    .form-group label { display: block; font-size: 14px; font-weight: 500; color: #1f2d2a; margin-bottom: 6px; }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1.5px solid #d8e2dd;
+      border-radius: 10px;
+      font-size: 15px;
+      font-family: inherit;
+      color: #1f2d2a;
+      background: #ffffff;
+      transition: all 0.2s ease;
+    }
+    .form-group textarea { min-height: 90px; resize: vertical; }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+      outline: none;
+      border-color: #0d6e4f;
+      box-shadow: 0 0 0 3px rgba(13,110,79,0.10);
+    }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+    .btn {
+      display: inline-block; padding: 14px 32px; border-radius: 30px;
+      font-weight: 600; font-size: 15px; transition: all 0.25s ease;
+      border: none; cursor: pointer;
+    }
+    .btn-primary { background: #0d6e4f; color: #fff; width: 100%; }
+    .btn-primary:hover { background: #0a5239; transform: translateY(-1px); }
+
+    .auth-footer { text-align: center; margin-top: 24px; font-size: 14px; color: #5a6b66; }
+    .auth-footer a { color: #0d6e4f; font-weight: 600; }
+    .auth-footer a:hover { text-decoration: underline; }
+
+    .demo-note {
+      background: #fff8eb;
+      border-left: 4px solid #f5a623;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      color: #5a4a25;
+      margin-top: 20px;
+    }
+
+    /* Success message */
+    .success-card { display: none; text-align: center; }
+    .success-card.show { display: block; }
+    .success-card .check {
+      width: 70px; height: 70px;
+      background: linear-gradient(135deg, #0d6e4f, #14906a);
+      color: #fff;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 36px;
+    }
+
+    /* Footer */
+    .site-footer { background: #102a23; color: #c8d6d1; padding: 60px 0 24px; }
+    .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 40px; margin-bottom: 40px; }
+    .footer-grid h4 { color: #fff; font-size: 16px; margin-bottom: 18px; letter-spacing: 1px; text-transform: uppercase; }
+    .footer-grid p, .footer-grid a, .footer-grid li { font-size: 14px; line-height: 1.9; }
+    .footer-grid a:hover { color: #f5a623; }
+    .footer-grid ul { list-style: none; }
+    .footer-bottom { border-top: 1px solid #1f3d35; padding-top: 22px; text-align: center; font-size: 13px; color: #8aa39c; }
+
+    @media (max-width: 960px) { .footer-grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 768px) {
+      .hamburger { display: flex; }
+      .nav-links {
+        position: absolute; top: 100%; left: 0; right: 0;
+        background: #fff; flex-direction: column;
+        padding: 20px; gap: 4px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+        transform: translateY(-10px);
+        opacity: 0; pointer-events: none;
+        transition: all 0.25s ease;
+      }
+      .nav-links.show { transform: translateY(0); opacity: 1; pointer-events: auto; }
+      .nav-links a { display: block; width: 100%; }
+      .nav-cta { text-align: center; }
+      .auth-card { padding: 36px 24px; }
+      .form-row { grid-template-columns: 1fr; }
+      .footer-grid { grid-template-columns: 1fr; text-align: center; }
+    }
+
+    body { animation: pageFadeIn 0.35s ease both; }
+    body.is-leaving { animation: pageFadeOut 0.25s ease forwards; }
+    @keyframes pageFadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes pageFadeOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-6px); } }
+    @media (prefers-reduced-motion: reduce) { body, body.is-leaving { animation: none !important; } }
+  </style>
+</head>
+
+<body>
+
+  <header class="site-header">
+    <div class="container nav-wrap">
+      <a href="index.html" class="brand">
+        <img src="Images/SeedsOfSuccess_pic.jpeg" alt="Seeds of Success logo" class="brand-mark" />
+        <span>Seeds of Success</span>
+      </a>
+      <button class="hamburger" id="hamburger" aria-label="Open menu"><span></span><span></span><span></span></button>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="ourteam.html">Our Team</a></li>
+        <li><a href="ourstudents.html">Our Students</a></li>
+        <li><a href="getinvolved.html">Get Involved</a></li>
+        <li><a href="login.html">Login</a></li>
+        <li><a href="volunteer.html" class="nav-cta">Volunteer</a></li>
+      </ul>
+    </div>
+  </header>
+
+  <section class="page-hero">
+    <div class="container page-hero-inner">
+      <h1>Become a Tutor</h1>
+      <p>Create your tutor account and start changing lives, one session at a time.</p>
+    </div>
+  </section>
+
+  <section class="auth-section">
+    <div class="container">
+
+      <!-- Sign-up form -->
+      <div class="auth-card" id="formCard">
+        <h2>Tutor Sign Up</h2>
+        <div class="lead"></div>
+        <p class="sub">It only takes a minute. After signing up, an admin will approve your account.</p>
+
+        <form onsubmit="handleSignup(event)">
+          <div class="form-group">
+            <label for="fullname">Full Name</label>
+            <input type="text" id="fullname" placeholder="Priya Krishnan" required />
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input type="email" id="email" placeholder="you@example.com" required />
+            </div>
+            <div class="form-group">
+              <label for="phone">Phone</label>
+              <input type="tel" id="phone" placeholder="+1 555 123 4567" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="skills">Skills / Languages</label>
+            <input type="text" id="skills" placeholder="English, Tamil, Spoken English" />
+          </div>
+
+          <div class="form-group">
+            <label for="availability">Weekly Availability</label>
+            <select id="availability">
+              <option>1–2 hours / week</option>
+              <option>3–5 hours / week</option>
+              <option>6+ hours / week</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" placeholder="At least 6 characters" required minlength="6" />
+          </div>
+
+          <button type="submit" class="btn btn-primary">Create Account</button>
+        </form>
+
+        <div class="auth-footer">
+          Already have an account? <a href="login.html">Sign in</a>
+        </div>
+
+      </div>
+
+      <!-- Success message -->
+      <div class="auth-card success-card" id="successCard">
+        <div class="check">✓</div>
+        <h2>Account Created!</h2>
+        <div class="lead"></div>
+        <p class="sub">Thank you for signing up. An admin will review your application and reach out shortly.</p>
+        <a href="index.html" class="btn btn-primary" style="text-decoration:none; text-align:center;">Back to Home</a>
+      </div>
+
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <h4>Seeds of Success</h4>
+          <p>A youth-led, registered nonprofit in Virginia, USA — connecting Tamil-origin tutors abroad with rural children in Tamil Nadu through meaningful 1-on-1 English tutoring partnerships.</p>
+        </div>
+        <div>
+          <h4>Quick Links</h4>
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="ourteam.html">Our Team</a></li>
+            <li><a href="ourstudents.html">Our Students</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Get In Touch</h4>
+          <ul>
+            <li><a href="getinvolved.html">Get Involved</a></li>
+            <li><a href="volunteer.html">Volunteer</a></li>
+            <li><a href="mailto:contact@soslearn.org">contact@soslearn.org</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">© 2025 Seeds of Success. All rights reserved.</div>
+    </div>
+  </footer>
+
+  <script>
+    const hamburger = document.getElementById('hamburger');
+    const navLinks  = document.getElementById('navLinks');
+    hamburger.addEventListener('click', () => {
+      hamburger.classList.toggle('open');
+      navLinks.classList.toggle('show');
+    });
+
+    async function handleSignup(e) {
+  e.preventDefault();
+
+  const data = {
+    full_name: document.getElementById("fullname").value,
+    email: document.getElementById("email").value,
+    phone: document.getElementById("phone").value,
+    skills: document.getElementById("skills").value,
+    availability: document.getElementById("availability").value,
+    password: document.getElementById("password").value
+  };
+
+  try {
+
+    const response = await fetch(
+      "https://worker-api.bdharan06.workers.dev/api/tutor-signup",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+      }
+    );
+
+    const result = await response.json();
+
+    if (result.success) {
+
+      document.getElementById("formCard").style.display = "none";
+      document.getElementById("successCard").classList.add("show");
+
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      });
+
+    } else {
+
+      alert("Failed to create account");
+
+    }
+
+  } catch (error) {
+
+    console.error(error);
+    alert("Something went wrong");
+
+  }
+}
+
+    document.querySelectorAll('a[href]').forEach(link => {
+      const href = link.getAttribute('href');
+      if (!href || href.startsWith('#') || href.startsWith('http') ||
+          href.startsWith('mailto:') || href.startsWith('tel:') ||
+          link.target === '_blank') return;
+      link.addEventListener('click', e => {
+        e.preventDefault();
+        document.body.classList.add('is-leaving');
+        setTimeout(() => { window.location.href = href; }, 250);
+      });
+    });
+    window.addEventListener('pageshow', e => {
+      if (e.persisted) document.body.classList.remove('is-leaving');
+    });
+  </script>
+</body>
+</html>

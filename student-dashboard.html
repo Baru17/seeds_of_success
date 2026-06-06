@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/jpeg" href="Images/SeedsOfSuccess_pic.jpeg" />
+  <title>Student Dashboard | Seeds of Success</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ---------------------------------------------------------
+       Seeds of Success — Student Dashboard (static preview)
+       --------------------------------------------------------- */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Poppins', system-ui, -apple-system, sans-serif;
+      color: #1f2d2a;
+      background: #f5f9f7;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+    .container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+
+    /* Header */
+    .site-header {
+      position: sticky; top: 0; z-index: 100;
+      background: #ffffff;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+    .nav-wrap { display: flex; align-items: center; justify-content: space-between; padding: 18px 0; }
+    .brand { display: flex; align-items: center; gap: 12px; font-family: 'Playfair Display', serif; font-weight: 700; font-size: 22px; color: #0d6e4f; }
+    .brand-mark {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: linear-gradient(135deg, #0d6e4f, #f5a623);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 20px; font-weight: 700;
+      object-fit: cover;
+    }
+    .nav-links { display: flex; gap: 8px; list-style: none; align-items: center; }
+    .nav-links a { padding: 10px 16px; font-weight: 500; font-size: 15px; color: #1f2d2a; border-radius: 8px; transition: all 0.25s ease; }
+    .nav-links a:hover { background: #f5f9f7; color: #0d6e4f; }
+    .nav-links a.active { color: #0d6e4f; font-weight: 600; }
+    .nav-cta { background: #c9302c; color: #fff !important; padding: 10px 22px !important; border-radius: 30px !important; font-weight: 600 !important; }
+    .nav-cta:hover { background: #a82420 !important; }
+
+    .hamburger { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 8px; }
+    .hamburger span { display: block; width: 26px; height: 3px; background: #0d6e4f; border-radius: 2px; transition: all 0.3s ease; }
+    .hamburger.open span:nth-child(1) { transform: translateY(8px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
+
+    /* Welcome */
+    .welcome-strip {
+      background: linear-gradient(135deg, #0d6e4f, #14906a);
+      color: #fff;
+      padding: 50px 0 60px;
+    }
+    .welcome-strip h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(28px, 4vw, 38px);
+      margin-bottom: 8px;
+    }
+    .welcome-strip p { font-size: 16px; opacity: 0.92; }
+
+    /* Stats */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+      margin-top: -40px;
+      position: relative; z-index: 2;
+    }
+    .stat-tile {
+      background: #fff;
+      border-radius: 14px;
+      padding: 22px 20px;
+      box-shadow: 0 6px 20px rgba(13,110,79,0.08);
+      border: 1px solid #e8efec;
+    }
+    .stat-tile .num { font-family: 'Playfair Display', serif; font-size: 30px; color: #0d6e4f; font-weight: 700; }
+    .stat-tile .lbl { color: #5a6b66; font-size: 13px; margin-top: 4px; }
+
+    .section { padding: 50px 0; }
+    .section + .section { padding-top: 0; }
+
+    .card {
+      background: #fff; border-radius: 14px; padding: 28px;
+      border: 1px solid #e8efec;
+      box-shadow: 0 4px 14px rgba(13,110,79,0.05);
+    }
+    .card-head {
+      display: flex; align-items: baseline; justify-content: space-between;
+      margin-bottom: 18px;
+    }
+    .card-head h2 { font-family: 'Playfair Display', serif; font-size: 22px; color: #0d6e4f; }
+    .card-head small { color: #5a6b66; font-size: 13px; }
+
+    .two-col { display: grid; grid-template-columns: 1fr 1.3fr; gap: 24px; }
+
+    /* Tutor card */
+    .tutor-card { text-align: center; }
+    .avatar-big {
+      width: 90px; height: 90px;
+      margin: 0 auto 14px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #0d6e4f, #14906a);
+      color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 36px; font-weight: 700;
+      font-family: 'Playfair Display', serif;
+    }
+    .tutor-card h3 { font-family: 'Playfair Display', serif; font-size: 22px; color: #0d6e4f; }
+    .tutor-card .country {
+      display: inline-flex; align-items: center; gap: 6px;
+      margin-top: 4px;
+      font-size: 13px; color: #5a6b66;
+    }
+    .tutor-actions {
+      display: flex; gap: 10px; justify-content: center;
+      margin-top: 18px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      display: inline-block; padding: 10px 22px; border-radius: 30px;
+      font-weight: 600; font-size: 14px; transition: all 0.25s ease;
+      border: none; cursor: pointer;
+    }
+    .btn-primary { background: #0d6e4f; color: #fff; }
+    .btn-primary:hover { background: #0a5239; transform: translateY(-1px); }
+    .btn-outline { background: #fff; color: #0d6e4f; border: 1.5px solid #0d6e4f; }
+    .btn-outline:hover { background: #0d6e4f; color: #fff; }
+
+    .info-rows { margin-top: 18px; text-align: left; }
+    .info-rows .row {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      font-size: 14px;
+      border-bottom: 1px solid #eef3f0;
+    }
+    .info-rows .row:last-child { border-bottom: none; }
+    .info-rows .row span:first-child { color: #5a6b66; }
+    .info-rows .row span:last-child { color: #1f2d2a; font-weight: 500; }
+
+    /* Upcoming session */
+    .next-session {
+      background: linear-gradient(135deg, #fff8eb, #ffffff);
+      border: 1px solid #f4e4c1;
+      border-radius: 14px;
+      padding: 22px;
+      margin-bottom: 18px;
+      display: flex;
+      gap: 18px;
+      align-items: center;
+    }
+    .next-session .date-block {
+      width: 70px;
+      flex-shrink: 0;
+      text-align: center;
+      background: #fff;
+      border-radius: 10px;
+      padding: 10px 4px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+    .next-session .date-block .day {
+      font-family: 'Playfair Display', serif;
+      font-size: 28px;
+      color: #0d6e4f;
+      font-weight: 700;
+      line-height: 1;
+    }
+    .next-session .date-block .month {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #a06b00;
+      font-weight: 600;
+      margin-top: 2px;
+    }
+    .next-session .info h4 { font-size: 16px; font-weight: 600; }
+    .next-session .info p { font-size: 13px; color: #5a6b66; }
+    .next-session .info .time {
+      display: inline-block;
+      margin-top: 6px;
+      font-size: 12px;
+      padding: 3px 10px;
+      background: #e6f4ee;
+      color: #0d6e4f;
+      border-radius: 20px;
+      font-weight: 600;
+    }
+
+    /* Sessions table */
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th, td { text-align: left; padding: 12px 10px; border-bottom: 1px solid #eef3f0; vertical-align: middle; }
+    th { font-weight: 600; color: #5a6b66; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .stars { color: #f5a623; letter-spacing: 1px; font-size: 14px; }
+
+    /* Lessons grid (kid-friendly) */
+    .lessons-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .lesson-card {
+      background: linear-gradient(135deg, #fff8eb, #ffffff);
+      border: 2px solid #f4e4c1;
+      border-radius: 16px;
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+    .lesson-card:hover { transform: translateY(-4px) rotate(-1deg); border-color: #f5a623; box-shadow: 0 10px 22px rgba(245,166,35,0.18); }
+    .lesson-card .emoji { font-size: 42px; display:block; margin-bottom: 8px; }
+    .lesson-card h4 { font-size: 16px; color: #0d6e4f; font-family: 'Playfair Display', serif; margin-bottom: 4px; }
+    .lesson-card p { font-size: 12px; color: #5a6b66; }
+    .lesson-card .badge {
+      display: inline-block; margin-top: 8px;
+      background: #0d6e4f; color: #fff;
+      font-size: 11px; font-weight: 600;
+      padding: 3px 10px; border-radius: 20px;
+    }
+    .lesson-card.locked { opacity: 0.6; }
+    .lesson-card.locked .badge { background: #9aa9a3; }
+
+    /* Videos */
+    .video-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .video-card {
+      background: #fff;
+      border: 1px solid #e8efec;
+      border-radius: 14px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+    .video-card:hover { transform: translateY(-3px); box-shadow: 0 8px 18px rgba(13,110,79,0.12); }
+    .video-thumb {
+      height: 110px;
+      background: linear-gradient(135deg, #0d6e4f, #14906a);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 40px;
+      position: relative;
+    }
+    .video-thumb.alt { background: linear-gradient(135deg, #f5a623, #f7b945); color: #1f2d2a; }
+    .video-thumb.purple { background: linear-gradient(135deg, #7b5cd6, #a787e8); }
+    .video-thumb .play-icon {
+      position: absolute;
+      bottom: 8px; right: 8px;
+      background: rgba(255,255,255,0.95);
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      display:flex; align-items:center; justify-content:center;
+      font-size: 14px; color: #0d6e4f;
+    }
+    .video-info { padding: 12px 14px; }
+    .video-info h4 { font-size: 14px; font-weight: 600; }
+    .video-info p { font-size: 12px; color: #5a6b66; margin-top: 2px; }
+
+    /* Homework */
+    .homework-list { list-style: none; }
+    .homework-list li {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px;
+      border-radius: 12px;
+      background: #f5f9f7;
+      margin-bottom: 10px;
+      transition: all 0.2s ease;
+    }
+    .homework-list li:hover { background: #e6f4ee; }
+    .hw-checkbox {
+      width: 24px; height: 24px;
+      border-radius: 6px;
+      border: 2px solid #c4d3cc;
+      flex-shrink: 0;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      color: transparent;
+      font-weight: 700;
+      transition: all 0.2s ease;
+    }
+    .hw-checkbox.done { background: #0d6e4f; border-color: #0d6e4f; color: #fff; }
+    .hw-info { flex: 1; }
+    .hw-info h4 { font-size: 15px; font-weight: 600; }
+    .hw-info.done h4 { text-decoration: line-through; color: #9aa9a3; }
+    .hw-info p { font-size: 13px; color: #5a6b66; }
+    .hw-due {
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+    .hw-due.urgent { background: #fdecea; color: #b3261e; }
+    .hw-due.soon   { background: #fff3dc; color: #a06b00; }
+    .hw-due.done   { background: #e6f4ee; color: #0d6e4f; }
+
+    /* Quiz */
+    .quiz-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .quiz-card {
+      border-radius: 16px;
+      padding: 24px;
+      color: #fff;
+      position: relative;
+      overflow: hidden;
+    }
+    .quiz-card.daily   { background: linear-gradient(135deg, #0d6e4f, #14906a); }
+    .quiz-card.weekly  { background: linear-gradient(135deg, #f5a623, #f7b945); color: #1f2d2a; }
+    .quiz-card h3 { font-family: 'Playfair Display', serif; font-size: 22px; margin-bottom: 6px; }
+    .quiz-card p  { font-size: 14px; opacity: 0.95; }
+    .quiz-meta { display:flex; gap:12px; margin: 14px 0; font-size: 13px; }
+    .quiz-meta span { background: rgba(255,255,255,0.18); padding: 4px 10px; border-radius: 20px; }
+    .quiz-card.weekly .quiz-meta span { background: rgba(0,0,0,0.08); }
+    .quiz-btn {
+      display: inline-block;
+      background: #fff; color: #0d6e4f;
+      padding: 10px 22px;
+      border-radius: 30px;
+      font-weight: 600; font-size: 14px;
+      border: none; cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .quiz-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(0,0,0,0.15); }
+    .quiz-card.weekly .quiz-btn { color: #a06b00; }
+
+    /* Resources */
+    .resource-list {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+    .resource {
+      background: #fff;
+      border: 1px solid #e8efec;
+      border-radius: 12px;
+      padding: 18px;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    .resource:hover {
+      transform: translateY(-3px);
+      border-color: #0d6e4f;
+      box-shadow: 0 8px 18px rgba(13,110,79,0.10);
+    }
+    .resource .ico {
+      width: 40px; height: 40px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #0d6e4f, #14906a);
+      color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+      margin-bottom: 10px;
+    }
+    .resource h4 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+    .resource p { font-size: 12px; color: #5a6b66; }
+
+    /* Progress bar */
+    .progress-bar {
+      width: 80px; height: 6px;
+      background: #e8efec;
+      border-radius: 3px;
+      overflow: hidden;
+      display: inline-block;
+      vertical-align: middle;
+      margin-left: 6px;
+    }
+    .progress-bar span {
+      display: block; height: 100%;
+      background: linear-gradient(90deg, #0d6e4f, #14906a);
+      border-radius: 3px;
+    }
+
+    /* Footer */
+    .site-footer { background: #102a23; color: #c8d6d1; padding: 60px 0 24px; margin-top: 40px; }
+    .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 40px; margin-bottom: 40px; }
+    .footer-grid h4 { color: #fff; font-size: 16px; margin-bottom: 18px; letter-spacing: 1px; text-transform: uppercase; }
+    .footer-grid p, .footer-grid a, .footer-grid li { font-size: 14px; line-height: 1.9; }
+    .footer-grid a:hover { color: #f5a623; }
+    .footer-grid ul { list-style: none; }
+    .footer-bottom { border-top: 1px solid #1f3d35; padding-top: 22px; text-align: center; font-size: 13px; color: #8aa39c; }
+
+    @media (max-width: 960px) {
+      .two-col { grid-template-columns: 1fr; }
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+      .resource-list { grid-template-columns: repeat(2, 1fr); }
+      .lessons-grid, .video-grid { grid-template-columns: repeat(2, 1fr); }
+      .quiz-grid { grid-template-columns: 1fr; }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 768px) {
+      .hamburger { display: flex; }
+      .nav-links {
+        position: absolute; top: 100%; left: 0; right: 0;
+        background: #fff; flex-direction: column;
+        padding: 20px; gap: 4px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+        transform: translateY(-10px);
+        opacity: 0; pointer-events: none;
+        transition: all 0.25s ease;
+      }
+      .nav-links.show { transform: translateY(0); opacity: 1; pointer-events: auto; }
+      .nav-links a { display: block; width: 100%; }
+      .nav-cta { text-align: center; }
+      .resource-list { grid-template-columns: 1fr; }
+      .lessons-grid, .video-grid { grid-template-columns: 1fr; }
+      .footer-grid { grid-template-columns: 1fr; text-align: center; }
+      table { font-size: 13px; }
+    }
+
+    /* Mobile responsiveness fix — no horizontal scroll, fits viewport */
+    html, body { overflow-x: hidden; max-width: 100%; }
+    img, table { max-width: 100%; }
+    @media (max-width: 600px) {
+      .container { padding: 0 14px; }
+      .card { padding: 22px 18px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      th, td { padding: 10px 6px; font-size: 13px; }
+      .stat-tile { padding: 18px 14px; }
+      .stat-tile .num { font-size: 26px; }
+      .card-head { flex-wrap: wrap; gap: 6px; }
+      .welcome-strip { padding: 40px 0 50px; }
+      .stats-row { gap: 12px; }
+      .next-session { padding: 16px; gap: 14px; }
+      .next-session .date-block { width: 56px; }
+      .next-session .date-block .day { font-size: 22px; }
+      .next-session .info h4 { font-size: 14px; }
+      .progress-bar { width: 50px; }
+      .stars { font-size: 12px; }
+    }
+
+    body { animation: pageFadeIn 0.35s ease both; }
+    body.is-leaving { animation: pageFadeOut 0.25s ease forwards; }
+    @keyframes pageFadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes pageFadeOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-6px); } }
+    @media (prefers-reduced-motion: reduce) { body, body.is-leaving { animation: none !important; } }
+  </style>
+</head>
+
+<body>
+
+  <header class="site-header">
+    <div class="container nav-wrap">
+      <a href="index.html" class="brand">
+        <img src="Images/SeedsOfSuccess_pic.jpeg" alt="Seeds of Success logo" class="brand-mark" />
+        <span>Seeds of Success</span>
+      </a>
+      <button class="hamburger" id="hamburger" aria-label="Open menu"><span></span><span></span><span></span></button>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="ourstudents.html">Our Students</a></li>
+        <li><a href="getinvolved.html">Get Involved</a></li>
+        <li><a href="student-dashboard.html" class="active">My Dashboard</a></li>
+        <li><a href="login.html" class="nav-cta">Logout</a></li>
+      </ul>
+    </div>
+  </header>
+
+  <section class="welcome-strip">
+    <div class="container">
+      <h1>Hi Arun! 🌟</h1>
+      <p>Great to see you. Here's what's coming up in your learning journey.</p>
+    </div>
+  </section>
+
+  <section class="container">
+    <div class="stats-row">
+      <div class="stat-tile">
+        <div class="num">14</div>
+        <div class="lbl">Sessions Completed</div>
+      </div>
+      <div class="stat-tile">
+        <div class="num">4.2</div>
+        <div class="lbl">Avg. Progress (1–5)</div>
+      </div>
+      <div class="stat-tile">
+        <div class="num">6</div>
+        <div class="lbl">Months with Tutor</div>
+      </div>
+      <div class="stat-tile">
+        <div class="num">3</div>
+        <div class="lbl">Badges Earned</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tutor + upcoming -->
+  <section class="section">
+    <div class="container two-col">
+
+      <div class="card tutor-card">
+        <div class="card-head" style="justify-content:center;">
+          <h2>My Tutor</h2>
+        </div>
+        <div class="avatar-big">P</div>
+        <h3>Priya Krishnan</h3>
+        <div class="country">📍 Virginia, USA</div>
+        <div class="info-rows">
+          <div class="row"><span>Subject</span><span>English (1-on-1)</span></div>
+          <div class="row"><span>Languages</span><span>English, Tamil</span></div>
+          <div class="row"><span>Joined</span><span>Nov 2025</span></div>
+          <div class="row"><span>Sessions / week</span><span>1</span></div>
+        </div>
+        <div class="tutor-actions">
+          <button class="btn btn-primary" onclick="alert('In the live site, this would open a chat with your tutor.')">💬 Message</button>
+          <button class="btn btn-outline" onclick="alert('In the live site, this would join your scheduled video call.')">🎥 Join Call</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h2>Upcoming Sessions</h2>
+          <small>Next 3 scheduled</small>
+        </div>
+
+        <div class="next-session">
+          <div class="date-block">
+            <div class="day">05</div>
+            <div class="month">May</div>
+          </div>
+          <div class="info">
+            <h4>Reading & Storytelling</h4>
+            <p>Bring your favourite picture book.</p>
+            <span class="time">⏰ 5:00 PM IST</span>
+          </div>
+        </div>
+
+        <div class="next-session">
+          <div class="date-block">
+            <div class="day">12</div>
+            <div class="month">May</div>
+          </div>
+          <div class="info">
+            <h4>Vocabulary Game Day</h4>
+            <p>We'll play word-building games together.</p>
+            <span class="time">⏰ 5:00 PM IST</span>
+          </div>
+        </div>
+
+        <div class="next-session">
+          <div class="date-block">
+            <div class="day">19</div>
+            <div class="month">May</div>
+          </div>
+          <div class="info">
+            <h4>Grammar Practice</h4>
+            <p>Sentences, punctuation and tenses.</p>
+            <span class="time">⏰ 5:00 PM IST</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Past sessions -->
+  <section class="section">
+    <div class="container">
+      <div class="card">
+        <div class="card-head">
+          <h2>My Recent Sessions</h2>
+          <small>How I've been doing 🌱</small>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Topic</th>
+              <th>Tutor's Note</th>
+              <th>Progress</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Apr 28, 2026</td>
+              <td>Short stories</td>
+              <td>Read 2 stories aloud confidently.</td>
+              <td><span class="stars">★★★★☆</span><span class="progress-bar"><span style="width:80%"></span></span></td>
+            </tr>
+            <tr>
+              <td>Apr 21, 2026</td>
+              <td>Sentence building</td>
+              <td>Improved making complete sentences.</td>
+              <td><span class="stars">★★★☆☆</span><span class="progress-bar"><span style="width:60%"></span></span></td>
+            </tr>
+            <tr>
+              <td>Apr 14, 2026</td>
+              <td>Phonics</td>
+              <td>Solid grasp of consonant sounds.</td>
+              <td><span class="stars">★★★★☆</span><span class="progress-bar"><span style="width:80%"></span></span></td>
+            </tr>
+            <tr>
+              <td>Apr 07, 2026</td>
+              <td>Greetings & introductions</td>
+              <td>Confidently introduced himself.</td>
+              <td><span class="stars">★★★★★</span><span class="progress-bar"><span style="width:100%"></span></span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Lessons -->
+  <section class="section">
+    <div class="container">
+      <div class="card">
+        <div class="card-head">
+          <h2>📚 My Lessons</h2>
+          <small>Easy English — one step at a time 🌱</small>
+        </div>
+        <div class="lessons-grid">
+          <div class="lesson-card" onclick="alert('Yay! Lesson opening soon 🎉')">
+            <span class="emoji">🅰️</span>
+            <h4>Lesson 1: ABC Sounds</h4>
+            <p>Learn letter sounds A–Z</p>
+            <span class="badge">✓ Completed</span>
+          </div>
+          <div class="lesson-card" onclick="alert('Yay! Lesson opening soon 🎉')">
+            <span class="emoji">🐶</span>
+            <h4>Lesson 2: Easy Words</h4>
+            <p>cat, dog, sun, fun, run</p>
+            <span class="badge">✓ Completed</span>
+          </div>
+          <div class="lesson-card" onclick="alert('Yay! Lesson opening soon 🎉')">
+            <span class="emoji">📝</span>
+            <h4>Lesson 3: Tiny Sentences</h4>
+            <p>"I see a cat." "I love mom."</p>
+            <span class="badge">In Progress</span>
+          </div>
+          <div class="lesson-card locked" onclick="alert('Finish Lesson 3 to unlock! 🔒')">
+            <span class="emoji">🌈</span>
+            <h4>Lesson 4: Colours</h4>
+            <p>Red, blue, green, yellow…</p>
+            <span class="badge">🔒 Locked</span>
+          </div>
+          <div class="lesson-card locked" onclick="alert('Finish Lesson 3 to unlock! 🔒')">
+            <span class="emoji">🔢</span>
+            <h4>Lesson 5: Numbers</h4>
+            <p>One, two, three… ten!</p>
+            <span class="badge">🔒 Locked</span>
+          </div>
+          <div class="lesson-card locked" onclick="alert('Finish Lesson 3 to unlock! 🔒')">
+            <span class="emoji">👨‍👩‍👧</span>
+            <h4>Lesson 6: My Family</h4>
+            <p>Mother, father, sister, me</p>
+            <span class="badge">🔒 Locked</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Learning Videos -->
+  <section class="section">
+    <div class="container">
+      <div class="card">
+        <div class="card-head">
+          <h2>🎥 Learning Videos</h2>
+          <small>Short &amp; fun — watch &amp; learn 🍿</small>
+        </div>
+        <div class="video-grid">
+          <div class="video-card" onclick="alert('▶️ Playing video…')">
+            <div class="video-thumb">🐰<span class="play-icon">▶</span></div>
+            <div class="video-info">
+              <h4>The Hungry Rabbit</h4>
+              <p>3 min · Story time</p>
+            </div>
+          </div>
+          <div class="video-card" onclick="alert('▶️ Playing video…')">
+            <div class="video-thumb alt">🎵<span class="play-icon">▶</span></div>
+            <div class="video-info">
+              <h4>ABC Song</h4>
+              <p>2 min · Sing along</p>
+            </div>
+          </div>
+          <div class="video-card" onclick="alert('▶️ Playing video…')">
+            <div class="video-thumb purple">🌍<span class="play-icon">▶</span></div>
+            <div class="video-info">
+              <h4>Around the World</h4>
+              <p>4 min · Words for places</p>
+            </div>
+          </div>
+          <div class="video-card" onclick="alert('▶️ Playing video…')">
+            <div class="video-thumb">🦁<span class="play-icon">▶</span></div>
+            <div class="video-info">
+              <h4>Animal Names</h4>
+              <p>3 min · Vocabulary</p>
+            </div>
+          </div>
+          <div class="video-card" onclick="alert('▶️ Playing video…')">
+            <div class="video-thumb alt">🍎<span class="play-icon">▶</span></div>
+            <div class="video-info">
+              <h4>Food &amp; Fruits</h4>
+              <p>5 min · Easy words</p>
+            </div>
+          </div>
+          <div class="video-card" onclick="alert('▶️ Playing video…')">
+            <div class="video-thumb purple">⭐<span class="play-icon">▶</span></div>
+            <div class="video-info">
+              <h4>Twinkle Twinkle</h4>
+              <p>2 min · Rhyme time</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Homework -->
+  <section class="section">
+    <div class="container">
+      <div class="card">
+        <div class="card-head">
+          <h2>📝 My Homework</h2>
+          <small>Tasks from Priya akka 💚</small>
+        </div>
+        <ul class="homework-list">
+          <li>
+            <div class="hw-checkbox" onclick="toggleHw(this)">✓</div>
+            <div class="hw-info">
+              <h4>Read page 4 of "The Brave Tiger"</h4>
+              <p>Try to read aloud 2 times</p>
+            </div>
+            <span class="hw-due urgent">Due Tomorrow</span>
+          </li>
+          <li>
+            <div class="hw-checkbox" onclick="toggleHw(this)">✓</div>
+            <div class="hw-info">
+              <h4>Write 5 sentences about your family</h4>
+              <p>Use "My mother is…", "My father is…"</p>
+            </div>
+            <span class="hw-due soon">Due in 3 days</span>
+          </li>
+          <li>
+            <div class="hw-checkbox done" onclick="toggleHw(this)">✓</div>
+            <div class="hw-info done">
+              <h4>Practice phonics — letters M to R</h4>
+              <p>Great job, Arun! ⭐</p>
+            </div>
+            <span class="hw-due done">Done ✓</span>
+          </li>
+          <li>
+            <div class="hw-checkbox" onclick="toggleHw(this)">✓</div>
+            <div class="hw-info">
+              <h4>Draw and label your favourite animal</h4>
+              <p>Bring it to next class!</p>
+            </div>
+            <span class="hw-due soon">Due in 5 days</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Quiz Section -->
+  <section class="section">
+    <div class="container">
+      <div class="card">
+        <div class="card-head">
+          <h2>🧠 Quiz Time!</h2>
+          <small>Play, learn &amp; earn stars ⭐</small>
+        </div>
+        <div class="quiz-grid">
+          <div class="quiz-card daily">
+            <h3>🌞 Daily Quiz</h3>
+            <p>5 fun questions — refresh every day!</p>
+            <div class="quiz-meta">
+              <span>⏱️ 5 min</span>
+              <span>🎯 5 questions</span>
+              <span>⭐ Earn 10 pts</span>
+            </div>
+            <button class="quiz-btn" onclick="alert('Starting today\'s quiz! Good luck 🍀')">▶ Start Today's Quiz</button>
+          </div>
+
+          <div class="quiz-card weekly">
+            <h3>🏆 Weekly Quiz (MCQ)</h3>
+            <p>15 multiple-choice questions every Sunday.</p>
+            <div class="quiz-meta">
+              <span>⏱️ 15 min</span>
+              <span>🎯 15 MCQs</span>
+              <span>⭐ Earn 50 pts</span>
+            </div>
+            <button class="quiz-btn" onclick="alert('Weekly quiz coming Sunday! Get ready 📚')">📅 View Weekly Quiz</button>
+          </div>
+        </div>
+
+        <div style="margin-top:18px; padding:14px 18px; background:#e6f4ee; border-radius:10px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+          <div>
+            <strong style="color:#0d6e4f;">⭐ My Score this week:</strong>
+            <span style="margin-left:6px; color:#1f2d2a;">85 points</span>
+          </div>
+          <div>
+            <strong style="color:#0d6e4f;">🏅 Badges:</strong>
+            <span style="margin-left:6px;">🌟 🦁 📚</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Resources -->
+  <section class="section">
+    <div class="container">
+      <div class="card">
+        <div class="card-head">
+          <h2>Learning Resources</h2>
+          <small>Picked by your tutor</small>
+        </div>
+        <div class="resource-list">
+          <div class="resource" onclick="alert('In the live site, this would open the resource.')">
+            <div class="ico">📖</div>
+            <h4>Picture Story: The Brave Tiger</h4>
+            <p>PDF · 6 pages</p>
+          </div>
+          <div class="resource" onclick="alert('In the live site, this would open the resource.')">
+            <div class="ico">🎧</div>
+            <h4>Phonics Audio Pack</h4>
+            <p>Audio · 12 mins</p>
+          </div>
+          <div class="resource" onclick="alert('In the live site, this would open the resource.')">
+            <div class="ico">🧩</div>
+            <h4>Vocabulary Match Game</h4>
+            <p>Activity · 15 mins</p>
+          </div>
+          <div class="resource" onclick="alert('In the live site, this would open the resource.')">
+            <div class="ico">✏️</div>
+            <h4>Sentence Worksheet</h4>
+            <p>Printable · 2 pages</p>
+          </div>
+          <div class="resource" onclick="alert('In the live site, this would open the resource.')">
+            <div class="ico">🎬</div>
+            <h4>Short Animation: Family</h4>
+            <p>Video · 4 mins</p>
+          </div>
+          <div class="resource" onclick="alert('In the live site, this would open the resource.')">
+            <div class="ico">📝</div>
+            <h4>Grammar Cheatsheet</h4>
+            <p>PDF · 1 page</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <h4>Seeds of Success</h4>
+          <p>A youth-led, registered nonprofit in Virginia, USA — connecting Tamil-origin tutors abroad with rural children in Tamil Nadu through meaningful 1-on-1 English tutoring partnerships.</p>
+        </div>
+        <div>
+          <h4>Quick Links</h4>
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="ourteam.html">Our Team</a></li>
+            <li><a href="ourstudents.html">Our Students</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Get In Touch</h4>
+          <ul>
+            <li><a href="getinvolved.html">Get Involved</a></li>
+            <li><a href="volunteer.html">Volunteer</a></li>
+            <li><a href="mailto:contact@soslearn.org">contact@soslearn.org</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">© 2025 Seeds of Success. All rights reserved.</div>
+    </div>
+  </footer>
+
+  <script>
+    const hamburger = document.getElementById('hamburger');
+    const navLinks  = document.getElementById('navLinks');
+    hamburger.addEventListener('click', () => {
+      hamburger.classList.toggle('open');
+      navLinks.classList.toggle('show');
+    });
+
+    function toggleHw(box) {
+      box.classList.toggle('done');
+      const info = box.parentElement.querySelector('.hw-info');
+      info.classList.toggle('done');
+    }
+
+    document.querySelectorAll('a[href]').forEach(link => {
+      const href = link.getAttribute('href');
+      if (!href || href.startsWith('#') || href.startsWith('http') ||
+          href.startsWith('mailto:') || href.startsWith('tel:') ||
+          link.target === '_blank') return;
+      link.addEventListener('click', e => {
+        e.preventDefault();
+        document.body.classList.add('is-leaving');
+        setTimeout(() => { window.location.href = href; }, 250);
+      });
+    });
+    window.addEventListener('pageshow', e => {
+      if (e.persisted) document.body.classList.remove('is-leaving');
+    });
+  </script>
+</body>
+</html>

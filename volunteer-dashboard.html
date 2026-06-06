@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/jpeg" href="Images/SeedsOfSuccess_pic.jpeg" />
+  <title>Volunteer Dashboard | Seeds of Success</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ---------------------------------------------------------
+       Seeds of Success — Volunteer Dashboard (static preview)
+       --------------------------------------------------------- */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Poppins', system-ui, -apple-system, sans-serif;
+      color: #1f2d2a;
+      background: #f5f9f7;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+    .container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+
+    /* Header */
+    .site-header {
+      position: sticky; top: 0; z-index: 100;
+      background: #ffffff;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+    .nav-wrap { display: flex; align-items: center; justify-content: space-between; padding: 18px 0; }
+    .brand { display: flex; align-items: center; gap: 12px; font-family: 'Playfair Display', serif; font-weight: 700; font-size: 22px; color: #0d6e4f; }
+    .brand-mark {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: linear-gradient(135deg, #0d6e4f, #f5a623);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 20px; font-weight: 700;
+      object-fit: cover;
+    }
+    .nav-links { display: flex; gap: 8px; list-style: none; align-items: center; }
+    .nav-links a { padding: 10px 16px; font-weight: 500; font-size: 15px; color: #1f2d2a; border-radius: 8px; transition: all 0.25s ease; }
+    .nav-links a:hover { background: #f5f9f7; color: #0d6e4f; }
+    .nav-links a.active { color: #0d6e4f; font-weight: 600; }
+    .nav-cta { background: #c9302c; color: #fff !important; padding: 10px 22px !important; border-radius: 30px !important; font-weight: 600 !important; }
+    .nav-cta:hover { background: #a82420 !important; }
+
+    .hamburger { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 8px; }
+    .hamburger span { display: block; width: 26px; height: 3px; background: #0d6e4f; border-radius: 2px; transition: all 0.3s ease; }
+    .hamburger.open span:nth-child(1) { transform: translateY(8px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
+
+    /* Welcome */
+    .welcome-strip {
+      background: linear-gradient(135deg, #0d6e4f, #14906a);
+      color: #fff;
+      padding: 50px 0 60px;
+    }
+    .welcome-strip h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(28px, 4vw, 38px);
+      margin-bottom: 8px;
+    }
+    .welcome-strip p { font-size: 16px; opacity: 0.92; }
+
+    /* Stats */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+      margin-top: -40px;
+      position: relative; z-index: 2;
+    }
+    .stat-tile {
+      background: #fff;
+      border-radius: 14px;
+      padding: 22px 20px;
+      box-shadow: 0 6px 20px rgba(13,110,79,0.08);
+      border: 1px solid #e8efec;
+    }
+    .stat-tile .num { font-family: 'Playfair Display', serif; font-size: 30px; color: #0d6e4f; font-weight: 700; }
+    .stat-tile .lbl { color: #5a6b66; font-size: 13px; margin-top: 4px; }
+
+    /* Sections */
+    .section { padding: 50px 0; }
+    .section + .section { padding-top: 0; }
+    .card {
+      background: #fff; border-radius: 14px; padding: 28px;
+      border: 1px solid #e8efec;
+      box-shadow: 0 4px 14px rgba(13,110,79,0.05);
+    }
+    .card-head {
+      display: flex; align-items: baseline; justify-content: space-between;
+      margin-bottom: 18px;
+    }
+    .card-head h2 { font-family: 'Playfair Display', serif; font-size: 22px; color: #0d6e4f; }
+    .card-head small { color: #5a6b66; font-size: 13px; }
+
+    .two-col { display: grid; grid-template-columns: 1.3fr 1fr; gap: 24px; }
+
+    /* Tasks */
+    .task-list { list-style: none; }
+    .task-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 14px 0;
+      border-bottom: 1px solid #eef3f0;
+    }
+    .task-list li:last-child { border-bottom: none; }
+    .task-checkbox {
+      width: 22px; height: 22px;
+      border-radius: 6px;
+      border: 2px solid #c4d3cc;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; flex-shrink: 0;
+      margin-top: 2px;
+      transition: all 0.2s ease;
+    }
+    .task-checkbox.done {
+      background: #0d6e4f;
+      border-color: #0d6e4f;
+      color: #fff;
+    }
+    .task-info { flex: 1; }
+    .task-info h4 { font-size: 15px; font-weight: 600; color: #1f2d2a; }
+    .task-info.done h4 { text-decoration: line-through; color: #9aa9a3; }
+    .task-info p { font-size: 13px; color: #5a6b66; }
+    .due {
+      font-size: 12px;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+    .due.urgent { background: #fdecea; color: #b3261e; }
+    .due.soon   { background: #fff3dc; color: #a06b00; }
+    .due.later  { background: #e6f4ee; color: #0d6e4f; }
+
+    /* Profile / role card */
+    .profile-card { text-align: center; }
+    .avatar-big {
+      width: 84px; height: 84px;
+      margin: 0 auto 14px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #0d6e4f, #14906a);
+      color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 32px; font-weight: 700;
+      font-family: 'Playfair Display', serif;
+    }
+    .profile-card h3 { font-family: 'Playfair Display', serif; font-size: 22px; color: #0d6e4f; }
+    .profile-card .role-pill {
+      display: inline-block;
+      margin-top: 6px;
+      background: #fff3dc;
+      color: #a06b00;
+      padding: 4px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .info-rows { margin-top: 18px; text-align: left; }
+    .info-rows .row {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      font-size: 14px;
+      border-bottom: 1px solid #eef3f0;
+    }
+    .info-rows .row:last-child { border-bottom: none; }
+    .info-rows .row span:first-child { color: #5a6b66; }
+    .info-rows .row span:last-child { color: #1f2d2a; font-weight: 500; }
+
+    /* Hours table */
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th, td { text-align: left; padding: 12px 10px; border-bottom: 1px solid #eef3f0; }
+    th { font-weight: 600; color: #5a6b66; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    /* Announcements */
+    .announce {
+      background: linear-gradient(135deg, #fff8eb, #fff);
+      border-left: 4px solid #f5a623;
+      padding: 16px 20px;
+      border-radius: 10px;
+      margin-bottom: 12px;
+    }
+    .announce h4 { font-size: 15px; color: #0d6e4f; margin-bottom: 4px; }
+    .announce p { font-size: 13px; color: #5a6b66; }
+    .announce time { font-size: 12px; color: #9aa9a3; display: block; margin-top: 4px; }
+
+    .btn {
+      display: inline-block; padding: 10px 22px; border-radius: 30px;
+      font-weight: 600; font-size: 14px; transition: all 0.25s ease;
+      border: none; cursor: pointer;
+    }
+    .btn-primary { background: #0d6e4f; color: #fff; }
+    .btn-primary:hover { background: #0a5239; transform: translateY(-1px); }
+
+    /* Footer */
+    .site-footer { background: #102a23; color: #c8d6d1; padding: 60px 0 24px; margin-top: 40px; }
+    .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 40px; margin-bottom: 40px; }
+    .footer-grid h4 { color: #fff; font-size: 16px; margin-bottom: 18px; letter-spacing: 1px; text-transform: uppercase; }
+    .footer-grid p, .footer-grid a, .footer-grid li { font-size: 14px; line-height: 1.9; }
+    .footer-grid a:hover { color: #f5a623; }
+    .footer-grid ul { list-style: none; }
+    .footer-bottom { border-top: 1px solid #1f3d35; padding-top: 22px; text-align: center; font-size: 13px; color: #8aa39c; }
+
+    @media (max-width: 960px) {
+      .two-col { grid-template-columns: 1fr; }
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 768px) {
+      .hamburger { display: flex; }
+      .nav-links {
+        position: absolute; top: 100%; left: 0; right: 0;
+        background: #fff; flex-direction: column;
+        padding: 20px; gap: 4px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+        transform: translateY(-10px);
+        opacity: 0; pointer-events: none;
+        transition: all 0.25s ease;
+      }
+      .nav-links.show { transform: translateY(0); opacity: 1; pointer-events: auto; }
+      .nav-links a { display: block; width: 100%; }
+      .nav-cta { text-align: center; }
+      .footer-grid { grid-template-columns: 1fr; text-align: center; }
+    }
+
+    /* Mobile responsiveness fix — no horizontal scroll, fits viewport */
+    html, body { overflow-x: hidden; max-width: 100%; }
+    img, table { max-width: 100%; }
+    @media (max-width: 600px) {
+      .container { padding: 0 14px; }
+      .card { padding: 22px 18px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      th, td { padding: 10px 6px; font-size: 13px; }
+      .stat-tile { padding: 18px 14px; }
+      .stat-tile .num { font-size: 26px; }
+      .card-head { flex-wrap: wrap; gap: 6px; }
+      .welcome-strip { padding: 40px 0 50px; }
+      .stats-row { gap: 12px; }
+      .task-list li { flex-wrap: wrap; }
+      .due { margin-left: 36px; }
+    }
+
+    body { animation: pageFadeIn 0.35s ease both; }
+    body.is-leaving { animation: pageFadeOut 0.25s ease forwards; }
+    @keyframes pageFadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes pageFadeOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-6px); } }
+    @media (prefers-reduced-motion: reduce) { body, body.is-leaving { animation: none !important; } }
+  </style>
+</head>
+
+<body>
+
+  <header class="site-header">
+    <div class="container nav-wrap">
+      <a href="index.html" class="brand">
+        <img src="Images/SeedsOfSuccess_pic.jpeg" alt="Seeds of Success logo" class="brand-mark" />
+        <span>Seeds of Success</span>
+      </a>
+      <button class="hamburger" id="hamburger" aria-label="Open menu"><span></span><span></span><span></span></button>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="ourstudents.html">Our Students</a></li>
+        <li><a href="getinvolved.html">Get Involved</a></li>
+        <li><a href="volunteer-dashboard.html" class="active">Dashboard</a></li>
+        <li><a href="login.html" class="nav-cta">Logout</a></li>
+      </ul>
+    </div>
+  </header>
+
+  <section class="welcome-strip">
+    <div class="container">
+      <h1>Hello, Karthik 🌱</h1>
+      <p>Thanks for showing up — here's what's on your plate this week.</p>
+    </div>
+  </section>
+
+  <section class="container">
+    <div class="stats-row">
+      <div class="stat-tile">
+        <div class="num">42</div>
+        <div class="lbl">Hours Contributed</div>
+      </div>
+      <div class="stat-tile">
+        <div class="num">8</div>
+        <div class="lbl">Tasks Completed</div>
+      </div>
+      <div class="stat-tile">
+        <div class="num">3</div>
+        <div class="lbl">Open Tasks</div>
+      </div>
+      <div class="stat-tile">
+        <div class="num">2</div>
+        <div class="lbl">Upcoming Events</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Two-column area -->
+  <section class="section">
+    <div class="container two-col">
+
+      <div class="card">
+        <div class="card-head">
+          <h2>My Tasks</h2>
+          <small>Assigned by administrators</small>
+        </div>
+        <ul class="task-list">
+          <li>
+            <div class="task-checkbox" onclick="toggleTask(this)">✓</div>
+            <div class="task-info">
+              <h4>Prepare lesson plan: Grade 4 phonics</h4>
+              <p>Coordinate with curriculum lead before sharing.</p>
+            </div>
+            <span class="due urgent">Due tomorrow</span>
+          </li>
+          <li>
+            <div class="task-checkbox" onclick="toggleTask(this)">✓</div>
+            <div class="task-info">
+              <h4>Schedule call with new tutor — Anita Raj</h4>
+              <p>Onboarding session, 30 minutes.</p>
+            </div>
+            <span class="due soon">Due in 3 days</span>
+          </li>
+          <li>
+            <div class="task-checkbox done" onclick="toggleTask(this)">✓</div>
+            <div class="task-info done">
+              <h4>Update student records spreadsheet</h4>
+              <p>Confirmed with admin team.</p>
+            </div>
+            <span class="due later">Done</span>
+          </li>
+          <li>
+            <div class="task-checkbox" onclick="toggleTask(this)">✓</div>
+            <div class="task-info">
+              <h4>Draft monthly newsletter</h4>
+              <p>Highlight Meena's progress story.</p>
+            </div>
+            <span class="due later">Next week</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="card profile-card">
+        <div class="avatar-big">K</div>
+        <h3>Karthik Subramanian</h3>
+        <span class="role-pill">Curriculum Developer</span>
+        <div class="info-rows">
+          <div class="row"><span>Email</span><span>karthik.s@example.com</span></div>
+          <div class="row"><span>Phone</span><span>+91 98765 43210</span></div>
+          <div class="row"><span>Location</span><span>Chennai, India</span></div>
+          <div class="row"><span>Joined</span><span>Jan 2026</span></div>
+          <div class="row"><span>Availability</span><span>3–5 hrs / week</span></div>
+        </div>
+        <div style="margin-top:18px; text-align:left;">
+          <h4 style="font-size:13px; color:#5a6b66; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">Interests</h4>
+          <div style="display:flex; flex-wrap:wrap; gap:6px;">
+            <span class="pill" style="background:#e6f4ee; color:#0d6e4f; padding:4px 12px; border-radius:20px; font-size:12px; font-weight:600;">Curriculum Design</span>
+            <span class="pill" style="background:#e6f4ee; color:#0d6e4f; padding:4px 12px; border-radius:20px; font-size:12px; font-weight:600;">Storytelling</span>
+            <span class="pill" style="background:#e6f4ee; color:#0d6e4f; padding:4px 12px; border-radius:20px; font-size:12px; font-weight:600;">Translation</span>
+            <span class="pill" style="background:#e6f4ee; color:#0d6e4f; padding:4px 12px; border-radius:20px; font-size:12px; font-weight:600;">Mentoring</span>
+          </div>
+        </div>
+        <button class="btn btn-primary" style="margin-top:18px;" onclick="alert('In the live site, this would open the edit-profile form.')">✏️ Edit Profile</button>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Application Status -->
+  <section class="section">
+    <div class="container">
+      <div class="card">
+        <div class="card-head">
+          <h2>Application Status</h2>
+          <small>Your volunteer journey so far</small>
+        </div>
+        <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:14px; margin-top:8px;">
+          <div style="text-align:center; padding:18px; border:2px solid #0d6e4f; background:#e6f4ee; border-radius:12px;">
+            <div style="font-size:28px;">✅</div>
+            <h4 style="font-size:14px; color:#0d6e4f; margin-top:6px; font-weight:600;">Application Submitted</h4>
+            <p style="font-size:12px; color:#5a6b66; margin-top:2px;">Jan 04, 2026</p>
+          </div>
+          <div style="text-align:center; padding:18px; border:2px solid #0d6e4f; background:#e6f4ee; border-radius:12px;">
+            <div style="font-size:28px;">✅</div>
+            <h4 style="font-size:14px; color:#0d6e4f; margin-top:6px; font-weight:600;">Interview Cleared</h4>
+            <p style="font-size:12px; color:#5a6b66; margin-top:2px;">Jan 12, 2026</p>
+          </div>
+          <div style="text-align:center; padding:18px; border:2px solid #0d6e4f; background:#e6f4ee; border-radius:12px;">
+            <div style="font-size:28px;">🎉</div>
+            <h4 style="font-size:14px; color:#0d6e4f; margin-top:6px; font-weight:600;">Approved &amp; Onboarded</h4>
+            <p style="font-size:12px; color:#5a6b66; margin-top:2px;">Jan 18, 2026</p>
+          </div>
+        </div>
+        <div style="margin-top:18px; padding:14px 18px; background:#e6f4ee; border-left:4px solid #0d6e4f; border-radius:8px;">
+          <strong style="color:#0d6e4f;">Current Status: Active Volunteer</strong>
+          <p style="font-size:13px; color:#5a6b66; margin-top:4px;">Welcome aboard! Your role: <strong>Curriculum Developer</strong>. Reach out to ops@soslearn.org for any changes.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Hours log + announcements -->
+  <section class="section">
+    <div class="container two-col">
+
+      <div class="card">
+        <div class="card-head">
+          <h2>Recent Hours</h2>
+          <small>Last 5 entries</small>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Date</th><th>Activity</th><th>Hours</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Apr 28, 2026</td><td>Lesson plan – Grade 5</td><td>2.5</td></tr>
+            <tr><td>Apr 25, 2026</td><td>Tutor onboarding call</td><td>1.0</td></tr>
+            <tr><td>Apr 21, 2026</td><td>Curriculum review meeting</td><td>1.5</td></tr>
+            <tr><td>Apr 18, 2026</td><td>Newsletter draft</td><td>2.0</td></tr>
+            <tr><td>Apr 15, 2026</td><td>Materials translation</td><td>3.0</td></tr>
+          </tbody>
+        </table>
+        <div style="margin-top:18px; text-align:right;">
+          <button class="btn btn-primary" onclick="alert('In the live site, this would open a quick log-hours form.')">+ Log Hours</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h2>Announcements</h2>
+          <small>From the team</small>
+        </div>
+
+        <div class="announce">
+          <h4>📅 Volunteer Meet — May 10</h4>
+          <p>Quarterly sync over Zoom, 7 PM IST. Calendar invite sent.</p>
+          <time>Posted Apr 29</time>
+        </div>
+        <div class="announce">
+          <h4>🎉 Welcome new tutors</h4>
+          <p>Three new tutors joined this month. Say hi in the Slack channel!</p>
+          <time>Posted Apr 22</time>
+        </div>
+        <div class="announce">
+          <h4>📚 Curriculum v2 draft ready</h4>
+          <p>Please review and leave comments by next Friday.</p>
+          <time>Posted Apr 18</time>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <h4>Seeds of Success</h4>
+          <p>A youth-led, registered nonprofit in Virginia, USA — connecting Tamil-origin tutors abroad with rural children in Tamil Nadu through meaningful 1-on-1 English tutoring partnerships.</p>
+        </div>
+        <div>
+          <h4>Quick Links</h4>
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="ourteam.html">Our Team</a></li>
+            <li><a href="ourstudents.html">Our Students</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Get In Touch</h4>
+          <ul>
+            <li><a href="getinvolved.html">Get Involved</a></li>
+            <li><a href="volunteer.html">Volunteer</a></li>
+            <li><a href="mailto:contact@soslearn.org">contact@soslearn.org</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">© 2025 Seeds of Success. All rights reserved.</div>
+    </div>
+  </footer>
+
+  <script>
+    const hamburger = document.getElementById('hamburger');
+    const navLinks  = document.getElementById('navLinks');
+    hamburger.addEventListener('click', () => {
+      hamburger.classList.toggle('open');
+      navLinks.classList.toggle('show');
+    });
+
+    function toggleTask(box) {
+      box.classList.toggle('done');
+      const info = box.parentElement.querySelector('.task-info');
+      info.classList.toggle('done');
+    }
+
+    document.querySelectorAll('a[href]').forEach(link => {
+      const href = link.getAttribute('href');
+      if (!href || href.startsWith('#') || href.startsWith('http') ||
+          href.startsWith('mailto:') || href.startsWith('tel:') ||
+          link.target === '_blank') return;
+      link.addEventListener('click', e => {
+        e.preventDefault();
+        document.body.classList.add('is-leaving');
+        setTimeout(() => { window.location.href = href; }, 250);
+      });
+    });
+    window.addEventListener('pageshow', e => {
+      if (e.persisted) document.body.classList.remove('is-leaving');
+    });
+  </script>
+</body>
+</html>

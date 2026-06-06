@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/jpeg" href="Images/SeedsOfSuccess_pic.jpeg" />
+  <title>Sign up to Volunteer | Seeds of Success</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ---------------------------------------------------------
+       Seeds of Success — Volunteer Page
+       --------------------------------------------------------- */
+
+    /* 1. Reset & base */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Poppins', system-ui, -apple-system, sans-serif;
+      color: #1f2d2a;
+      background: #ffffff;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* 2. Header & nav */
+    .site-header {
+      position: sticky; top: 0; z-index: 100;
+      background: #ffffff;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+    .nav-wrap {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 0;
+    }
+    .brand {
+      display: flex; align-items: center; gap: 12px;
+      font-family: 'Playfair Display', serif;
+      font-weight: 700; font-size: 22px; color: #0d6e4f;
+    }
+    .brand-mark {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: linear-gradient(135deg, #0d6e4f, #f5a623);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 20px; font-weight: 700;
+      object-fit: cover;
+    }
+    .nav-links {
+      display: flex; gap: 8px; list-style: none; align-items: center;
+    }
+    .nav-links a {
+      padding: 10px 16px; font-weight: 500; font-size: 15px;
+      color: #1f2d2a; border-radius: 8px;
+      transition: all 0.25s ease;
+    }
+    .nav-links a:hover { background: #f5f9f7; color: #0d6e4f; }
+    .nav-links a.active { color: #0d6e4f; font-weight: 600; }
+    .nav-cta {
+      background: #0d6e4f; color: #fff !important;
+      padding: 10px 22px !important; border-radius: 30px !important;
+      font-weight: 600 !important;
+    }
+    .nav-cta:hover { background: #0a5239 !important; color: #fff !important; }
+
+    /* 3. Hamburger */
+    .hamburger {
+      display: none; flex-direction: column; gap: 5px;
+      background: none; border: none; cursor: pointer; padding: 8px;
+    }
+    .hamburger span {
+      display: block; width: 26px; height: 3px;
+      background: #0d6e4f; border-radius: 2px;
+      transition: all 0.3s ease;
+    }
+    .hamburger.open span:nth-child(1) { transform: translateY(8px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
+
+    /* 4. Page hero */
+    .page-hero {
+      background: linear-gradient(135deg, #0d6e4f, #14906a);
+      color: #fff;
+      padding: 100px 0 90px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .page-hero::after {
+      content: "";
+      position: absolute; inset: 0;
+      background: radial-gradient(circle at 60% 40%, rgba(245,166,35,0.18), transparent 50%);
+    }
+    .page-hero-inner { position: relative; }
+    .page-hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(36px, 5.5vw, 54px);
+      margin-bottom: 14px;
+    }
+    .page-hero p { font-size: 18px; opacity: 0.92; max-width: 680px; margin: 0 auto; }
+
+    /* 5. Form section */
+    .form-section { padding: 80px 0; background: #f5f9f7; }
+    .form-card {
+      max-width: 760px;
+      margin: 0 auto;
+      background: #ffffff;
+      border-radius: 20px;
+      padding: 50px 48px;
+      box-shadow: 0 12px 40px rgba(13,110,79,0.10);
+      border: 1px solid #e8efec;
+      text-align: center;
+    }
+    .form-card h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(26px, 3.5vw, 34px);
+      color: #0d6e4f;
+      margin-bottom: 16px;
+    }
+    .form-card .lead {
+      width: 60px; height: 4px;
+      background: #f5a623;
+      border-radius: 2px;
+      margin: 0 auto 24px;
+    }
+    .form-card p {
+      color: #3e4d49;
+      font-size: 16px;
+      margin-bottom: 14px;
+    }
+    .form-card .note {
+      background: #fff8eb;
+      border-left: 4px solid #f5a623;
+      padding: 14px 20px;
+      border-radius: 8px;
+      text-align: left;
+      margin: 24px 0 30px;
+      font-size: 15px;
+      color: #5a4a25;
+    }
+    .form-buttons {
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
+
+    /* Volunteer form fields */
+    .vol-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .vol-group { margin-bottom: 16px; }
+    .vol-group label {
+      display: block;
+      font-size: 14px;
+      font-weight: 500;
+      color: #1f2d2a;
+      margin-bottom: 6px;
+    }
+    .vol-group input,
+    .vol-group select,
+    .vol-group textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1.5px solid #d8e2dd;
+      border-radius: 10px;
+      font-size: 15px;
+      font-family: inherit;
+      color: #1f2d2a;
+      background: #ffffff;
+      transition: all 0.2s ease;
+    }
+    .vol-group textarea { min-height: 90px; resize: vertical; }
+    .vol-group input:focus,
+    .vol-group select:focus,
+    .vol-group textarea:focus {
+      outline: none;
+      border-color: #0d6e4f;
+      box-shadow: 0 0 0 3px rgba(13,110,79,0.10);
+    }
+    @media (max-width: 600px) {
+      .vol-row { grid-template-columns: 1fr; }
+    }
+    .btn {
+      display: inline-block;
+      padding: 14px 32px;
+      border-radius: 30px;
+      font-weight: 600;
+      font-size: 15px;
+      transition: all 0.25s ease;
+      border: none;
+      cursor: pointer;
+    }
+    .btn-primary {
+      background: #0d6e4f;
+      color: #fff;
+    }
+    .btn-primary:hover { background: #0a5239; transform: translateY(-2px); }
+    .btn-outline {
+      background: transparent;
+      color: #0d6e4f;
+      border: 2px solid #0d6e4f;
+    }
+    .btn-outline:hover { background: #0d6e4f; color: #fff; }
+
+    /* 6. Quick info row */
+    .info-row {
+      max-width: 760px;
+      margin: 40px auto 0;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+    .info-tile {
+      background: #ffffff;
+      border-radius: 14px;
+      padding: 22px;
+      text-align: center;
+      box-shadow: 0 4px 14px rgba(13,110,79,0.06);
+      border: 1px solid #e8efec;
+    }
+    .info-tile .ico {
+      width: 50px; height: 50px;
+      margin: 0 auto 10px;
+      background: linear-gradient(135deg, #0d6e4f, #14906a);
+      color: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center; justify-content: center;
+      font-size: 22px;
+    }
+    .info-tile h4 {
+      font-family: 'Playfair Display', serif;
+      color: #0d6e4f;
+      font-size: 17px;
+      margin-bottom: 4px;
+    }
+    .info-tile p { color: #5a6b66; font-size: 13px; }
+
+    /* 7. Closing thank you */
+    .thanks-band {
+      padding: 80px 0;
+      text-align: center;
+      background: #ffffff;
+    }
+    .thanks-band h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(24px, 3vw, 32px);
+      color: #0d6e4f;
+      margin-bottom: 14px;
+    }
+    .thanks-band p {
+      max-width: 620px;
+      margin: 0 auto;
+      color: #5a6b66;
+      font-size: 17px;
+    }
+
+    /* 8. Footer */
+    .site-footer {
+      background: #102a23; color: #c8d6d1;
+      padding: 60px 0 24px;
+    }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: 40px;
+      margin-bottom: 40px;
+    }
+    .footer-grid h4 {
+      color: #fff; font-size: 16px; margin-bottom: 18px;
+      letter-spacing: 1px; text-transform: uppercase;
+    }
+    .footer-grid p, .footer-grid a, .footer-grid li {
+      font-size: 14px; line-height: 1.9;
+    }
+    .footer-grid a:hover { color: #f5a623; }
+    .footer-grid ul { list-style: none; }
+    .footer-bottom {
+      border-top: 1px solid #1f3d35;
+      padding-top: 22px; text-align: center;
+      font-size: 13px; color: #8aa39c;
+    }
+
+    /* 9. Responsive */
+    @media (max-width: 960px) {
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 768px) {
+      .hamburger { display: flex; }
+      .nav-links {
+        position: absolute; top: 100%; left: 0; right: 0;
+        background: #fff; flex-direction: column;
+        padding: 20px; gap: 4px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+        transform: translateY(-10px);
+        opacity: 0; pointer-events: none;
+        transition: all 0.25s ease;
+      }
+      .nav-links.show {
+        transform: translateY(0);
+        opacity: 1; pointer-events: auto;
+      }
+      .nav-links a { display: block; width: 100%; }
+      .nav-cta { text-align: center; }
+
+      .form-card { padding: 36px 24px; }
+      .info-row { grid-template-columns: 1fr; }
+      .footer-grid { grid-template-columns: 1fr; text-align: center; }
+    }
+
+    /* 10. Page transitions */
+    body { animation: pageFadeIn 0.35s ease both; }
+    body.is-leaving { animation: pageFadeOut 0.25s ease forwards; }
+    @keyframes pageFadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pageFadeOut {
+      from { opacity: 1; transform: translateY(0); }
+      to   { opacity: 0; transform: translateY(-6px); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      body, body.is-leaving { animation: none !important; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ============== HEADER ============== -->
+  <header class="site-header">
+    <div class="container nav-wrap">
+      <a href="index.html" class="brand">
+        <img src="Images/SeedsOfSuccess_pic.jpeg" alt="Seeds of Success logo" class="brand-mark" />
+        <span>Seeds of Success</span>
+      </a>
+      <button class="hamburger" id="hamburger" aria-label="Open menu">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="ourteam.html">Our Team</a></li>
+        <li><a href="ourstudents.html">Our Students</a></li>
+        <li><a href="getinvolved.html">Get Involved</a></li>
+        <li><a href="login.html">Login</a></li>
+        <li><a href="volunteer.html" class="nav-cta active">Volunteer</a></li>
+      </ul>
+    </div>
+  </header>
+
+  <!-- ============== PAGE HERO ============== -->
+  <section class="page-hero">
+    <div class="container page-hero-inner">
+      <h1>Volunteer With Us</h1>
+      <p>Share your time, your language, and your heart — and help a child unlock their future.</p>
+    </div>
+  </section>
+
+  <!-- ============== FORM CARD ============== -->
+  <section class="form-section">
+    <div class="container">
+      <div class="form-card" id="formCard">
+        <h2>Sign Up to Volunteer</h2>
+        <div class="lead"></div>
+        <p>If any of our roles interests you — or you just want more information — fill out the short form below and we'll get in touch with you soon.</p>
+
+        <div class="note">
+          <strong>Tip:</strong> Mention which role(s) you're interested in (Tutor, Mentor, Curriculum Developer, Tech Helper, etc.) so we can match you with the right opportunity.
+        </div>
+
+        <form onsubmit="submitVolunteer(event)" style="text-align:left;">
+          <div class="vol-row">
+            <div class="vol-group">
+              <label for="vname">Full Name</label>
+              <input type="text" id="vname" placeholder="Your full name" required />
+            </div>
+            <div class="vol-group">
+              <label for="vemail">Email</label>
+              <input type="email" id="vemail" placeholder="you@example.com" required />
+            </div>
+          </div>
+          <div class="vol-row">
+            <div class="vol-group">
+              <label for="vphone">Phone</label>
+              <input type="tel" id="vphone" placeholder="+1 555 123 4567" />
+            </div>
+            <div class="vol-group">
+              <label for="vrole">Role of Interest</label>
+              <select id="vrole" required>
+                <option>Curriculum Developer</option>
+                <option>Technology Implementer</option>
+                <option>Teaching Helper</option>
+                <option>Well Wisher</option>
+                <option>Supporter</option>
+              </select>
+            </div>
+          </div>
+          <div class="vol-row">
+            <div class="vol-group">
+              <label for="vpassword">Create Password</label>
+              <input type="password" id="vpassword" placeholder="Create a secure password" minlength="8" required />
+            </div>
+            <div class="vol-group">
+              <label for="vconfirm">Confirm Password</label>
+              <input type="password" id="vconfirm" placeholder="Confirm your password" minlength="8" required />
+            </div>
+          </div>
+          <div class="vol-group">
+            <label for="vskills">Skills / Languages</label>
+            <input type="text" id="vskills" placeholder="English, Tamil, Storytelling, etc." />
+          </div>
+          <div class="vol-group">
+            <label for="vmsg">Why do you want to volunteer?</label>
+            <textarea id="vmsg" placeholder="Tell us a little about yourself..." required></textarea>
+          </div>
+
+          <div class="form-buttons">
+            <button type="submit" class="btn btn-primary">Submit Application</button>
+            <a href="getinvolved.html" class="btn btn-outline">View Roles</a>
+          </div>
+        </form>
+      </div>
+
+      <!-- Success card (shown after submit) -->
+      <div class="form-card" id="successCard" style="display:none;">
+        <div style="width:70px;height:70px;background:linear-gradient(135deg,#0d6e4f,#14906a);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 18px;font-size:36px;">✓</div>
+        <h2>Thank You!</h2>
+        <div class="lead"></div>
+        <p>Your application has been received. We'll get back to you within a few days.</p>
+        <div class="form-buttons">
+          <a href="index.html" class="btn btn-primary">Back to Home</a>
+        </div>
+      </div>
+
+      <!-- 3-tile info row -->
+      <div class="info-row">
+        <div class="info-tile">
+          <div class="ico">⏱️</div>
+          <h4>Flexible Hours</h4>
+          <p>1–2 hours a week, on your schedule.</p>
+        </div>
+        <div class="info-tile">
+          <div class="ico">🌐</div>
+          <h4>Fully Online</h4>
+          <p>Volunteer from anywhere in the world.</p>
+        </div>
+        <div class="info-tile">
+          <div class="ico">🎓</div>
+          <h4>Training Provided</h4>
+          <p>Onboarding & resources for every role.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== THANKS ============== -->
+  <section class="thanks-band">
+    <div class="container">
+      <h2>Thank you for caring</h2>
+      <p>Every volunteer plants a seed of hope. Together, we are growing futures — one child at a time.</p>
+    </div>
+  </section>
+
+  <!-- ============== FOOTER ============== -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <h4>Seeds of Success</h4>
+          <p>A youth-led, registered nonprofit in Virginia, USA — connecting Tamil-origin tutors abroad with rural children in Tamil Nadu through meaningful 1-on-1 English tutoring partnerships.</p>
+        </div>
+        <div>
+          <h4>Quick Links</h4>
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="ourteam.html">Our Team</a></li>
+            <li><a href="ourstudents.html">Our Students</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Get In Touch</h4>
+          <ul>
+            <li><a href="getinvolved.html">Get Involved</a></li>
+            <li><a href="volunteer.html">Volunteer</a></li>
+            <li><a href="mailto:contact@soslearn.org">contact@soslearn.org</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        © 2025 Seeds of Success. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const hamburger = document.getElementById('hamburger');
+    const navLinks  = document.getElementById('navLinks');
+    hamburger.addEventListener('click', () => {
+      hamburger.classList.toggle('open');
+      navLinks.classList.toggle('show');
+    });
+
+    // Static-only volunteer form: show a thank-you card on submit
+    function submitVolunteer(e) {
+      e.preventDefault();
+      document.getElementById('formCard').style.display = 'none';
+      document.getElementById('successCard').style.display = 'block';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Smooth page transitions for internal links
+    document.querySelectorAll('a[href]').forEach(link => {
+      const href = link.getAttribute('href');
+      if (!href || href.startsWith('#') || href.startsWith('http') ||
+          href.startsWith('mailto:') || href.startsWith('tel:') ||
+          link.target === '_blank') return;
+      link.addEventListener('click', e => {
+        e.preventDefault();
+        document.body.classList.add('is-leaving');
+        setTimeout(() => { window.location.href = href; }, 250);
+      });
+    });
+    window.addEventListener('pageshow', e => {
+      if (e.persisted) document.body.classList.remove('is-leaving');
+    });
+  </script>
+<script>
+async function submitVolunteer(event) {
+  event.preventDefault();
+
+  const data = {
+    full_name: document.getElementById("vname").value,
+    email: document.getElementById("vemail").value,
+    phone: document.getElementById("vphone").value,
+    role: document.getElementById("vrole").value,
+    skills: document.getElementById("vskills").value,
+    message: document.getElementById("vmsg").value,
+    password: document.getElementById("vpassword").value
+  };
+
+  if (data.password !== document.getElementById("vconfirm").value) {
+    alert("Passwords do not match");
+    return;
+  }
+
+  try {
+
+    const response = await fetch(
+      "https://worker-api.bdharan06.workers.dev/api/application",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+      }
+    );
+
+    const result = await response.json();
+
+    if (result.success) {
+
+      document.getElementById("formCard").style.display = "none";
+      document.getElementById("successCard").style.display = "block";
+
+    } else {
+
+      alert("Failed to submit application");
+      console.error(result);
+
+    }
+
+  } catch (error) {
+
+    console.error(error);
+    alert("Something went wrong");
+
+  }
+}
+</script>
+</body>
+</html>

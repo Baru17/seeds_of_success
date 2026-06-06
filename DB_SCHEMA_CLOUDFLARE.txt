@@ -1,0 +1,105 @@
+Seeds of Success — Cloudflare DB Data Inventory (proposed)
+
+Authentication / Identity (Admin, Tutor, Student, Volunteer)
+- user_accounts (or auth integration tables)
+  - id (string/uuid)
+  - email (unique)
+  - role: admin | tutor | student | volunteer
+  - display_name
+  - status: active | pending | disabled
+  - created_at
+  - last_login_at
+
+One-time login (recommended implementation models)
+- login_invites (magic link / invite link model)
+  - id
+  - email (or user_id if pre-created)
+  - role_to_grant
+  - token (unique, random)
+  - expires_at
+  - used_at (nullable)
+  - created_at
+
+Role/Profile Data (optional but recommended)
+- profiles
+  - user_id (FK -> user_accounts.id)
+  - role
+  - phone (optional)
+  - skills (text/json)
+  - availability (text/json)
+  - bio (optional)
+
+Applications / Intake
+- tutor_applications
+  - id
+  - applicant_id (nullable until signup; or store email)
+  - full_name
+  - email
+  - phone
+  - skills
+  - message
+  - status: pending | approved | rejected
+  - created_at
+  - reviewed_at
+
+Students & Assignments
+- students
+  - id
+  - full_name
+  - school
+  - grade
+  - created_at
+
+- student_assignments
+  - id
+  - student_id (FK -> students.id)
+  - tutor_id (FK -> user_accounts.id)
+  - assigned_by_admin_id (FK -> user_accounts.id)
+  - created_at
+
+Tutoring Sessions / Progress
+- sessions
+  - id
+  - student_id (FK)
+  - tutor_id (FK)
+  - session_date
+  - notes
+  - progress_level (1..5)
+  - created_at
+
+Public Stories / Testimonials
+- testimonials
+  - id
+  - author_name
+  - author_role: student | tutor | volunteer | other
+  - message
+  - photo_media_id (FK -> media.id) OR photo_url
+  - approved: boolean
+  - created_at
+
+Media Upload Metadata (files stored in Cloudflare R2)
+- media
+  - id
+  - uploaded_by_user_id (FK -> user_accounts.id)
+  - purpose: avatar | testimonial_photo | session_photo | document
+  - r2_key (string)
+  - content_type
+  - created_at
+
+Admin-only content/action data (audit trail, optional)
+- audit_events
+  - id
+  - actor_user_id (FK)
+  - action_type (string)
+  - entity_type (string)
+  - entity_id (string)
+  - metadata (json)
+  - created_at
+
+Notes
+- Exact table names depend on Cloudflare stack you choose:
+  - Cloudflare D1 (SQLite) for small-to-medium scale
+  - Cloudflare Queues + Workers for workflows
+  - R2 for file storage
+  - Auth handled by Cloudflare Auth / Workers auth, or via custom tokens + D1.
+- “One-time login” is best implemented as invite/magic-link tokens that are single-use and expire.

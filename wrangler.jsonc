@@ -1,0 +1,12 @@
+{
+  "name": "seeds-of-success",
+  "compatibility_date": "2026-06-03",
+
+  "d1_databases": [
+    {
+      "binding": "seeds_of_success",
+      "database_name": "seeds-of-success",
+      "database_id": "d1623962-f8d2-4ae8-a977-f1a9b2bc19ea"
+    }
+  ]
+}

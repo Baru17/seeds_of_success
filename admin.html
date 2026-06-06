@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/jpeg" href="Images/SeedsOfSuccess_pic.jpeg" />
+  <title>Admin Panel | Seeds of Success</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ---------------------------------------------------------
+       Seeds of Success — Admin Panel (static preview)
+       --------------------------------------------------------- */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Poppins', system-ui, -apple-system, sans-serif;
+      color: #1f2d2a;
+      background: #f5f9f7;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+    .container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+
+    .site-header {
+      position: sticky; top: 0; z-index: 100;
+      background: #ffffff;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+    .nav-wrap { display: flex; align-items: center; justify-content: space-between; padding: 18px 0; }
+    .brand { display: flex; align-items: center; gap: 12px; font-family: 'Playfair Display', serif; font-weight: 700; font-size: 22px; color: #0d6e4f; }
+    .brand-mark {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: linear-gradient(135deg, #0d6e4f, #f5a623);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 20px; font-weight: 700;
+      object-fit: cover;
+    }
+    .nav-links { display: flex; gap: 8px; list-style: none; align-items: center; }
+    .nav-links a { padding: 10px 16px; font-weight: 500; font-size: 15px; color: #1f2d2a; border-radius: 8px; transition: all 0.25s ease; }
+    .nav-links a:hover { background: #f5f9f7; color: #0d6e4f; }
+    .nav-links a.active { color: #0d6e4f; font-weight: 600; }
+    .nav-cta { background: #c9302c; color: #fff !important; padding: 10px 22px !important; border-radius: 30px !important; font-weight: 600 !important; }
+    .nav-cta:hover { background: #a82420 !important; }
+
+    .hamburger { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 8px; }
+    .hamburger span { display: block; width: 26px; height: 3px; background: #0d6e4f; border-radius: 2px; transition: all 0.3s ease; }
+    .hamburger.open span:nth-child(1) { transform: translateY(8px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
+
+    /* Top strip */
+    .welcome-strip {
+      background: linear-gradient(135deg, #0d6e4f, #14906a);
+      color: #fff;
+      padding: 50px 0 60px;
+    }
+    .welcome-strip h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(28px, 4vw, 38px);
+      margin-bottom: 8px;
+    }
+    .welcome-strip p { opacity: 0.9; font-size: 16px; }
+
+    /* Stats */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+      margin-top: -40px;
+      position: relative;
+      z-index: 2;
+    }
+    .stat-tile {
+      background: #fff;
+      border-radius: 14px;
+      padding: 22px 20px;
+      box-shadow: 0 6px 20px rgba(13,110,79,0.08);
+      border: 1px solid #e8efec;
+    }
+    .stat-tile .num { font-family: 'Playfair Display', serif; font-size: 30px; color: #0d6e4f; font-weight: 700; }
+    .stat-tile .lbl { color: #5a6b66; font-size: 13px; margin-top: 4px; }
+
+    .section { padding: 50px 0; }
+    .section + .section { padding-top: 0; }
+
+    .card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 28px;
+      border: 1px solid #e8efec;
+      box-shadow: 0 4px 14px rgba(13,110,79,0.05);
+    }
+
+    .card-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
+    .card-head h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      color: #0d6e4f;
+    }
+    .card-head small { color: #5a6b66; font-size: 13px; }
+
+    /* Tables */
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th, td {
+      text-align: left;
+      padding: 12px 10px;
+      border-bottom: 1px solid #eef3f0;
+      vertical-align: middle;
+    }
+    th {
+      font-weight: 600;
+      color: #5a6b66;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Pills */
+    .pill {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .pill-pending { background: #fff3dc; color: #a06b00; }
+    .pill-approved { background: #e6f4ee; color: #0d6e4f; }
+    .pill-rejected { background: #fdecea; color: #b3261e; }
+
+    /* Buttons */
+    .btn {
+      display: inline-block; padding: 8px 16px; border-radius: 30px;
+      font-weight: 600; font-size: 13px; transition: all 0.25s ease;
+      border: none; cursor: pointer; margin-right: 6px;
+    }
+    .btn-approve { background: #0d6e4f; color: #fff; }
+    .btn-approve:hover { background: #0a5239; }
+    .btn-reject { background: #fff; color: #b3261e; border: 1.5px solid #b3261e; }
+    .btn-reject:hover { background: #b3261e; color: #fff; }
+    .btn-assign { background: #f5a623; color: #1f2d2a; }
+    .btn-assign:hover { background: #e29515; }
+    .btn-edit { background: #fff; color: #0d6e4f; border: 1.5px solid #0d6e4f; }
+    .btn-edit:hover { background: #0d6e4f; color: #fff; }
+    .btn-delete { background: #fff; color: #b3261e; border: 1.5px solid #b3261e; }
+    .btn-delete:hover { background: #b3261e; color: #fff; }
+    .btn-add { background: #0d6e4f; color: #fff; padding: 10px 20px; font-size: 14px; }
+    .btn-add:hover { background: #0a5239; }
+
+    .row-actions { white-space: nowrap; }
+    .inline-field {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1.5px solid #d8e2dd;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 13px;
+      color: #1f2d2a;
+      background: #fff;
+    }
+    .inline-field:focus {
+      outline: none;
+      border-color: #0d6e4f;
+      box-shadow: 0 0 0 3px rgba(13,110,79,0.10);
+    }
+    .student-link { color: #0d6e4f; font-weight: 600; border-bottom: 1px dotted rgba(13,110,79,0.45); }
+    .task-form { display: grid; grid-template-columns: 1fr 1fr auto; gap: 10px; margin-top: 14px; }
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(16,42,35,0.48);
+      z-index: 200;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal-card {
+      width: min(560px, 100%);
+      max-height: 86vh;
+      overflow: auto;
+      background: #fff;
+      border-radius: 14px;
+      border: 1px solid #e8efec;
+      box-shadow: 0 18px 45px rgba(16,42,35,0.22);
+      padding: 26px;
+    }
+    .modal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .modal-head h3 { font-family: 'Playfair Display', serif; color: #0d6e4f; font-size: 24px; }
+    .modal-close {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: 1px solid #d8e2dd;
+      background: #fff;
+      color: #1f2d2a;
+      cursor: pointer;
+      font-size: 20px;
+      line-height: 1;
+    }
+    .detail-list { margin: 8px 0 16px 18px; color: #5a6b66; font-size: 14px; }
+    .detail-list li { margin-bottom: 6px; }
+
+    /* Reports */
+    .report-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+    .report-tile {
+      background: linear-gradient(135deg, #fff8eb, #ffffff);
+      border: 1px solid #f4e4c1;
+      border-radius: 12px;
+      padding: 18px 20px;
+    }
+    .report-tile h4 { font-size: 14px; color: #5a6b66; font-weight: 500; margin-bottom: 6px; }
+    .report-tile .big { font-family: 'Playfair Display', serif; font-size: 28px; color: #0d6e4f; font-weight: 700; }
+    .report-tile .delta { font-size: 12px; color: #0d6e4f; font-weight: 600; margin-top: 4px; }
+    .progress-bar { height: 8px; background: #e8efec; border-radius: 4px; overflow: hidden; margin-top: 8px; }
+    .progress-bar span { display: block; height: 100%; background: linear-gradient(90deg, #0d6e4f, #14906a); border-radius: 4px; }
+    .summary-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eef3f0; font-size: 14px; }
+    .summary-row:last-child { border-bottom: none; }
+    .summary-row .name { color: #1f2d2a; font-weight: 500; }
+    .summary-row .bar-wrap { display: flex; align-items: center; gap: 10px; flex: 0 0 60%; }
+    .summary-row .bar-wrap .progress-bar { flex: 1; margin-top: 0; }
+    .summary-row .pct { font-size: 13px; font-weight: 600; color: #0d6e4f; min-width: 36px; text-align: right; }
+
+    /* Two col */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    /* Footer */
+    .site-footer { background: #102a23; color: #c8d6d1; padding: 60px 0 24px; margin-top: 40px; }
+    .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 40px; margin-bottom: 40px; }
+    .footer-grid h4 { color: #fff; font-size: 16px; margin-bottom: 18px; letter-spacing: 1px; text-transform: uppercase; }
+    .footer-grid p, .footer-grid a, .footer-grid li { font-size: 14px; line-height: 1.9; }
+    .footer-grid a:hover { color: #f5a623; }
+    .footer-grid ul { list-style: none; }
+    .footer-bottom { border-top: 1px solid #1f3d35; padding-top: 22px; text-align: center; font-size: 13px; color: #8aa39c; }
+
+    @media (max-width: 960px) {
+      .two-col { grid-template-columns: 1fr; }
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+      .report-grid { grid-template-columns: 1fr 1fr; }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 600px) {
+      .report-grid { grid-template-columns: 1fr; }
+      .summary-row { flex-wrap: wrap; gap: 8px; }
+      .summary-row .bar-wrap { flex: 1 1 100%; }
+      .task-form { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 768px) {
+      .hamburger { display: flex; }
+      .nav-links {
+        position: absolute; top: 100%; left: 0; right: 0;
+        background: #fff; flex-direction: column;
+        padding: 20px; gap: 4px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+        transform: translateY(-10px);
+        opacity: 0; pointer-events: none;
+        transition: all 0.25s ease;
+      }
+      .nav-links.show { transform: translateY(0); opacity: 1; pointer-events: auto; }
+      .nav-links a { display: block; width: 100%; }
+      .nav-cta { text-align: center; }
+      table { font-size: 13px; }
+      .footer-grid { grid-template-columns: 1fr; text-align: center; }
+    }
+
+    /* Mobile responsiveness fix — no horizontal scroll, fits viewport */
+    html, body { overflow-x: hidden; max-width: 100%; }
+    img, table { max-width: 100%; }
+    @media (max-width: 600px) {
+      .container { padding: 0 14px; }
+      .card { padding: 22px 18px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      th, td { padding: 10px 6px; font-size: 13px; }
+      .stat-tile { padding: 18px 14px; }
+      .stat-tile .num { font-size: 26px; }
+      .card-head { flex-wrap: wrap; gap: 6px; }
+      .welcome-strip { padding: 40px 0 50px; }
+      .stats-row { gap: 12px; }
+      .btn { padding: 7px 12px; font-size: 12px; }
+    }
+
+    body { animation: pageFadeIn 0.35s ease both; }
+    body.is-leaving { animation: pageFadeOut 0.25s ease forwards; }
+    @keyframes pageFadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes pageFadeOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-6px); } }
+    @media (prefers-reduced-motion: reduce) { body, body.is-leaving { animation: none !important; } }
+  </style>
+</head>
+
+<body>
+
+  <header class="site-header">
+    <div class="container nav-wrap">
+      <a href="index.html" class="brand">
+        <img src="Images/SeedsOfSuccess_pic.jpeg" alt="Seeds of Success logo" class="brand-mark" />
+        <span>Seeds of Success</span>
+      </a>
+      <button class="hamburger" id="hamburger" aria-label="Open menu"><span></span><span></span><span></span></button>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="ourstudents.html">Our Students</a></li>
+        <li><a href="getinvolved.html">Get Involved</a></li>
+        <li><a href="admin.html" class="active">Admin</a></li>
+        <li><a href="login.html" class="nav-cta">Logout</a></li>
+      </ul>
+    </div>
+  </header>
+
+  <section class="welcome-strip">
+    <div class="container">
+      <h1>Admin Panel</h1>
+      <p>Manage applications, tutors, students and stories from one place.</p>
+    </div>
+  </section>
+
+  <section class="container">
+    <div class="stats-row">
+      <div class="stat-tile">
+        <div class="num" id="totalTutorsStat">10</div>
+        <div class="lbl">Total Tutors</div>
+      </div>
+      <div class="stat-tile">
+        <div class="num" id="totalStudentsStat">28</div>
+        <div class="lbl">Total Students</div>
+      </div>
+      <div class="stat-tile">
+        <div class="num" id="pendingApplicationsStat">3</div>
+        <div class="lbl">Pending Applications</div>
+      </div>
+      <div class="stat-tile">
+        <div class="num" id="completedSessionsStat">0</div>
+        <div class="lbl">Completed Sessions</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pending applications -->
+  <section class="section">
+    <div class="container">
+      <div class="card">
+        <div class="card-head">
+          <h2>Pending Volunteer Applications</h2>
+          <small>Approve or reject new sign-ups</small>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Skills</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Anita Raj</td>
+              <td>anita.raj@example.com</td>
+              <td>English, Tamil</td>
+              <td><span class="pill pill-pending">Pending</span></td>
+              <td class="row-actions">
+                <button class="btn btn-approve" onclick="markRow(this,'approved')">Approve</button>
+                <button class="btn btn-reject" onclick="markRow(this,'rejected')">Reject</button>
+              </td>
+            </tr>
+            <tr>
+              <td>Karthik S.</td>
+              <td>karthik.s@example.com</td>
+              <td>English, Curriculum design</td>
+              <td><span class="pill pill-pending">Pending</span></td>
+              <td class="row-actions">
+                <button class="btn btn-approve" onclick="markRow(this,'approved')">Approve</button>
+                <button class="btn btn-reject" onclick="markRow(this,'rejected')">Reject</button>
+              </td>
+            </tr>
+            <tr>
+              <td>Lakshmi V.</td>
+              <td>lakshmi.v@example.com</td>
+              <td>Spoken English, Storytelling</td>
+              <td><span class="pill pill-pending">Pending</span></td>
+              <td class="row-actions">
+                <button class="btn btn-approve" onclick="markRow(this,'approved')">Approve</button>
+                <button class="btn btn-reject" onclick="markRow(this,'rejected')">Reject</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tutors + Students two-col -->
+  <section class="section">
+    <div class="container two-col">
+
+      <div class="card">
+        <div class="card-head">
+          <h2>Tutors List</h2>
+          <small>Manage active tutors</small>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Assigned Students</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tutorTableBody">
+            <tr data-tutor="Priya Krishnan">
+              <td>Priya Krishnan</td><td data-assigned-count>3 students</td>
+              <td><span class="pill pill-approved">Active</span></td>
+              <td class="row-actions">
+                <button class="btn btn-edit" onclick="toggleTutorStatus(this)">Mark Inactive</button>
+                <button class="btn btn-delete" onclick="deleteTutor(this)">Delete</button>
+              </td>
+            </tr>
+            <tr data-tutor="Ravi Subramanian">
+              <td>Ravi Subramanian</td><td data-assigned-count>2 students</td>
+              <td><span class="pill pill-approved">Active</span></td>
+              <td class="row-actions">
+                <button class="btn btn-edit" onclick="toggleTutorStatus(this)">Mark Inactive</button>
+                <button class="btn btn-delete" onclick="deleteTutor(this)">Delete</button>
+              </td>
+            </tr>
+            <tr data-tutor="Divya Mohan">
+              <td>Divya Mohan</td><td data-assigned-count>1 student</td>
+              <td><span class="pill pill-approved">Active</span></td>
+              <td class="row-actions">
+                <button class="btn btn-edit" onclick="toggleTutorStatus(this)">Mark Inactive</button>
+                <button class="btn btn-delete" onclick="deleteTutor(this)">Delete</button>
+              </td>
+            </tr>
+            <tr data-tutor="Vikram Iyer">
+              <td>Vikram Iyer</td><td data-assigned-count>0 students</td>
+              <td><span class="pill pill-rejected">Inactive</span></td>
+              <td class="row-actions">
+                <button class="btn btn-edit" onclick="toggleTutorStatus(this)">Mark Active</button>
+                <button class="btn btn-delete" onclick="deleteTutor(this)">Delete</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div style="margin-top:14px; display:grid; grid-template-columns: 1fr auto; gap:10px;">
+          <input class="inline-field" id="newTutorName" type="text" placeholder="New tutor name" />
+          <button class="btn btn-add" onclick="addTutor()">+ Add Tutor</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h2>Students List</h2>
+          <small>Assign tutors &amp; track progress</small>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Assigned Tutor</th>
+              <th>Progress Level</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Arun K.</td>
+              <td>Priya Krishnan</td>
+              <td>Level 3 · Intermediate</td>
+              <td class="row-actions"><button class="btn btn-assign">Reassign</button></td>
+            </tr>
+            <tr>
+              <td>Meena R.</td>
+              <td>Priya Krishnan</td>
+              <td>Level 2 · Beginner+</td>
+              <td class="row-actions"><button class="btn btn-assign">Reassign</button></td>
+            </tr>
+            <tr>
+              <td>Sundar V.</td>
+              <td>Priya Krishnan</td>
+              <td>Level 4 · Advanced</td>
+              <td class="row-actions"><button class="btn btn-assign">Reassign</button></td>
+            </tr>
+            <tr>
+              <td>Ravi M.</td>
+              <td><em style="color:#a06b00">Unassigned</em></td>
+              <td>Level 1 · Beginner</td>
+              <td class="row-actions"><button class="btn btn-assign">Assign</button></td>
+            </tr>
+            <tr>
+              <td>Divya P.</td>
+              <td><em style="color:#a06b00">Unassigned</em></td>
+              <td>Level 2 · Beginner+</td>
+              <td class="row-actions"><button class="btn btn-assign">Assign</button></td>
+            </tr>
+          </tbody>
+        </table>
+        <div style="margin-top:14px; text-align:right;">
+          <button class="btn btn-add">+ Add Student</button>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Tutor applications -->
+  <section class="section">
+    <div class="container">
+      <div class="card">
+        <div class="card-head">
+          <h2>Pending Tutor Applications</h2>
+          <small>Tutors are added only after admin approval</small>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Skills</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tutorApplicationsBody">
+            <tr data-tutor-application="Nisha Anand">
+              <td>Nisha Anand</td>
+              <td>nisha.anand@example.com</td>
+              <td>English, Phonics</td>
+              <td><span class="pill pill-pending">Pending</span></td>
+              <td class="row-actions">
+                <button class="btn btn-approve" onclick="approveTutorApplication(this)">Approve</button>
+                <button class="btn btn-reject" onclick="markRow(this,'rejected')">Reject</button>
+              </td>
+            </tr>
+            <tr data-tutor-application="Sanjay Kumar">
+              <td>Sanjay Kumar</td>
+              <td>sanjay.kumar@example.com</td>
+              <td>Tamil, Reading Practice</td>
+              <td><span class="pill pill-pending">Pending</span></td>
+              <td class="row-actions">
+                <button class="btn btn-approve" onclick="approveTutorApplication(this)">Approve</button>
+                <button class="btn btn-reject" onclick="markRow(this,'rejected')">Reject</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <p id="adminNotice" style="display:none; margin-top:14px; color:#0d6e4f; font-weight:500;"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Volunteers -->
+  <section class="section">
+    <div class="container">
+      <div class="card">
+        <div class="card-head">
+          <h2>Volunteer List</h2>
+          <small>Manage volunteers and assign tasks</small>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Role</th>
+              <th>Status</th>
+              <th>Current Task</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="volunteerTableBody">
+            <tr>
+              <td>Karthik Subramanian</td>
+              <td>Curriculum Developer</td>
+              <td><span class="pill pill-approved">Active</span></td>
+              <td data-task-cell>Prepare Grade 4 phonics plan</td>
+              <td class="row-actions"><button class="btn btn-edit" onclick="clearVolunteerTask(this)">Clear Task</button></td>
+            </tr>
+            <tr>
+              <td>Anita Raj</td>
+              <td>Teaching Helper</td>
+              <td><span class="pill pill-approved">Active</span></td>
+              <td data-task-cell><em style="color:#a06b00">No task assigned</em></td>
+              <td class="row-actions"><button class="btn btn-edit" onclick="clearVolunteerTask(this)">Clear Task</button></td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="task-form">
+          <select class="inline-field" id="taskVolunteer">
+            <option>Karthik Subramanian</option>
+            <option>Anita Raj</option>
+          </select>
+          <input class="inline-field" id="taskText" type="text" placeholder="Task description" />
+          <button class="btn btn-add" onclick="assignVolunteerTask()">Assign Task</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Reports -->
+  <section class="section">
+    <div class="container">
+      <div class="card">
+        <div class="card-head">
+          <h2>Report Analysis</h2>
+          <small>Program performance at a glance</small>
+        </div>
+
+        <div class="report-grid" style="margin-bottom: 24px;">
+          <div class="report-tile">
+            <h4>Total Sessions Completed</h4>
+            <div class="big" id="reportCompletedSessions">412</div>
+            <div class="delta">▲ 38 this month</div>
+          </div>
+          <div class="report-tile">
+            <h4>Average Student Progress</h4>
+            <div class="big" id="reportAverageProgress">0%</div>
+            <div class="progress-bar"><span id="reportAverageProgressBar" style="width:0%"></span></div>
+          </div>
+          <div class="report-tile">
+            <h4>Average Marks</h4>
+            <div class="big" id="reportAverageMarks">0%</div>
+            <div class="delta">▲ 4 vs last week</div>
+          </div>
+          <div class="report-tile">
+            <h4>Active Tutor–Student Pairs</h4>
+            <div class="big">22</div>
+            <div class="delta">2 unassigned</div>
+          </div>
+        </div>
+
+        <h3 style="font-family:'Playfair Display',serif; color:#0d6e4f; font-size:18px; margin-bottom:12px;">Student Progress Summary</h3>
+        <div class="summary-row">
+          <span class="name">Arun K.</span>
+          <div class="bar-wrap">
+            <div class="progress-bar"><span style="width:80%"></span></div>
+            <span class="pct">80%</span>
+          </div>
+        </div>
+        <div class="summary-row">
+          <span class="name">Meena R.</span>
+          <div class="bar-wrap">
+            <div class="progress-bar"><span style="width:65%"></span></div>
+            <span class="pct">65%</span>
+          </div>
+        </div>
+        <div class="summary-row">
+          <span class="name">Sundar V.</span>
+          <div class="bar-wrap">
+            <div class="progress-bar"><span style="width:92%"></span></div>
+            <span class="pct">92%</span>
+          </div>
+        </div>
+        <div class="summary-row">
+          <span class="name">Ravi M.</span>
+          <div class="bar-wrap">
+            <div class="progress-bar"><span style="width:35%"></span></div>
+            <span class="pct">35%</span>
+          </div>
+        </div>
+        <div class="summary-row">
+          <span class="name">Divya P.</span>
+          <div class="bar-wrap">
+            <div class="progress-bar"><span style="width:55%"></span></div>
+            <span class="pct">55%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonial moderation -->
+  <section class="section">
+    <div class="container">
+      <div class="card">
+        <div class="card-head">
+          <h2>Testimonial Moderation</h2>
+          <small>Approve stories before they appear publicly</small>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Author</th>
+              <th>Role</th>
+              <th>Message</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Meena's Mother</td>
+              <td>Parent</td>
+              <td>"Meena now reads English signs by herself. Thank you so much."</td>
+              <td><span class="pill pill-pending">Pending</span></td>
+              <td class="row-actions">
+                <button class="btn btn-approve" onclick="markRow(this,'approved')">Approve</button>
+                <button class="btn btn-reject" onclick="markRow(this,'rejected')">Reject</button>
+              </td>
+            </tr>
+            <tr>
+              <td>Arun K.</td>
+              <td>Student</td>
+              <td>"My tutor Priya akka is very kind. I love our weekly classes."</td>
+              <td><span class="pill pill-approved">Approved</span></td>
+              <td class="row-actions"><em style="color:#5a6b66">Live</em></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <div class="modal-backdrop" id="studentDetailModal" role="dialog" aria-modal="true" aria-labelledby="studentDetailTitle">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3 id="studentDetailTitle">Student Progress</h3>
+        <button class="modal-close" id="studentDetailClose" type="button" aria-label="Close student details">&times;</button>
+      </div>
+      <p id="studentDetailOverall" style="color:#0d6e4f; font-weight:600; margin-bottom:14px;">0% Complete</p>
+      <h4 style="font-size:14px; color:#1f2d2a; margin-bottom:6px;">Completed Topics</h4>
+      <ul class="detail-list" id="studentDetailTopics"></ul>
+      <h4 style="font-size:14px; color:#1f2d2a; margin-bottom:6px;">Scores &amp; Marks</h4>
+      <ul class="detail-list" id="studentDetailScores"></ul>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <h4>Seeds of Success</h4>
+          <p>A youth-led, registered nonprofit in Virginia, USA — connecting Tamil-origin tutors abroad with rural children in Tamil Nadu through meaningful 1-on-1 English tutoring partnerships.</p>
+        </div>
+        <div>
+          <h4>Quick Links</h4>
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="ourteam.html">Our Team</a></li>
+            <li><a href="ourstudents.html">Our Students</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Get In Touch</h4>
+          <ul>
+            <li><a href="getinvolved.html">Get Involved</a></li>
+            <li><a href="volunteer.html">Volunteer</a></li>
+            <li><a href="mailto:contact@soslearn.org">contact@soslearn.org</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">© 2025 Seeds of Success. All rights reserved.</div>
+    </div>
+  </footer>
+
+  <script>
+    const hamburger = document.getElementById('hamburger');
+    const navLinks  = document.getElementById('navLinks');
+    hamburger.addEventListener('click', () => {
+      hamburger.classList.toggle('open');
+      navLinks.classList.toggle('show');
+    });
+
+    // Static demo: visually mark a row as approved/rejected
+    function markRow(btn, state) {
+      const row = btn.closest('tr');
+      const pill = row.querySelector('.pill');
+      const actions = row.querySelector('.row-actions');
+      if (state === 'approved') {
+        pill.className = 'pill pill-approved';
+        pill.textContent = 'Approved';
+        actions.innerHTML = '<em style="color:#5a6b66">Done</em>';
+      } else {
+        pill.className = 'pill pill-rejected';
+        pill.textContent = 'Rejected';
+        actions.innerHTML = '<em style="color:#5a6b66">Closed</em>';
+      }
+      refreshAdminMetrics();
+    }
+
+    const studentProgress = {
+      'Arun K.': { sessions: 18, progress: 80, marks: 84, topics: ['Reading comprehension', 'Short stories', 'Grammar basics', 'Vocabulary practice'] },
+      'Meena R.': { sessions: 14, progress: 65, marks: 72, topics: ['Phonics', 'Basic vocabulary', 'Reading drill'] },
+      'Sundar V.': { sessions: 20, progress: 92, marks: 91, topics: ['Sentence building', 'Practice exercises', 'Reading practice', 'Conversation'] },
+      'Ravi M.': { sessions: 7, progress: 35, marks: 58, topics: ['Greetings', 'Introductions'] },
+      'Divya P.': { sessions: 9, progress: 55, marks: 67, topics: ['Listening', 'Song lyrics', 'Comprehension'] }
+    };
+
+    function getActiveTutorNames() {
+      return Array.from(document.querySelectorAll('#tutorTableBody tr'))
+        .filter(row => row.querySelector('.pill')?.textContent.trim() === 'Active')
+        .map(row => row.cells[0].textContent.trim());
+    }
+
+    function openTutorDropdown(btn) {
+      const row = btn.closest('tr');
+      const tutorCell = row.cells[1];
+      const currentTutor = tutorCell.textContent.trim();
+      const select = document.createElement('select');
+      select.className = 'inline-field';
+      select.innerHTML = '<option value="">Unassigned</option>' + getActiveTutorNames()
+        .map(name => `<option value="${name}" ${name === currentTutor ? 'selected' : ''}>${name}</option>`)
+        .join('');
+      select.addEventListener('change', () => {
+        tutorCell.innerHTML = select.value || '<em style="color:#a06b00">Unassigned</em>';
+        btn.textContent = select.value ? 'Reassign' : 'Assign';
+        refreshAdminMetrics();
+      });
+      tutorCell.innerHTML = '';
+      tutorCell.appendChild(select);
+      select.focus();
+    }
+
+    function addTutor(nameFromApproval) {
+      const input = document.getElementById('newTutorName');
+      const name = (nameFromApproval || input.value).trim();
+      if (!name) return;
+      const body = document.getElementById('tutorTableBody');
+      if (Array.from(body.querySelectorAll('tr')).some(row => row.cells[0].textContent.trim() === name)) return;
+      const row = document.createElement('tr');
+      row.dataset.tutor = name;
+      row.innerHTML = `
+        <td>${name}</td><td data-assigned-count>0 students</td>
+        <td><span class="pill pill-approved">Active</span></td>
+        <td class="row-actions">
+          <button class="btn btn-edit" onclick="toggleTutorStatus(this)">Mark Inactive</button>
+          <button class="btn btn-delete" onclick="deleteTutor(this)">Delete</button>
+        </td>`;
+      body.appendChild(row);
+      if (input && !nameFromApproval) input.value = '';
+      refreshAdminMetrics();
+    }
+
+    function deleteTutor(btn) {
+      const row = btn.closest('tr');
+      const name = row.cells[0].textContent.trim();
+      document.querySelectorAll('table td:nth-child(2)').forEach(cell => {
+        if (cell.textContent.trim() === name) cell.innerHTML = '<em style="color:#a06b00">Unassigned</em>';
+      });
+      row.remove();
+      refreshAdminMetrics();
+    }
+
+    function toggleTutorStatus(btn) {
+      const row = btn.closest('tr');
+      const pill = row.querySelector('.pill');
+      const isActive = pill.textContent.trim() === 'Active';
+      pill.className = isActive ? 'pill pill-rejected' : 'pill pill-approved';
+      pill.textContent = isActive ? 'Inactive' : 'Active';
+      btn.textContent = isActive ? 'Mark Active' : 'Mark Inactive';
+      refreshAdminMetrics();
+    }
+
+    function approveTutorApplication(btn) {
+      const row = btn.closest('tr');
+      const name = row.cells[0].textContent.trim();
+      markRow(btn, 'approved');
+      addTutor(name);
+      showAdminNotice(`${name} approved. Notification sent and tutor added to the system.`);
+    }
+
+    function showAdminNotice(message) {
+      const notice = document.getElementById('adminNotice');
+      if (!notice) return;
+      notice.textContent = message;
+      notice.style.display = 'block';
+    }
+
+    function assignVolunteerTask() {
+      const volunteerName = document.getElementById('taskVolunteer').value;
+      const taskText = document.getElementById('taskText').value.trim();
+      if (!taskText) return;
+      const row = Array.from(document.querySelectorAll('#volunteerTableBody tr')).find(item => item.cells[0].textContent.trim() === volunteerName);
+      if (row) row.querySelector('[data-task-cell]').textContent = taskText;
+      document.getElementById('taskText').value = '';
+    }
+
+    function clearVolunteerTask(btn) {
+      btn.closest('tr').querySelector('[data-task-cell]').innerHTML = '<em style="color:#a06b00">No task assigned</em>';
+    }
+
+    function openStudentDetail(studentName) {
+      const detail = studentProgress[studentName];
+      if (!detail) return;
+      document.getElementById('studentDetailTitle').textContent = studentName;
+      document.getElementById('studentDetailOverall').textContent = `${detail.progress}% Complete`;
+      document.getElementById('studentDetailTopics').innerHTML = detail.topics.map(topic => `<li>${topic}</li>`).join('');
+      document.getElementById('studentDetailScores').innerHTML = `
+        <li>Completed Sessions: <strong>${detail.sessions}</strong></li>
+        <li>Average Progress: <strong>${detail.progress}%</strong></li>
+        <li>Overall Marks: <strong>${detail.marks} / 100</strong></li>`;
+      document.getElementById('studentDetailModal').classList.add('open');
+    }
+
+    function refreshAdminMetrics() {
+      const details = Object.values(studentProgress);
+      const completedSessions = details.reduce((sum, detail) => sum + detail.sessions, 0);
+      const avgProgress = Math.round(details.reduce((sum, detail) => sum + detail.progress, 0) / details.length);
+      const avgMarks = Math.round(details.reduce((sum, detail) => sum + detail.marks, 0) / details.length);
+      const pendingCount = document.querySelectorAll('.pill-pending').length;
+      document.getElementById('completedSessionsStat').textContent = completedSessions;
+      document.getElementById('pendingApplicationsStat').textContent = pendingCount;
+      document.getElementById('totalTutorsStat').textContent = document.querySelectorAll('#tutorTableBody tr').length;
+      document.querySelectorAll('#tutorTableBody tr').forEach(row => {
+        const tutorName = row.cells[0].textContent.trim();
+        const assignedCount = Array.from(document.querySelectorAll('tr'))
+          .filter(studentRow => studentProgress[studentRow.cells[0]?.textContent.trim()] && studentRow.cells[1]?.textContent.trim() === tutorName)
+          .length;
+        const countCell = row.querySelector('[data-assigned-count]');
+        if (countCell) countCell.textContent = `${assignedCount} ${assignedCount === 1 ? 'student' : 'students'}`;
+      });
+      document.getElementById('reportCompletedSessions').textContent = completedSessions;
+      document.getElementById('reportAverageProgress').textContent = `${avgProgress}%`;
+      document.getElementById('reportAverageMarks').textContent = `${avgMarks}%`;
+      document.getElementById('reportAverageProgressBar').style.width = `${avgProgress}%`;
+    }
+
+    document.querySelectorAll('tr').forEach(row => {
+      const firstCell = row.cells?.[0];
+      const studentName = firstCell?.textContent.trim();
+      if (studentProgress[studentName] && !firstCell.querySelector('.student-link')) {
+        firstCell.innerHTML = `<a href="#" class="student-link" data-student="${studentName}">${studentName}</a>`;
+      }
+    });
+    document.querySelectorAll('.summary-row .name').forEach(nameEl => {
+      const studentName = nameEl.textContent.trim();
+      nameEl.innerHTML = `<a href="#" class="student-link" data-student="${studentName}">${studentName}</a>`;
+    });
+    document.querySelectorAll('.student-link').forEach(link => {
+      link.addEventListener('click', e => {
+        e.preventDefault();
+        openStudentDetail(link.dataset.student || link.textContent.trim());
+      });
+    });
+    document.getElementById('studentDetailClose').addEventListener('click', () => document.getElementById('studentDetailModal').classList.remove('open'));
+    document.getElementById('studentDetailModal').addEventListener('click', e => {
+      if (e.target.id === 'studentDetailModal') e.target.classList.remove('open');
+    });
+    refreshAdminMetrics();
+
+    document.querySelectorAll('td.row-actions button.btn-assign').forEach(button => {
+      if (!button.onclick) button.addEventListener('click', () => openTutorDropdown(button));
+    });
+
+    document.querySelectorAll('td.row-actions button.btn-delete').forEach(button => {
+      if (!button.onclick) button.addEventListener('click', () => deleteTutor(button));
+    });
+
+    const parentApprovalButtons = Array.from(document.querySelectorAll('tr')).filter(row => row.cells[1]?.textContent.trim() === 'Parent')
+      .flatMap(row => Array.from(row.querySelectorAll('.btn-approve')));
+    parentApprovalButtons.forEach(button => {
+      button.addEventListener('click', () => showAdminNotice('Parent feedback approved. Thank-you notification sent.'));
+    });
+
+    document.querySelectorAll('a[href]').forEach(link => {
+      const href = link.getAttribute('href');
+      if (!href || href.startsWith('#') || href.startsWith('http') ||
+          href.startsWith('mailto:') || href.startsWith('tel:') ||
+          link.target === '_blank') return;
+      link.addEventListener('click', e => {
+        e.preventDefault();
+        document.body.classList.add('is-leaving');
+        setTimeout(() => { window.location.href = href; }, 250);
+      });
+    });
+    window.addEventListener('pageshow', e => {
+      if (e.persisted) document.body.classList.remove('is-leaving');
+    });
+  </script>
+</body>
+</html>
