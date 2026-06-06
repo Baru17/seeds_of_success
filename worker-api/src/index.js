@@ -208,25 +208,6 @@ export default {
           )
           .run();
 
-        await db.prepare(`
-          INSERT INTO tutor_applications (
-            id, full_name, email, phone, skills, availability, message, status, created_at
-          )
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `)
-          .bind(
-            crypto.randomUUID(),
-            data.full_name,
-            data.email,
-            data.phone,
-            data.skills,
-            data.availability,
-            data.message || "",
-            "pending",
-            new Date().toISOString()
-          )
-          .run();
-
         return json({ success: true, message: "Tutor account created" }, corsHeaders);
       }
 
