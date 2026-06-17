@@ -196,7 +196,7 @@ async function submitVolunteer(event) {
   };
 
   if (data.password !== document.getElementById("vconfirm").value) {
-    alert("Passwords do not match");
+    showCustomAlert("Passwords do not match");
     return;
   }
 
@@ -227,7 +227,7 @@ async function submitVolunteer(event) {
     result.message ||
     "Failed to submit application. Please try again.";
 
-  alert(message);
+  showCustomAlert(message);
   console.error(result);
 
 }
@@ -235,12 +235,28 @@ async function submitVolunteer(event) {
   } catch (error) {
 
     console.error(error);
-    alert("Something went wrong");
-
+    showCustomAlert("Something went wrong");
   }
 }
+
+function showCustomAlert(message) {
+  document.getElementById("customAlertMessage").textContent = message;
+  document.getElementById("customAlert").classList.add("show");
+}
+
+function closeCustomAlert() {
+  document.getElementById("customAlert").classList.remove("show");
+}
+
 </script>
 
 <script src="js/common.js"></script>
+
+<div id="customAlert" class="custom-alert">
+  <div class="custom-alert-box">
+    <p id="customAlertMessage"></p>
+    <button onclick="closeCustomAlert()">OK</button>
+  </div>
+</div>
 </body>
 </html>

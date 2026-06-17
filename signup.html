@@ -175,18 +175,33 @@
       });
 
    } else {
-  alert(result.error || result.message || "Failed to create account");
+  showCustomAlert(result.error || result.message || "Failed to create account");
 }
 
   } catch (error) {
 
     console.error(error);
-    alert("Something went wrong");
+    showCustomAlert("Something went wrong");
 
   }
 }
 
+function showCustomAlert(message) {
+  document.getElementById("customAlertMessage").textContent = message;
+  document.getElementById("customAlert").classList.add("show");
+}
+
+function closeCustomAlert() {
+  document.getElementById("customAlert").classList.remove("show");
+}
   </script>
   <script src="js/common.js"></script>
+
+  <div id="customAlert" class="custom-alert">
+  <div class="custom-alert-box">
+    <p id="customAlertMessage"></p>
+    <button onclick="closeCustomAlert()">OK</button>
+  </div>
+</div>
 </body>
 </html>
