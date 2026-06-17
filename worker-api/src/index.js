@@ -162,30 +162,47 @@ export default {
       }
 
       if (url.pathname === "/api/application" && request.method === "POST") {
-        const data = await request.json();
+  const data = await request.json();
 
-        await db.prepare(`
-          INSERT INTO volunteer_applications (
-            id, full_name, email, phone, role, skills, message, password_hash, status, created_at
-          )
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `)
-          .bind(
-            crypto.randomUUID(),
-            data.full_name,
-            data.email,
-            data.phone,
-            data.role,
-            data.skills,
-            data.message,
-            await hashPassword(data.password || ""),
-            "pending",
-            new Date().toISOString()
-          )
-          .run();
+  const existingVolunteer = await db.prepare(`
+    SELECT id FROM volunteer_applications
+    WHERE email = ?
+    LIMIT 1
+  `).bind(data.email).first();
 
-        return json({ success: true, message: "Application submitted successfully" }, corsHeaders);
-      }
+  if (existingVolunteer) {
+    return json(
+      {
+        success: false,
+        error: "An application with this email already exists. Please sign in or use a different email address."
+      },
+      corsHeaders,
+      409
+    );
+  }
+
+  await db.prepare(`
+    INSERT INTO volunteer_applications (
+      id, full_name, email, phone, role, skills, message, password_hash, status, created_at
+    )
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `)
+    .bind(
+      crypto.randomUUID(),
+      data.full_name,
+      data.email,
+      data.phone,
+      data.role,
+      data.skills,
+      data.message,
+      await hashPassword(data.password || ""),
+      "pending",
+      new Date().toISOString()
+    )
+    .run();
+
+  return json({ success: true, message: "Application submitted successfully" }, corsHeaders);
+}
 
       if (url.pathname === "/api/tutor-signup" && request.method === "POST") {
         const data = await request.json();
