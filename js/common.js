@@ -83,6 +83,7 @@ window.addEventListener("pageshow", function () {
 
 });
 
+
 const loader = document.getElementById("pageLoader");
 
 document.querySelectorAll("a").forEach(link => {
