@@ -390,7 +390,7 @@ export default {
     return json(
       {
         success: false,
-        error: "This email is already registered. Please login or use another email."
+        error: "An account with this email already exists. Please sign in or use a different email address."
       },
       corsHeaders,
       409
