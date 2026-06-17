@@ -384,15 +384,27 @@ export default {
 
       return json({ success: true, message: "Seeds of Success API" }, corsHeaders);
     } catch (error) {
-  if (error.message.includes("UNIQUE")) {
+  const message = error.message || "";
+
+  if (message.includes("UNIQUE") || message.includes("user_accounts.email")) {
     return json(
-      { success: false, error: "This email is already registered" },
+      {
+        success: false,
+        error: "This email is already registered. Please login or use another email."
+      },
       corsHeaders,
       409
     );
   }
 
-  return errorResponse(error, corsHeaders);
+  return json(
+    {
+      success: false,
+      error: "Something went wrong. Please try again later."
+    },
+    corsHeaders,
+    500
+  );
 }
   }
 };
