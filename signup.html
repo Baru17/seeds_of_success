@@ -13,7 +13,7 @@
   <link rel="stylesheet" href="css/signup.css" />
 
   <!-- International phone input -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@19.5.5/build/css/intlTelInput.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@23.8.1/build/css/intlTelInput.css" />
   <style>
     .iti {
       width: 100%;
@@ -159,8 +159,7 @@
     </div>
   </footer>
 
-  <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@19.5.5/build/js/intlTelInput.min.js"></script>
-
+  <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@23.8.1/build/js/intlTelInput.min.js"></script>
   <script>
     
     const signupPhoneInput = document.querySelector("#phone");
@@ -171,7 +170,7 @@ const signupPhone = window.intlTelInput(signupPhoneInput, {
   autoPlaceholder: "aggressive",
   countrySearch: true,
   useFullscreenPopup: false,
-  utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@19.5.5/build/js/utils.js"
+  utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@23.8.1/build/js/utils.js"
 });
     async function handleSignup(e) {
       e.preventDefault();
