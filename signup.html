@@ -22,6 +22,12 @@
     .iti input {
       width: 100%;
     }
+    .iti__search-input {
+  width: 100%;
+  padding: 12px;
+  font-family: "Poppins", sans-serif;
+  font-size: 15px;
+    }
   </style>
 </head>
 
@@ -156,14 +162,17 @@
   <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@19.5.5/build/js/intlTelInput.min.js"></script>
 
   <script>
+    
     const signupPhoneInput = document.querySelector("#phone");
-
-    const signupPhone = window.intlTelInput(signupPhoneInput, {
-      initialCountry: "in",
-      separateDialCode: true,
-      utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@19.5.5/build/js/utils.js"
-    });
-
+const signupPhone = window.intlTelInput(signupPhoneInput, {
+  initialCountry: "in",
+  separateDialCode: true,
+  nationalMode: true,
+  autoPlaceholder: "aggressive",
+  countrySearch: true,
+  useFullscreenPopup: false,
+  utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@19.5.5/build/js/utils.js"
+});
     async function handleSignup(e) {
       e.preventDefault();
 
