@@ -62,8 +62,15 @@
             </div>
             <div class="form-group">
               <label for="phone">Phone</label>
-              <input type="tel" id="phone" placeholder="9123456780" inputmode="numeric" pattern="[0-9]{10,15}" />
-            </div>
+            <input 
+              type="tel" 
+              id="phone" 
+              placeholder="9123456780" 
+              inputmode="numeric" 
+              pattern="[0-9]{10}" 
+              maxlength="10"
+            />            
+          </div>
           </div>
 
           <div class="form-group">
@@ -149,11 +156,12 @@
     password: document.getElementById("password").value
   };
 
-  const phone = data.phone.trim();
-  if (phone && !/^\d{10,15}$/.test(phone)) {
-    showCustomAlert("Phone number must contain only numbers.");
-    return;
-  }
+ const phone = data.phone.trim();
+
+if (phone && !/^\d{10}$/.test(phone)) {
+  showCustomAlert("Phone number must contain exactly 10 numbers.");
+  return;
+}
 
   try {
 
