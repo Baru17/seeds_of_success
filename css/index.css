@@ -102,14 +102,15 @@
   padding: 40px 30px;
   text-align: center;
   box-shadow: 0 4px 20px rgba(13, 110, 79, 0.08);
-  border: 1px solid #e8efec;
+  border: 2px solid #e8efec;
   transition: all 0.3s ease;
 }
 
 .feature-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 12px 30px rgba(13, 110, 79, 0.15);
-}
+      transform: translateY(-6px);
+      border-color: #0d6e4f;
+      box-shadow: 0 16px 38px rgba(13,110,79,0.15);
+    }
 
 .feature-card-link {
   text-decoration: none;

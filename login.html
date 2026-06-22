@@ -98,7 +98,7 @@
     <label>
         <input type="checkbox" /> Remember me
     </label>
-    <a href="reset-password.html">Forgot password?</a>
+    <a href="#" id="forgotPasswordLink">Forgot password?</a>
 </div>
           <button type="submit" class="btn btn-primary">Sign In</button>
         </form>
@@ -136,7 +136,7 @@ New here? <a href="signup.html" id="createAccountLink">Create an account</a>
           <ul>
             <li><a href="getinvolved.html">Get Involved</a></li>
             <li><a href="volunteer.html">Volunteer</a></li>
-            <a href="contact.html" class="footer-contact-btn">Contact Us</a>
+            <li><a href="contact.html">Contact Us</a></li>
           </ul>
         </div>
       </div>
@@ -160,15 +160,15 @@ New here? <a href="signup.html" id="createAccountLink">Create an account</a>
       document.querySelectorAll('.role-card').forEach(c => c.classList.remove('selected'));
       event.currentTarget.classList.add('selected');
       document.getElementById('roleLabel').textContent = LABELS[role];
-
+      document.getElementById("forgotPasswordLink").href = "reset-password.html?role=" + role;
       const signupRow = document.getElementById('signupRow');
       const createAccountLink = document.getElementById('createAccountLink');
 
   if (role === 'tutor') {
-  createAccountLink.href = 'signup.html';
+  createAccountLink.href = 'signup.html?role=tutor';
   signupRow.style.display = 'block';
 } else if (role === 'volunteer') {
-  createAccountLink.href = 'volunteer.html';
+  createAccountLink.href = 'volunteer.html?role=volunteer';
   signupRow.style.display = 'block';
 } else {
   signupRow.style.display = 'none';
@@ -195,6 +195,20 @@ New here? <a href="signup.html" id="createAccountLink">Create an account</a>
     window.addEventListener('pageshow', e => {
       if (e.persisted) document.body.classList.remove('is-leaving');
     });
+
+    window.addEventListener("DOMContentLoaded", () => {
+  const params = new URLSearchParams(window.location.search);
+  const role = params.get("role");
+
+  if (role && TARGETS[role]) {
+    const card = document.querySelector(`.role-card[onclick*="'${role}'"]`);
+    if (card) {
+      pickRole({ currentTarget: card }, role);
+    }
+  }
+});
+
+
   </script>
 
 <div class="page-loader" id="pageLoader">

@@ -200,3 +200,19 @@
   color: #ffffff;
   transform: translateY(-2px);
 }
+
+.auth-footer{
+    margin-top:28px;
+    text-align:center;
+    color:#5a6b66;
+    font-size:15px;
+}
+
+.auth-footer a{
+    color:#0d6e4f;
+    font-weight:600;
+    text-decoration:none;
+    transition:.25s;
+}
+
+ .auth-footer a:hover { text-decoration: underline; }

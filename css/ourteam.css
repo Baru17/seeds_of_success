@@ -29,12 +29,13 @@
       padding: 36px 26px;
       text-align: center;
       box-shadow: 0 4px 18px rgba(13,110,79,0.08);
-      border: 1px solid #e8efec;
+      border: 2px solid #e8efec;
       transition: all 0.3s ease;
     }
     .team-card:hover {
       transform: translateY(-6px);
-      box-shadow: 0 14px 32px rgba(13,110,79,0.18);
+      border-color: #0d6e4f;
+      box-shadow: 0 16px 38px rgba(13,110,79,0.15);
     }
     .avatar {
       width: 110px; height: 110px;
