@@ -275,11 +275,12 @@
   <img src="Images/SeedsOfSuccess_pic.jpeg" alt="">
   <div class="loader-spinner"></div>
 </div>
-
 <script>
   const roleCards = document.querySelectorAll(".role-card");
   const rolePopup = document.getElementById("rolePopup");
   const rolePopupContent = document.getElementById("rolePopupContent");
+  const rolePopupBox = document.querySelector(".role-popup-box");
+  const popupFormBtn = document.getElementById("popupFormBtn");
 
   roleCards.forEach(card => {
     card.addEventListener("click", () => {
@@ -292,26 +293,34 @@
 
       const roleUrl = "volunteer.html?role=" + encodeURIComponent(title);
 
-rolePopupContent.innerHTML = `
-    ${icon}
-    <h3>${title}</h3>
-    ${shortText}
+      rolePopupContent.innerHTML = `
+        ${icon}
+        <h3>${title}</h3>
+        ${shortText}
 
-    <div class="popup-role-details">
-        ${details.innerHTML}
-    </div>
-`;
+        <div class="popup-role-details">
+          ${details.innerHTML}
+        </div>
+      `;
 
-document.getElementById("popupFormBtn").href = roleUrl;
+      popupFormBtn.href = roleUrl;
 
       rolePopup.classList.add("show");
       document.body.style.overflow = "hidden";
+
+      requestAnimationFrame(() => {
+        if (rolePopupBox) rolePopupBox.scrollTop = 0;
+        if (rolePopupContent) rolePopupContent.scrollTop = 0;
+      });
     });
   });
 
   function closeRolePopup() {
     rolePopup.classList.remove("show");
     document.body.style.overflow = "";
+
+    if (rolePopupBox) rolePopupBox.scrollTop = 0;
+    if (rolePopupContent) rolePopupContent.scrollTop = 0;
   }
 
   rolePopup.addEventListener("click", (e) => {
@@ -324,45 +333,45 @@ document.getElementById("popupFormBtn").href = roleUrl;
 
   let selectedAmount = 500;
 
-function pickAmount(btn, amt) {
-  document.querySelectorAll(".amount-btn").forEach(button => {
-    button.classList.remove("active");
-  });
+  function pickAmount(btn, amt) {
+    document.querySelectorAll(".amount-btn").forEach(button => {
+      button.classList.remove("active");
+    });
 
-  btn.classList.add("active");
-  selectedAmount = amt;
-
-  document.getElementById("donateAmount").textContent =
-    "₹" + amt.toLocaleString("en-IN");
-}
-
-function donate(mode) {
-  if (mode === "custom") {
-    const value = prompt("Enter the amount you would like to donate (₹):", "500");
-
-    if (value === null) return;
-
-    const cleaned = value.trim();
-
-    if (!cleaned || !/^\d+(\.\d{1,2})?$/.test(cleaned) || Number(cleaned) <= 0) {
-      alert("Please enter a valid donation amount.");
-      return;
-    }
-
-    selectedAmount = Number(cleaned);
+    btn.classList.add("active");
+    selectedAmount = amt;
 
     document.getElementById("donateAmount").textContent =
-      "₹" + selectedAmount.toLocaleString("en-IN");
+      "₹" + amt.toLocaleString("en-IN");
   }
 
-  alert(
-    "Thank you for your generosity! In the live site this would open a secure payment popup for ₹" +
-    selectedAmount.toLocaleString("en-IN") +
-    "."
-  );
-}
+  function donate(mode) {
+    if (mode === "custom") {
+      const value = prompt("Enter the amount you would like to donate (₹):", "500");
 
+      if (value === null) return;
+
+      const cleaned = value.trim();
+
+      if (!cleaned || !/^\d+(\.\d{1,2})?$/.test(cleaned) || Number(cleaned) <= 0) {
+        alert("Please enter a valid donation amount.");
+        return;
+      }
+
+      selectedAmount = Number(cleaned);
+
+      document.getElementById("donateAmount").textContent =
+        "₹" + selectedAmount.toLocaleString("en-IN");
+    }
+
+    alert(
+      "Thank you for your generosity! In the live site this would open a secure payment popup for ₹" +
+      selectedAmount.toLocaleString("en-IN") +
+      "."
+    );
+  }
 </script>
+
 
 <script src="js/common.js"></script>
 
