@@ -197,10 +197,30 @@
 /* Mobile */
 @media (max-width: 768px) {
 
+ @media (max-width: 768px) {
   .quick-links {
-    position: static !important;
+    position: sticky !important;
+    top: 70px;
+    z-index: 900;
     padding: 12px 0;
   }
+}
+
+#story,
+#approach,
+#mission,
+#impact {
+  scroll-margin-top: 150px;
+}
+
+@media (max-width: 768px) {
+  #story,
+  #approach,
+  #mission,
+  #impact {
+    scroll-margin-top: 150px;
+  }
+}
 
   .quick-links ul {
     display: flex;

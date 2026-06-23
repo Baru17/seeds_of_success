@@ -226,10 +226,11 @@ button, input, select, textarea { font-family: inherit; }
 .page-hero {
   background: linear-gradient(135deg, #0d6e4f, #14906a);
   color: #fff;
-  padding: 90px 0 80px;
+  padding: 50px 0 50px;
   text-align: center;
   position: relative;
   overflow: hidden;
+
 }
 .page-hero::after {
   content: "";
