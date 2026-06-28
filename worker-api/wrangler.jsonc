@@ -14,13 +14,13 @@
 	"compatibility_flags": [
 		"nodejs_compat"
 	],
-"d1_databases": [
-  {
-    "binding": "seeds_of_success",
-    "database_name": "seeds-of-success",
-    "database_id": "d1623962-f8d2-4ae8-a977-f1a9b2bc19ea"
-  }
-]
+	"d1_databases": [
+		{
+			"binding": "sos_db",
+			"database_name": "sos-db",
+			"database_id": "58d99de2-b076-4829-9f39-9874af5158e3"
+		}
+	]
 	/**
 	 * Smart Placement
 	 * https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement

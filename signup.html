@@ -110,6 +110,17 @@
             <input type="password" id="password" placeholder="At least 6 characters" required minlength="6" />
           </div>
 
+          <div class="form-group">
+  <label for="confirmPassword">Confirm Password</label>
+  <input
+    type="password"
+    id="confirmPassword"
+    placeholder="Confirm your password"
+    required
+    minlength="6"
+  />
+</div>
+
           <button type="submit" class="btn btn-primary">Create Account</button>
         </form>
 
@@ -169,6 +180,8 @@
 
   <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@23.8.1/build/js/intlTelInput.min.js"></script>
   <script>
+
+    
     
     const signupPhoneInput = document.querySelector("#phone");
 const signupPhone = window.intlTelInput(signupPhoneInput, {
@@ -180,26 +193,34 @@ const signupPhone = window.intlTelInput(signupPhoneInput, {
   useFullscreenPopup: false,
   utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@23.8.1/build/js/utils.js"
 });
-    async function handleSignup(e) {
-      e.preventDefault();
+async function handleSignup(e) {
+  e.preventDefault();
 
-      if (signupPhoneInput.value.trim() && !signupPhone.isValidNumber()) {
-        showCustomAlert("Please enter a valid phone number for the selected country.");
-        return;
-      }
+  const password = document.getElementById("password").value;
+  const confirmPassword = document.getElementById("confirmPassword").value;
 
-      const data = {
-        full_name: document.getElementById("fullname").value,
-        email: document.getElementById("email").value,
-        phone: signupPhoneInput.value.trim() ? signupPhone.getNumber() : "",
-        skills: document.getElementById("skills").value,
-        availability: document.getElementById("availability").value,
-        password: document.getElementById("password").value
-      };
+  if (password !== confirmPassword) {
+    showCustomAlert("Passwords do not match.");
+    return;
+  }
+
+  if (signupPhoneInput.value.trim() && !signupPhone.isValidNumber()) {
+    showCustomAlert("Please enter a valid phone number for the selected country.");
+    return;
+  }
+
+  const data = {
+    full_name: document.getElementById("fullname").value,
+    email: document.getElementById("email").value,
+    phone: signupPhoneInput.value.trim() ? signupPhone.getNumber() : "",
+    skills: document.getElementById("skills").value,
+    availability: document.getElementById("availability").value,
+    password: password
+  };
 
       try {
         const response = await fetch(
-          "https://worker-api.bdharan06.workers.dev/api/tutor-signup",
+          "https://worker-api.seedsofsuccessngo.workers.dev/api/tutor-signup",
           {
             method: "POST",
             headers: {

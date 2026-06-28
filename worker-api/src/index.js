@@ -1,4 +1,4 @@
-const DB_BINDING = "seeds_of_success";
+const DB_BINDING = "sos_db";
 
 async function hashPassword(password) {
   if (!password) return null;
@@ -228,24 +228,25 @@ export default {
         }
 
         await db.prepare(`
-          INSERT INTO user_accounts (
-            id, full_name, email, phone, role, password_hash, status, created_at
-          )
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        `)
-          .bind(
-            crypto.randomUUID(),
-            data.full_name,
-            data.email,
-            data.phone,
-            "tutor",
-            await hashPassword(data.password || ""),
-            "pending",
-            new Date().toISOString()
-          )
-          .run();
+  INSERT INTO tutor_applications (
+    id, full_name, email, phone, skills, availability, password_hash, status, created_at
+  )
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+`)
+.bind(
+  crypto.randomUUID(),
+  data.full_name,
+  data.email,
+  data.phone,
+  data.skills || "",
+  data.availability || "",
+  await hashPassword(data.password || ""),
+  "pending",
+  new Date().toISOString()
+)
+.run();
 
-        return json({ success: true, message: "Tutor account created" }, corsHeaders);
+return json({ success: true, message: "Tutor application submitted" }, corsHeaders);
       }
 
       if (url.pathname === "/api/admin/stats" && request.method === "GET") {
