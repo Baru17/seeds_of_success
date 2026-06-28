@@ -30,6 +30,10 @@
       color: #0d6e4f;
       margin-bottom: 14px;
     }
+    .ways{
+      color:#0d6e4f;
+      font-size: 30px;
+    }
     .intro p { margin-bottom: 16px; }
     .intro .highlight {
       background: #fff8eb;
@@ -585,10 +589,10 @@
 }
 
 .getinvolved-layout {
-  display: grid;
-  grid-template-columns: 1.3fr 0.7fr;
-  gap: 36px;
-  align-items: start;
+    display: grid;
+    grid-template-columns: 0.9fr 1.6fr;
+    gap: 40px;
+    align-items: start;
 }
 
 .roles-side {
@@ -622,8 +626,9 @@
 }
 
 .compact-roles-grid {
-  grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
 }
 
 .compact-roles-grid .role-card {
@@ -648,8 +653,11 @@
 /* Tablet */
 @media (max-width: 992px) {
   .getinvolved-layout {
-    grid-template-columns: 1fr;
-  }
+    display: grid;
+    grid-template-columns: 0.9fr 1.6fr;
+    gap: 40px;
+    align-items: start;
+}
 
   .journey-side {
     position: static;
@@ -674,4 +682,21 @@
   .journey-card {
     padding: 28px 22px;
   }
+}
+
+.compact-title{
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+.compact-title h2{
+    margin-top: 0;
+}
+
+.journey-side{
+    align-self: start;
+}
+
+.journey-card{
+    margin-top: 65px;   /* Adjust between 55px–70px until perfectly aligned */
 }
