@@ -75,6 +75,9 @@ button, input, select, textarea { font-family: inherit; }
   background: #ffffff;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
 }
+.site-header span{
+  font-size: smaller;
+}
 .nav-wrap {
   height: 70px;
   display: flex;
