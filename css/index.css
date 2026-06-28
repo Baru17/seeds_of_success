@@ -145,33 +145,8 @@
   margin-bottom: 0;
 }
 
-/* 4. CTA band */
-.cta-band {
-  background: linear-gradient(135deg, #f5a623, #f7b945);
-  color: #1f2d2a;
-  padding: 70px 0;
-  text-align: center;
-}
 
-.cta-band h2 {
-  font-family: "Playfair Display", serif;
-  font-size: clamp(26px, 3.5vw, 36px);
-  margin-bottom: 14px;
-}
 
-.cta-band p {
-  margin-bottom: 28px;
-  font-size: 17px;
-}
-
-.cta-band .btn {
-  background: #0d6e4f;
-  color: #fff;
-}
-
-.cta-band .btn:hover {
-  background: #0a5239;
-}
 
 /* 5. Responsive */
 @media (max-width: 960px) {
