@@ -220,6 +220,20 @@
   #impact {
     scroll-margin-top: 150px;
   }
+
+  @media (max-width: 768px) {
+  #impact .section-content {
+    order: 1;
+  }
+
+  #impact .section-visual {
+    order: 2;
+  }
+
+  #impact {
+    scroll-margin-top: 150px;
+  }
+}
 }
 
   .quick-links ul {
