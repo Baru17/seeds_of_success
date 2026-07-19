@@ -8,12 +8,11 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-
   <link rel="stylesheet" href="css/common.css" />
-  <link rel="stylesheet" href="css/admin.css" /></head>
+  <link rel="stylesheet" href="css/admin.css" />
+</head>
 
 <body>
-
   <header class="site-header">
     <div class="container nav-wrap">
       <a href="index.html" class="brand">
@@ -34,22 +33,24 @@
   <section class="welcome-strip">
     <div class="container">
       <h1>Admin Panel</h1>
-      <p>Manage applications, tutors, students and stories from one place.</p>
+      <p>Manage applications, tutors, volunteers, students and reports from one place.</p>
     </div>
   </section>
+
+  <div class="admin-alert info" id="adminAlert">Loading dashboard data...</div>
 
   <section class="container">
     <div class="stats-row">
       <div class="stat-tile">
-        <div class="num" id="totalTutorsStat">10</div>
+        <div class="num" id="totalTutorsStat">0</div>
         <div class="lbl">Total Tutors</div>
       </div>
       <div class="stat-tile">
-        <div class="num" id="totalStudentsStat">28</div>
+        <div class="num" id="totalStudentsStat">0</div>
         <div class="lbl">Total Students</div>
       </div>
       <div class="stat-tile">
-        <div class="num" id="pendingApplicationsStat">3</div>
+        <div class="num" id="pendingApplicationsStat">0</div>
         <div class="lbl">Pending Applications</div>
       </div>
       <div class="stat-tile">
@@ -59,260 +60,137 @@
     </div>
   </section>
 
-  <!-- Pending applications -->
   <section class="section">
     <div class="container">
       <div class="card">
         <div class="card-head">
-          <h2>Pending Volunteer Applications</h2>
-          <small>Approve or reject new sign-ups</small>
+          <h2>Volunteer Applications</h2>
+          <small>Approve or reject volunteer sign-ups</small>
         </div>
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Skills</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Anita Raj</td>
-              <td>anita.raj@example.com</td>
-              <td>English, Tamil</td>
-              <td><span class="pill pill-pending">Pending</span></td>
-              <td class="row-actions">
-                <button class="btn btn-approve" onclick="markRow(this,'approved')">Approve</button>
-                <button class="btn btn-reject" onclick="markRow(this,'rejected')">Reject</button>
-              </td>
-            </tr>
-            <tr>
-              <td>Karthik S.</td>
-              <td>karthik.s@example.com</td>
-              <td>English, Curriculum design</td>
-              <td><span class="pill pill-pending">Pending</span></td>
-              <td class="row-actions">
-                <button class="btn btn-approve" onclick="markRow(this,'approved')">Approve</button>
-                <button class="btn btn-reject" onclick="markRow(this,'rejected')">Reject</button>
-              </td>
-            </tr>
-            <tr>
-              <td>Lakshmi V.</td>
-              <td>lakshmi.v@example.com</td>
-              <td>Spoken English, Storytelling</td>
-              <td><span class="pill pill-pending">Pending</span></td>
-              <td class="row-actions">
-                <button class="btn btn-approve" onclick="markRow(this,'approved')">Approve</button>
-                <button class="btn btn-reject" onclick="markRow(this,'rejected')">Reject</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Skills</th>
+                <th>Message</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="volunteerApplicationsBody">
+              <tr><td colspan="7" class="empty-row">Loading volunteer applications...</td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- Tutors + Students two-col -->
+  <section class="section">
+    <div class="container">
+      <div class="card">
+        <div class="card-head">
+          <h2>Tutor Applications</h2>
+          <small>Tutors are added only after admin approval</small>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Skills</th>
+                <th>Availability</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="tutorApplicationsBody">
+              <tr><td colspan="7" class="empty-row">Loading tutor applications...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <section class="section">
     <div class="container two-col">
-
       <div class="card">
         <div class="card-head">
           <h2>Tutors List</h2>
-          <small>Manage active tutors</small>
+          <small>Approved tutor accounts</small>
         </div>
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Assigned Students</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="tutorTableBody">
-            <tr data-tutor="Priya Krishnan">
-              <td>Priya Krishnan</td><td data-assigned-count>3 students</td>
-              <td><span class="pill pill-approved">Active</span></td>
-              <td class="row-actions">
-                <button class="btn btn-edit" onclick="toggleTutorStatus(this)">Mark Inactive</button>
-                <button class="btn btn-delete" onclick="deleteTutor(this)">Delete</button>
-              </td>
-            </tr>
-            <tr data-tutor="Ravi Subramanian">
-              <td>Ravi Subramanian</td><td data-assigned-count>2 students</td>
-              <td><span class="pill pill-approved">Active</span></td>
-              <td class="row-actions">
-                <button class="btn btn-edit" onclick="toggleTutorStatus(this)">Mark Inactive</button>
-                <button class="btn btn-delete" onclick="deleteTutor(this)">Delete</button>
-              </td>
-            </tr>
-            <tr data-tutor="Divya Mohan">
-              <td>Divya Mohan</td><td data-assigned-count>1 student</td>
-              <td><span class="pill pill-approved">Active</span></td>
-              <td class="row-actions">
-                <button class="btn btn-edit" onclick="toggleTutorStatus(this)">Mark Inactive</button>
-                <button class="btn btn-delete" onclick="deleteTutor(this)">Delete</button>
-              </td>
-            </tr>
-            <tr data-tutor="Vikram Iyer">
-              <td>Vikram Iyer</td><td data-assigned-count>0 students</td>
-              <td><span class="pill pill-rejected">Inactive</span></td>
-              <td class="row-actions">
-                <button class="btn btn-edit" onclick="toggleTutorStatus(this)">Mark Active</button>
-                <button class="btn btn-delete" onclick="deleteTutor(this)">Delete</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        <div style="margin-top:14px; display:grid; grid-template-columns: 1fr auto; gap:10px;">
-          <input class="inline-field" id="newTutorName" type="text" placeholder="New tutor name" />
-          <button class="btn btn-add" onclick="addTutor()">+ Add Tutor</button>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Assigned Students</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="tutorTableBody">
+              <tr><td colspan="4" class="empty-row">Loading tutors...</td></tr>
+            </tbody>
+          </table>
         </div>
       </div>
 
       <div class="card">
         <div class="card-head">
           <h2>Students List</h2>
-          <small>Assign tutors &amp; track progress</small>
+          <small>Assigned tutor & progress</small>
         </div>
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Assigned Tutor</th>
-              <th>Progress Level</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Arun K.</td>
-              <td>Priya Krishnan</td>
-              <td>Level 3 · Intermediate</td>
-              <td class="row-actions"><button class="btn btn-assign">Reassign</button></td>
-            </tr>
-            <tr>
-              <td>Meena R.</td>
-              <td>Priya Krishnan</td>
-              <td>Level 2 · Beginner+</td>
-              <td class="row-actions"><button class="btn btn-assign">Reassign</button></td>
-            </tr>
-            <tr>
-              <td>Sundar V.</td>
-              <td>Priya Krishnan</td>
-              <td>Level 4 · Advanced</td>
-              <td class="row-actions"><button class="btn btn-assign">Reassign</button></td>
-            </tr>
-            <tr>
-              <td>Ravi M.</td>
-              <td><em style="color:#a06b00">Unassigned</em></td>
-              <td>Level 1 · Beginner</td>
-              <td class="row-actions"><button class="btn btn-assign">Assign</button></td>
-            </tr>
-            <tr>
-              <td>Divya P.</td>
-              <td><em style="color:#a06b00">Unassigned</em></td>
-              <td>Level 2 · Beginner+</td>
-              <td class="row-actions"><button class="btn btn-assign">Assign</button></td>
-            </tr>
-          </tbody>
-        </table>
-        <div style="margin-top:14px; text-align:right;">
-          <button class="btn btn-add">+ Add Student</button>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Assigned Tutor</th>
+                <th>Progress</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="studentsTableBody">
+              <tr><td colspan="4" class="empty-row">Loading students...</td></tr>
+            </tbody>
+          </table>
         </div>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- Tutor applications -->
-  <section class="section">
-    <div class="container">
-      <div class="card">
-        <div class="card-head">
-          <h2>Pending Tutor Applications</h2>
-          <small>Tutors are added only after admin approval</small>
-        </div>
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Skills</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="tutorApplicationsBody">
-            <tr data-tutor-application="Nisha Anand">
-              <td>Nisha Anand</td>
-              <td>nisha.anand@example.com</td>
-              <td>English, Phonics</td>
-              <td><span class="pill pill-pending">Pending</span></td>
-              <td class="row-actions">
-                <button class="btn btn-approve" onclick="approveTutorApplication(this)">Approve</button>
-                <button class="btn btn-reject" onclick="markRow(this,'rejected')">Reject</button>
-              </td>
-            </tr>
-            <tr data-tutor-application="Sanjay Kumar">
-              <td>Sanjay Kumar</td>
-              <td>sanjay.kumar@example.com</td>
-              <td>Tamil, Reading Practice</td>
-              <td><span class="pill pill-pending">Pending</span></td>
-              <td class="row-actions">
-                <button class="btn btn-approve" onclick="approveTutorApplication(this)">Approve</button>
-                <button class="btn btn-reject" onclick="markRow(this,'rejected')">Reject</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        <p id="adminNotice" style="display:none; margin-top:14px; color:#0d6e4f; font-weight:500;"></p>
       </div>
     </div>
   </section>
 
-  <!-- Volunteers -->
   <section class="section">
     <div class="container">
       <div class="card">
         <div class="card-head">
           <h2>Volunteer List</h2>
-          <small>Manage volunteers and assign tasks</small>
+          <small>Approved volunteer accounts</small>
         </div>
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Role</th>
-              <th>Status</th>
-              <th>Current Task</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="volunteerTableBody">
-            <tr>
-              <td>Karthik Subramanian</td>
-              <td>Curriculum Developer</td>
-              <td><span class="pill pill-approved">Active</span></td>
-              <td data-task-cell>Prepare Grade 4 phonics plan</td>
-              <td class="row-actions"><button class="btn btn-edit" onclick="clearVolunteerTask(this)">Clear Task</button></td>
-            </tr>
-            <tr>
-              <td>Anita Raj</td>
-              <td>Teaching Helper</td>
-              <td><span class="pill pill-approved">Active</span></td>
-              <td data-task-cell><em style="color:#a06b00">No task assigned</em></td>
-              <td class="row-actions"><button class="btn btn-edit" onclick="clearVolunteerTask(this)">Clear Task</button></td>
-            </tr>
-          </tbody>
-        </table>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Status</th>
+                <th>Current Task</th>
+              </tr>
+            </thead>
+            <tbody id="volunteerTableBody">
+              <tr><td colspan="4" class="empty-row">Loading volunteers...</td></tr>
+            </tbody>
+          </table>
+        </div>
         <div class="task-form">
           <select class="inline-field" id="taskVolunteer">
-            <option>Karthik Subramanian</option>
-            <option>Anita Raj</option>
+            <option value="">Loading volunteers...</option>
           </select>
           <input class="inline-field" id="taskText" type="text" placeholder="Task description" />
           <button class="btn btn-add" onclick="assignVolunteerTask()">Assign Task</button>
@@ -321,7 +199,6 @@
     </div>
   </section>
 
-  <!-- Reports -->
   <section class="section">
     <div class="container">
       <div class="card">
@@ -333,8 +210,8 @@
         <div class="report-grid" style="margin-bottom: 24px;">
           <div class="report-tile">
             <h4>Total Sessions Completed</h4>
-            <div class="big" id="reportCompletedSessions">412</div>
-            <div class="delta">▲ 38 this month</div>
+            <div class="big" id="reportCompletedSessions">0</div>
+            <div class="delta">Updated from database</div>
           </div>
           <div class="report-tile">
             <h4>Average Student Progress</h4>
@@ -344,93 +221,19 @@
           <div class="report-tile">
             <h4>Average Marks</h4>
             <div class="big" id="reportAverageMarks">0%</div>
-            <div class="delta">▲ 4 vs last week</div>
+            <div class="delta">From completed topics</div>
           </div>
           <div class="report-tile">
             <h4>Active Tutor–Student Pairs</h4>
-            <div class="big">22</div>
-            <div class="delta">2 unassigned</div>
+            <div class="big" id="reportActivePairs">0</div>
+            <div class="delta"><span id="reportUnassignedStudents">0</span> unassigned</div>
           </div>
         </div>
 
         <h3 style="font-family:'Playfair Display',serif; color:#0d6e4f; font-size:18px; margin-bottom:12px;">Student Progress Summary</h3>
-        <div class="summary-row">
-          <span class="name">Arun K.</span>
-          <div class="bar-wrap">
-            <div class="progress-bar"><span style="width:80%"></span></div>
-            <span class="pct">80%</span>
-          </div>
+        <div id="studentSummaryBody">
+          <p class="empty-row">Loading student progress...</p>
         </div>
-        <div class="summary-row">
-          <span class="name">Meena R.</span>
-          <div class="bar-wrap">
-            <div class="progress-bar"><span style="width:65%"></span></div>
-            <span class="pct">65%</span>
-          </div>
-        </div>
-        <div class="summary-row">
-          <span class="name">Sundar V.</span>
-          <div class="bar-wrap">
-            <div class="progress-bar"><span style="width:92%"></span></div>
-            <span class="pct">92%</span>
-          </div>
-        </div>
-        <div class="summary-row">
-          <span class="name">Ravi M.</span>
-          <div class="bar-wrap">
-            <div class="progress-bar"><span style="width:35%"></span></div>
-            <span class="pct">35%</span>
-          </div>
-        </div>
-        <div class="summary-row">
-          <span class="name">Divya P.</span>
-          <div class="bar-wrap">
-            <div class="progress-bar"><span style="width:55%"></span></div>
-            <span class="pct">55%</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Testimonial moderation -->
-  <section class="section">
-    <div class="container">
-      <div class="card">
-        <div class="card-head">
-          <h2>Testimonial Moderation</h2>
-          <small>Approve stories before they appear publicly</small>
-        </div>
-        <table>
-          <thead>
-            <tr>
-              <th>Author</th>
-              <th>Role</th>
-              <th>Message</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Meena's Mother</td>
-              <td>Parent</td>
-              <td>"Meena now reads English signs by herself. Thank you so much."</td>
-              <td><span class="pill pill-pending">Pending</span></td>
-              <td class="row-actions">
-                <button class="btn btn-approve" onclick="markRow(this,'approved')">Approve</button>
-                <button class="btn btn-reject" onclick="markRow(this,'rejected')">Reject</button>
-              </td>
-            </tr>
-            <tr>
-              <td>Arun K.</td>
-              <td>Student</td>
-              <td>"My tutor Priya akka is very kind. I love our weekly classes."</td>
-              <td><span class="pill pill-approved">Approved</span></td>
-              <td class="row-actions"><em style="color:#5a6b66">Live</em></td>
-            </tr>
-          </tbody>
-        </table>
       </div>
     </div>
   </section>
@@ -470,7 +273,7 @@
           <ul>
             <li><a href="getinvolved.html">Get Involved</a></li>
             <li><a href="volunteer.html">Volunteer</a></li>
-            <li><a href="contact.html">Contact Us</a></li>
+            <li><a href="mailto:contact@soslearn.org">contact@soslearn.org</a></li>
           </ul>
         </div>
       </div>
@@ -478,207 +281,325 @@
     </div>
   </footer>
 
+  <div class="page-loader" id="pageLoader">
+    <img src="Images/SeedsOfSuccess_pic.jpeg" alt="" />
+    <div class="loader-spinner"></div>
+  </div>
+
   <script>
-    
+    const API_BASE = "https://worker-api.seedsofsuccessngo.workers.dev";
 
-    // Static demo: visually mark a row as approved/rejected
-    function markRow(btn, state) {
-      const row = btn.closest('tr');
-      const pill = row.querySelector('.pill');
-      const actions = row.querySelector('.row-actions');
-      if (state === 'approved') {
-        pill.className = 'pill pill-approved';
-        pill.textContent = 'Approved';
-        actions.innerHTML = '<em style="color:#5a6b66">Done</em>';
-      } else {
-        pill.className = 'pill pill-rejected';
-        pill.textContent = 'Rejected';
-        actions.innerHTML = '<em style="color:#5a6b66">Closed</em>';
-      }
-      refreshAdminMetrics();
-    }
-
-    const studentProgress = {
-      'Arun K.': { sessions: 18, progress: 80, marks: 84, topics: ['Reading comprehension', 'Short stories', 'Grammar basics', 'Vocabulary practice'] },
-      'Meena R.': { sessions: 14, progress: 65, marks: 72, topics: ['Phonics', 'Basic vocabulary', 'Reading drill'] },
-      'Sundar V.': { sessions: 20, progress: 92, marks: 91, topics: ['Sentence building', 'Practice exercises', 'Reading practice', 'Conversation'] },
-      'Ravi M.': { sessions: 7, progress: 35, marks: 58, topics: ['Greetings', 'Introductions'] },
-      'Divya P.': { sessions: 9, progress: 55, marks: 67, topics: ['Listening', 'Song lyrics', 'Comprehension'] }
+    const state = {
+      volunteerApplications: [],
+      tutorApplications: [],
+      tutors: [],
+      volunteers: [],
+      students: [],
+      reports: null,
     };
 
-    function getActiveTutorNames() {
-      return Array.from(document.querySelectorAll('#tutorTableBody tr'))
-        .filter(row => row.querySelector('.pill')?.textContent.trim() === 'Active')
-        .map(row => row.cells[0].textContent.trim());
+    function escapeHTML(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
     }
 
-    function openTutorDropdown(btn) {
-      const row = btn.closest('tr');
-      const tutorCell = row.cells[1];
-      const currentTutor = tutorCell.textContent.trim();
-      const select = document.createElement('select');
-      select.className = 'inline-field';
-      select.innerHTML = '<option value="">Unassigned</option>' + getActiveTutorNames()
-        .map(name => `<option value="${name}" ${name === currentTutor ? 'selected' : ''}>${name}</option>`)
-        .join('');
-      select.addEventListener('change', () => {
-        tutorCell.innerHTML = select.value || '<em style="color:#a06b00">Unassigned</em>';
-        btn.textContent = select.value ? 'Reassign' : 'Assign';
-        refreshAdminMetrics();
-      });
-      tutorCell.innerHTML = '';
-      tutorCell.appendChild(select);
-      select.focus();
+    function pill(status) {
+      const value = String(status || "pending").toLowerCase();
+      const cls = value === "approved" || value === "active" ? "pill-approved" : value === "rejected" || value === "inactive" ? "pill-rejected" : "pill-pending";
+      return `<span class="pill ${cls}">${escapeHTML(value.charAt(0).toUpperCase() + value.slice(1))}</span>`;
     }
 
-    function addTutor(nameFromApproval) {
-      const input = document.getElementById('newTutorName');
-      const name = (nameFromApproval || input.value).trim();
-      if (!name) return;
-      const body = document.getElementById('tutorTableBody');
-      if (Array.from(body.querySelectorAll('tr')).some(row => row.cells[0].textContent.trim() === name)) return;
-      const row = document.createElement('tr');
-      row.dataset.tutor = name;
-      row.innerHTML = `
-        <td>${name}</td><td data-assigned-count>0 students</td>
-        <td><span class="pill pill-approved">Active</span></td>
-        <td class="row-actions">
-          <button class="btn btn-edit" onclick="toggleTutorStatus(this)">Mark Inactive</button>
-          <button class="btn btn-delete" onclick="deleteTutor(this)">Delete</button>
-        </td>`;
-      body.appendChild(row);
-      if (input && !nameFromApproval) input.value = '';
-      refreshAdminMetrics();
-    }
-
-    function deleteTutor(btn) {
-      const row = btn.closest('tr');
-      const name = row.cells[0].textContent.trim();
-      document.querySelectorAll('table td:nth-child(2)').forEach(cell => {
-        if (cell.textContent.trim() === name) cell.innerHTML = '<em style="color:#a06b00">Unassigned</em>';
-      });
-      row.remove();
-      refreshAdminMetrics();
-    }
-
-    function toggleTutorStatus(btn) {
-      const row = btn.closest('tr');
-      const pill = row.querySelector('.pill');
-      const isActive = pill.textContent.trim() === 'Active';
-      pill.className = isActive ? 'pill pill-rejected' : 'pill pill-approved';
-      pill.textContent = isActive ? 'Inactive' : 'Active';
-      btn.textContent = isActive ? 'Mark Active' : 'Mark Inactive';
-      refreshAdminMetrics();
-    }
-
-    function approveTutorApplication(btn) {
-      const row = btn.closest('tr');
-      const name = row.cells[0].textContent.trim();
-      markRow(btn, 'approved');
-      addTutor(name);
-      showAdminNotice(`${name} approved. Notification sent and tutor added to the system.`);
-    }
-
-    function showAdminNotice(message) {
-      const notice = document.getElementById('adminNotice');
-      if (!notice) return;
-      notice.textContent = message;
-      notice.style.display = 'block';
-    }
-
-    function assignVolunteerTask() {
-      const volunteerName = document.getElementById('taskVolunteer').value;
-      const taskText = document.getElementById('taskText').value.trim();
-      if (!taskText) return;
-      const row = Array.from(document.querySelectorAll('#volunteerTableBody tr')).find(item => item.cells[0].textContent.trim() === volunteerName);
-      if (row) row.querySelector('[data-task-cell]').textContent = taskText;
-      document.getElementById('taskText').value = '';
-    }
-
-    function clearVolunteerTask(btn) {
-      btn.closest('tr').querySelector('[data-task-cell]').innerHTML = '<em style="color:#a06b00">No task assigned</em>';
-    }
-
-    function openStudentDetail(studentName) {
-      const detail = studentProgress[studentName];
-      if (!detail) return;
-      document.getElementById('studentDetailTitle').textContent = studentName;
-      document.getElementById('studentDetailOverall').textContent = `${detail.progress}% Complete`;
-      document.getElementById('studentDetailTopics').innerHTML = detail.topics.map(topic => `<li>${topic}</li>`).join('');
-      document.getElementById('studentDetailScores').innerHTML = `
-        <li>Completed Sessions: <strong>${detail.sessions}</strong></li>
-        <li>Average Progress: <strong>${detail.progress}%</strong></li>
-        <li>Overall Marks: <strong>${detail.marks} / 100</strong></li>`;
-      document.getElementById('studentDetailModal').classList.add('open');
-    }
-
-    function refreshAdminMetrics() {
-      const details = Object.values(studentProgress);
-      const completedSessions = details.reduce((sum, detail) => sum + detail.sessions, 0);
-      const avgProgress = Math.round(details.reduce((sum, detail) => sum + detail.progress, 0) / details.length);
-      const avgMarks = Math.round(details.reduce((sum, detail) => sum + detail.marks, 0) / details.length);
-      const pendingCount = document.querySelectorAll('.pill-pending').length;
-      document.getElementById('completedSessionsStat').textContent = completedSessions;
-      document.getElementById('pendingApplicationsStat').textContent = pendingCount;
-      document.getElementById('totalTutorsStat').textContent = document.querySelectorAll('#tutorTableBody tr').length;
-      document.querySelectorAll('#tutorTableBody tr').forEach(row => {
-        const tutorName = row.cells[0].textContent.trim();
-        const assignedCount = Array.from(document.querySelectorAll('tr'))
-          .filter(studentRow => studentProgress[studentRow.cells[0]?.textContent.trim()] && studentRow.cells[1]?.textContent.trim() === tutorName)
-          .length;
-        const countCell = row.querySelector('[data-assigned-count]');
-        if (countCell) countCell.textContent = `${assignedCount} ${assignedCount === 1 ? 'student' : 'students'}`;
-      });
-      document.getElementById('reportCompletedSessions').textContent = completedSessions;
-      document.getElementById('reportAverageProgress').textContent = `${avgProgress}%`;
-      document.getElementById('reportAverageMarks').textContent = `${avgMarks}%`;
-      document.getElementById('reportAverageProgressBar').style.width = `${avgProgress}%`;
-    }
-
-    document.querySelectorAll('tr').forEach(row => {
-      const firstCell = row.cells?.[0];
-      const studentName = firstCell?.textContent.trim();
-      if (studentProgress[studentName] && !firstCell.querySelector('.student-link')) {
-        firstCell.innerHTML = `<a href="#" class="student-link" data-student="${studentName}">${studentName}</a>`;
+    function showAlert(message, type = "info") {
+      const alert = document.getElementById("adminAlert");
+      alert.textContent = message;
+      alert.className = `admin-alert show ${type}`;
+      if (type !== "error") {
+        setTimeout(() => alert.classList.remove("show"), 3500);
       }
-    });
-    document.querySelectorAll('.summary-row .name').forEach(nameEl => {
-      const studentName = nameEl.textContent.trim();
-      nameEl.innerHTML = `<a href="#" class="student-link" data-student="${studentName}">${studentName}</a>`;
-    });
-    document.querySelectorAll('.student-link').forEach(link => {
-      link.addEventListener('click', e => {
-        e.preventDefault();
-        openStudentDetail(link.dataset.student || link.textContent.trim());
+    }
+
+    async function apiFetch(path, options = {}) {
+      const response = await fetch(`${API_BASE}${path}`, {
+        ...options,
+        headers: {
+          "Content-Type": "application/json",
+          ...(options.headers || {}),
+        },
       });
-    });
-    document.getElementById('studentDetailClose').addEventListener('click', () => document.getElementById('studentDetailModal').classList.remove('open'));
-    document.getElementById('studentDetailModal').addEventListener('click', e => {
-      if (e.target.id === 'studentDetailModal') e.target.classList.remove('open');
-    });
-    refreshAdminMetrics();
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok || result.success === false) {
+        throw new Error(result.error || result.message || "Request failed");
+      }
+      return result;
+    }
 
-    document.querySelectorAll('td.row-actions button.btn-assign').forEach(button => {
-      if (!button.onclick) button.addEventListener('click', () => openTutorDropdown(button));
+    function renderVolunteerApplications() {
+      const body = document.getElementById("volunteerApplicationsBody");
+      if (!state.volunteerApplications.length) {
+        body.innerHTML = `<tr><td colspan="7" class="empty-row">No volunteer applications found.</td></tr>`;
+        return;
+      }
+
+      body.innerHTML = state.volunteerApplications.map(app => `
+        <tr>
+          <td>${escapeHTML(app.full_name)}</td>
+          <td>${escapeHTML(app.email)}</td>
+          <td>${escapeHTML(app.role || "-")}</td>
+          <td>${escapeHTML(app.skills || "-")}</td>
+          <td class="message-cell">${escapeHTML(app.message || "-")}</td>
+          <td>${pill(app.status)}</td>
+          <td class="row-actions">
+            ${app.status === "pending" ? `
+              <button class="btn btn-approve" onclick="updateVolunteerStatus('${app.id}', 'approved')">Approve</button>
+              <button class="btn btn-reject" onclick="updateVolunteerStatus('${app.id}', 'rejected')">Reject</button>
+            ` : `<em style="color:#5a6b66">Reviewed</em>`}
+          </td>
+        </tr>
+      `).join("");
+    }
+
+    function renderTutorApplications() {
+      const body = document.getElementById("tutorApplicationsBody");
+      if (!state.tutorApplications.length) {
+        body.innerHTML = `<tr><td colspan="7" class="empty-row">No tutor applications found.</td></tr>`;
+        return;
+      }
+
+      body.innerHTML = state.tutorApplications.map(app => `
+        <tr>
+          <td>${escapeHTML(app.full_name)}</td>
+          <td>${escapeHTML(app.email)}</td>
+          <td>${escapeHTML(app.phone || "-")}</td>
+          <td>${escapeHTML(app.skills || "-")}</td>
+          <td>${escapeHTML(app.availability || "-")}</td>
+          <td>${pill(app.status)}</td>
+          <td class="row-actions">
+            ${app.status === "pending" ? `
+              <button class="btn btn-approve" onclick="updateTutorStatus('${app.id}', 'approved')">Approve</button>
+              <button class="btn btn-reject" onclick="updateTutorStatus('${app.id}', 'rejected')">Reject</button>
+            ` : `<em style="color:#5a6b66">Reviewed</em>`}
+          </td>
+        </tr>
+      `).join("");
+    }
+
+    function renderTutors() {
+      const body = document.getElementById("tutorTableBody");
+      if (!state.tutors.length) {
+        body.innerHTML = `<tr><td colspan="4" class="empty-row">No approved tutors found.</td></tr>`;
+        return;
+      }
+
+      body.innerHTML = state.tutors.map(tutor => `
+        <tr>
+          <td>${escapeHTML(tutor.full_name)}</td>
+          <td>${escapeHTML(tutor.email || "-")}</td>
+          <td>${Number(tutor.assigned_students || 0)} ${Number(tutor.assigned_students || 0) === 1 ? "student" : "students"}</td>
+          <td>${pill(tutor.status)}</td>
+        </tr>
+      `).join("");
+    }
+
+    function renderStudents() {
+      const body = document.getElementById("studentsTableBody");
+      if (!state.students.length) {
+        body.innerHTML = `<tr><td colspan="4" class="empty-row">No students found.</td></tr>`;
+        return;
+      }
+
+      body.innerHTML = state.students.map(student => `
+        <tr>
+          <td><a href="#" class="student-link" onclick="openStudentDetail('${student.id}'); return false;">${escapeHTML(student.full_name)}</a></td>
+          <td>${student.tutor_name ? escapeHTML(student.tutor_name) : '<em style="color:#a06b00">Unassigned</em>'}</td>
+          <td>${Number(student.progress || 0)}%</td>
+          <td>${pill(student.status)}</td>
+        </tr>
+      `).join("");
+    }
+
+    function renderVolunteers() {
+      const body = document.getElementById("volunteerTableBody");
+      const select = document.getElementById("taskVolunteer");
+
+      if (!state.volunteers.length) {
+        body.innerHTML = `<tr><td colspan="4" class="empty-row">No approved volunteers found.</td></tr>`;
+        select.innerHTML = `<option value="">No volunteers available</option>`;
+        return;
+      }
+
+      body.innerHTML = state.volunteers.map(volunteer => `
+        <tr>
+          <td>${escapeHTML(volunteer.full_name)}</td>
+          <td>${escapeHTML(volunteer.email || "-")}</td>
+          <td>${pill(volunteer.status)}</td>
+          <td>${volunteer.current_task ? escapeHTML(volunteer.current_task) : '<em style="color:#a06b00">No task assigned</em>'}</td>
+        </tr>
+      `).join("");
+
+      select.innerHTML = `<option value="">Select volunteer</option>` + state.volunteers.map(volunteer => `
+        <option value="${escapeHTML(volunteer.id)}">${escapeHTML(volunteer.full_name)}</option>
+      `).join("");
+    }
+
+    function renderReports() {
+      const reports = state.reports;
+      if (!reports) return;
+
+      document.getElementById("reportCompletedSessions").textContent = reports.total_completed_sessions || 0;
+      document.getElementById("reportAverageProgress").textContent = `${reports.average_student_progress || 0}%`;
+      document.getElementById("reportAverageProgressBar").style.width = `${reports.average_student_progress || 0}%`;
+      document.getElementById("reportAverageMarks").textContent = `${reports.average_marks || 0}%`;
+      document.getElementById("reportActivePairs").textContent = reports.active_tutor_student_pairs || 0;
+      document.getElementById("reportUnassignedStudents").textContent = reports.unassigned_students || 0;
+
+      const summary = document.getElementById("studentSummaryBody");
+      if (!reports.students || !reports.students.length) {
+        summary.innerHTML = `<p class="empty-row">No student progress data available.</p>`;
+        return;
+      }
+
+      summary.innerHTML = reports.students.map(student => `
+        <div class="summary-row">
+          <span class="name"><a href="#" class="student-link" onclick="openStudentDetail('${student.id}'); return false;">${escapeHTML(student.full_name)}</a></span>
+          <div class="bar-wrap">
+            <div class="progress-bar"><span style="width:${Number(student.progress || 0)}%"></span></div>
+            <span class="pct">${Number(student.progress || 0)}%</span>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function renderStats(stats) {
+      document.getElementById("totalTutorsStat").textContent = stats.total_tutors || 0;
+      document.getElementById("totalStudentsStat").textContent = stats.total_students || 0;
+      document.getElementById("pendingApplicationsStat").textContent = stats.pending_applications || 0;
+      document.getElementById("completedSessionsStat").textContent = stats.completed_sessions || 0;
+    }
+
+    async function loadDashboard() {
+      try {
+        showAlert("Loading dashboard data...", "info");
+
+        const [statsRes, volunteerAppsRes, tutorAppsRes, tutorsRes, studentsRes, volunteersRes, reportsRes] = await Promise.all([
+          apiFetch("/api/admin/stats"),
+          apiFetch("/api/admin/volunteer-applications"),
+          apiFetch("/api/admin/tutor-applications"),
+          apiFetch("/api/admin/tutors"),
+          apiFetch("/api/admin/students"),
+          apiFetch("/api/admin/volunteers"),
+          apiFetch("/api/admin/reports"),
+        ]);
+
+        renderStats(statsRes.stats || {});
+        state.volunteerApplications = volunteerAppsRes.applications || [];
+        state.tutorApplications = tutorAppsRes.applications || [];
+        state.tutors = tutorsRes.tutors || [];
+        state.students = studentsRes.students || [];
+        state.volunteers = volunteersRes.volunteers || [];
+        state.reports = reportsRes.reports || null;
+
+        renderVolunteerApplications();
+        renderTutorApplications();
+        renderTutors();
+        renderStudents();
+        renderVolunteers();
+        renderReports();
+
+        showAlert("Dashboard loaded successfully.", "success");
+      } catch (error) {
+        console.error(error);
+        showAlert(error.message || "Failed to load dashboard data.", "error");
+      }
+    }
+
+    async function updateVolunteerStatus(id, status) {
+      try {
+        await apiFetch(`/api/admin/volunteer-applications/${encodeURIComponent(id)}/status`, {
+          method: "PATCH",
+          body: JSON.stringify({ status }),
+        });
+        showAlert(`Volunteer application ${status}. Notification queued.`, "success");
+        await loadDashboard();
+      } catch (error) {
+        console.error(error);
+        showAlert(error.message || "Failed to update volunteer application.", "error");
+      }
+    }
+
+    async function updateTutorStatus(id, status) {
+      try {
+        await apiFetch(`/api/admin/tutor-applications/${encodeURIComponent(id)}/status`, {
+          method: "PATCH",
+          body: JSON.stringify({ status }),
+        });
+        showAlert(`Tutor application ${status}. Notification queued.`, "success");
+        await loadDashboard();
+      } catch (error) {
+        console.error(error);
+        showAlert(error.message || "Failed to update tutor application.", "error");
+      }
+    }
+
+    async function assignVolunteerTask() {
+      const volunteerId = document.getElementById("taskVolunteer").value;
+      const taskTitle = document.getElementById("taskText").value.trim();
+      if (!volunteerId || !taskTitle) {
+        showAlert("Select a volunteer and enter a task.", "error");
+        return;
+      }
+
+      try {
+        await apiFetch("/api/admin/volunteer-tasks", {
+          method: "POST",
+          body: JSON.stringify({ volunteer_id: volunteerId, task_title: taskTitle }),
+        });
+        document.getElementById("taskText").value = "";
+        showAlert("Task assigned successfully.", "success");
+        await loadDashboard();
+      } catch (error) {
+        console.error(error);
+        showAlert(error.message || "Failed to assign task.", "error");
+      }
+    }
+
+    function openStudentDetail(studentId) {
+      const student = state.students.find(item => item.id === studentId) || state.reports?.students?.find(item => item.id === studentId);
+      if (!student) return;
+
+      document.getElementById("studentDetailTitle").textContent = student.full_name;
+      document.getElementById("studentDetailOverall").textContent = `${Number(student.progress || 0)}% Complete`;
+
+      const topics = student.completed_topic_names || [];
+      document.getElementById("studentDetailTopics").innerHTML = topics.length
+        ? topics.map(topic => `<li>${escapeHTML(topic)}</li>`).join("")
+        : `<li>No completed topics yet.</li>`;
+
+      const scores = student.topic_scores || [];
+      document.getElementById("studentDetailScores").innerHTML = `
+        <li>Completed Sessions: <strong>${Number(student.completed_sessions || 0)}</strong></li>
+        <li>Average Progress: <strong>${Number(student.progress || 0)}%</strong></li>
+        <li>Average Marks: <strong>${Number(student.average_marks || 0)} / 100</strong></li>
+        ${scores.length ? `<li>Scores: <strong>${scores.map(Number).join(", ")}</strong></li>` : ""}
+      `;
+
+      document.getElementById("studentDetailModal").classList.add("open");
+    }
+
+    document.getElementById("studentDetailClose").addEventListener("click", () => {
+      document.getElementById("studentDetailModal").classList.remove("open");
     });
 
-    document.querySelectorAll('td.row-actions button.btn-delete').forEach(button => {
-      if (!button.onclick) button.addEventListener('click', () => deleteTutor(button));
+    document.getElementById("studentDetailModal").addEventListener("click", event => {
+      if (event.target.id === "studentDetailModal") event.target.classList.remove("open");
     });
 
-    const parentApprovalButtons = Array.from(document.querySelectorAll('tr')).filter(row => row.cells[1]?.textContent.trim() === 'Parent')
-      .flatMap(row => Array.from(row.querySelectorAll('.btn-approve')));
-    parentApprovalButtons.forEach(button => {
-      button.addEventListener('click', () => showAdminNotice('Parent feedback approved. Thank-you notification sent.'));
-    });
+    document.addEventListener("DOMContentLoaded", loadDashboard);
   </script>
 
   <script src="js/common.js"></script>
-
-
-<div class="page-loader" id="pageLoader">
-    <img src="Images/SeedsOfSuccess_pic.jpeg" alt="">
-    <div class="loader-spinner"></div>
-</div>
 </body>
 </html>

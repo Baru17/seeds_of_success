@@ -104,8 +104,8 @@
         </form>
 
         <div class="auth-footer" id="signupRow">
-New here? <a href="signup.html" id="createAccountLink">Create an account</a>
-        </div>
+  New here? <a href="#" id="createAccountLink">Create an account</a>
+</div>
 
         <div class="demo-note">
           <strong>Demo:</strong> This is a static preview. Sign-in goes straight to the
@@ -175,7 +175,7 @@ New here? <a href="signup.html" id="createAccountLink">Create an account</a>
   createAccountLink.href = 'signup.html?role=tutor';
   signupRow.style.display = 'block';
 } else if (role === 'volunteer') {
-  createAccountLink.href = 'volunteer.html?role=volunteer';
+  createAccountLink.href = 'volunteer.html';
   signupRow.style.display = 'block';
 } else {
   signupRow.style.display = 'none';

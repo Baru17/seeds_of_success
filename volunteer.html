@@ -80,7 +80,16 @@
           <div class="vol-row">
             <div class="vol-group">
               <label for="vname">Full Name</label>
-              <input type="text" id="vname" placeholder="Your full name" required />
+              <input
+    type="text"
+    id="vname"
+    placeholder="Your full name"
+    required
+    minlength="2"
+    maxlength="50"
+    pattern="^[A-Za-z]+([ '.-][A-Za-z]+)*$"
+    title="Name should contain only letters, spaces, apostrophes, periods or hyphens."
+/>
             </div>
             <div class="vol-group">
               <label for="vemail">Email</label>
@@ -114,17 +123,24 @@
           <div class="vol-row">
             <div class="vol-group">
               <label for="vpassword">Create Password</label>
-              <input type="password" id="vpassword" placeholder="Create a secure password" minlength="8" required />
+              <input type="password" id="vpassword" placeholder="Create a secure password" minlength="8" maxlength="50" required />
             </div>
             <div class="vol-group">
               <label for="vconfirm">Confirm Password</label>
-              <input type="password" id="vconfirm" placeholder="Confirm your password" minlength="8" required />
+              <input type="password" id="vconfirm" placeholder="Confirm your password" minlength="8" maxlength="50" required />
             </div>
           </div>
 
           <div class="vol-group">
             <label for="vskills">Skills / Languages</label>
-            <input type="text" id="vskills" placeholder="English, Tamil, Storytelling, etc." />
+            <input
+    type="text"
+    id="vskills"
+    required
+    minlength="2"
+    maxlength="100"
+    placeholder="English, Tamil, Storytelling, etc."
+/>
           </div>
 
           <div class="vol-group">
@@ -224,109 +240,207 @@
 
 <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@23.8.1/build/js/intlTelInput.min.js"></script>
 
-  <script>
-    const volunteerPhoneInput = document.querySelector("#vphone");
+ <script>
+  const volunteerPhoneInput = document.querySelector("#vphone");
 
-    const volunteerPhone = window.intlTelInput(volunteerPhoneInput, {
+  const volunteerPhone = window.intlTelInput(volunteerPhoneInput, {
+    initialCountry: "us",
+    separateDialCode: true,
+    useFullscreenPopup: false,
+    utilsScript:
+      "https://cdn.jsdelivr.net/npm/intl-tel-input@23.8.1/build/js/utils.js"
+  });
 
-  initialCountry: "us",
-  separateDialCode: true,
-  useFullscreenPopup: false,
-  utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@23.8.1/build/js/utils.js"
-});
+  async function submitVolunteer(event) {
+    event.preventDefault();
 
-    async function submitVolunteer(event) {
-      event.preventDefault();
+    const fullName = document.getElementById("vname").value.trim();
+    const email = document.getElementById("vemail").value.trim();
+    const skills = document.getElementById("vskills").value.trim();
+    const message = document.getElementById("vmsg").value.trim();
+    const password = document.getElementById("vpassword").value;
+    const confirmPassword = document.getElementById("vconfirm").value;
+    const role = document.getElementById("vrole").value;
 
-      if (volunteerPhoneInput.value.trim() && !volunteerPhone.isValidNumber()) {
-        showCustomAlert("Please enter a valid phone number for the selected country.");
-        return;
-      }
+    const nameRegex = /^[A-Za-z]+([ '.-][A-Za-z]+)*$/;
+    const emailRegex =
+      /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
 
-      const data = {
-        full_name: document.getElementById("vname").value,
-        email: document.getElementById("vemail").value,
-        phone: volunteerPhoneInput.value.trim() ? volunteerPhone.getNumber() : "",
-        role: document.getElementById("vrole").value,
-        skills: document.getElementById("vskills").value,
-        message: document.getElementById("vmsg").value,
-        password: document.getElementById("vpassword").value
-      };
+    if (fullName.length < 2) {
+      showCustomAlert("Full name must contain at least 2 characters.");
+      return;
+    }
 
-      const messageLength = data.message.trim().length;
-      if (messageLength < 10) {
-        showCustomAlert("Message must be at least 10 characters.");
-        return;
-      }
+    if (fullName.length > 50) {
+      showCustomAlert("Full name must be 50 characters or fewer.");
+      return;
+    }
 
-      if (messageLength > 1000) {
-        showCustomAlert("Message must be 1000 characters or fewer.");
-        return;
-      }
+    if (!nameRegex.test(fullName)) {
+      showCustomAlert(
+        "Please enter a valid full name. Numbers and special characters such as @, #, $, and % are not allowed."
+      );
+      return;
+    }
 
-      if (data.password !== document.getElementById("vconfirm").value) {
-        showCustomAlert("Passwords do not match");
-        return;
-      }
+    if (!emailRegex.test(email)) {
+      showCustomAlert("Please enter a valid email address.");
+      return;
+    }
+
+    if (
+      !volunteerPhoneInput.value.trim() ||
+      !volunteerPhone.isValidNumber()
+    ) {
+      showCustomAlert(
+        "Please enter a valid phone number for the selected country."
+      );
+      return;
+    }
+
+    if (!role) {
+      showCustomAlert("Please select a role of interest.");
+      return;
+    }
+
+    if (password.length < 8) {
+      showCustomAlert("Password must contain at least 8 characters.");
+      return;
+    }
+
+    if (password.length > 50) {
+      showCustomAlert("Password must be 50 characters or fewer.");
+      return;
+    }
+
+    if (confirmPassword.length > 50) {
+      showCustomAlert("Confirm password must be 50 characters or fewer.");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      showCustomAlert("Passwords do not match.");
+      return;
+    }
+
+    if (skills.length < 2) {
+      showCustomAlert("Please enter your skills or languages.");
+      return;
+    }
+
+    if (skills.length > 100) {
+      showCustomAlert("Skills or languages must be 100 characters or fewer.");
+      return;
+    }
+
+    if (message.length < 10) {
+      showCustomAlert("Message must be at least 10 characters.");
+      return;
+    }
+
+    if (message.length > 1000) {
+      showCustomAlert("Message must be 1000 characters or fewer.");
+      return;
+    }
+
+    const data = {
+      full_name: fullName,
+      email: email,
+      phone: volunteerPhone.getNumber(),
+      role: role,
+      skills: skills,
+      message: message,
+      password: password
+    };
+
+    const submitButton = event.target.querySelector('button[type="submit"]');
+    const originalButtonText = submitButton.textContent;
+
+    submitButton.disabled = true;
+    submitButton.textContent = "Submitting...";
+
+    try {
+      const response = await fetch(
+        "https://worker-api.seedsofsuccessngo.workers.dev/api/application",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(data)
+        }
+      );
+
+      let result;
 
       try {
-        const response = await fetch(
-          "https://worker-api.seedsofsuccessngo.workers.dev/api/application",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify(data)
-          }
-        );
-
-        const result = await response.json();
-
-        if (result.success) {
-  document.getElementById("formCard").style.display = "none";
-  const successCard = document.getElementById("successCard");
-  successCard.style.display = "block";
-
-  successCard.scrollIntoView({
-    behavior: "smooth",
-    block: "center"
-  });
-} else {
-          const message =
-            result.error ||
-            result.message ||
-            "Failed to submit application. Please try again.";
-
-          showCustomAlert(message);
-          console.error(result);
-        }
-
-      } catch (error) {
-        console.error(error);
-        showCustomAlert("Something went wrong");
+        result = await response.json();
+      } catch {
+        throw new Error("Invalid response received from the server.");
       }
+
+      if (!response.ok || !result.success) {
+        const errorMessage =
+          result.error ||
+          result.message ||
+          "Failed to submit application. Please try again.";
+
+        showCustomAlert(errorMessage);
+        console.error(result);
+        return;
+      }
+
+      document.getElementById("formCard").style.display = "none";
+
+      const successCard = document.getElementById("successCard");
+      successCard.style.display = "block";
+
+      successCard.scrollIntoView({
+        behavior: "smooth",
+        block: "center"
+      });
+    } catch (error) {
+      console.error(error);
+
+      showCustomAlert(
+        error.message || "Something went wrong. Please try again."
+      );
+    } finally {
+      submitButton.disabled = false;
+      submitButton.textContent = originalButtonText;
     }
+  }
 
-    function showCustomAlert(message) {
-      document.getElementById("customAlertMessage").textContent = message;
-      document.getElementById("customAlert").classList.add("show");
-    }
+  function showCustomAlert(message) {
+    const customAlert = document.getElementById("customAlert");
+    const customAlertMessage =
+      document.getElementById("customAlertMessage");
 
-    function closeCustomAlert() {
-      document.getElementById("customAlert").classList.remove("show");
-    }
+    customAlertMessage.textContent = message;
+    customAlert.classList.add("show");
+  }
 
-    const params = new URLSearchParams(window.location.search);
-    const selectedRole = params.get("role");
+  function closeCustomAlert() {
+    document.getElementById("customAlert").classList.remove("show");
+  }
 
-    if (selectedRole) {
-      const roleDropdown = document.getElementById("vrole");
-      if (roleDropdown) {
+  const params = new URLSearchParams(window.location.search);
+  const selectedRole = params.get("role");
+
+  if (selectedRole) {
+    const roleDropdown = document.getElementById("vrole");
+
+    if (roleDropdown) {
+      const matchingOption = Array.from(roleDropdown.options).find(
+        option => option.value === selectedRole
+      );
+
+      if (matchingOption) {
         roleDropdown.value = selectedRole;
       }
     }
-  </script>
+  }
+</script>
 
   <script src="js/common.js"></script>
 
