@@ -2,451 +2,2250 @@ const DB_BINDING = "sos_db";
 
 async function hashPassword(password) {
   if (!password) return null;
+
   const bytes = new TextEncoder().encode(password);
-  const digest = await crypto.subtle.digest("SHA-256", bytes);
+
+  const digest = await crypto.subtle.digest(
+    "SHA-256",
+    bytes
+  );
+
   return Array.from(new Uint8Array(digest))
-    .map(byte => byte.toString(16).padStart(2, "0"))
+    .map(byte =>
+      byte.toString(16).padStart(2, "0")
+    )
     .join("");
 }
+
 
 function getDb(env) {
   return env[DB_BINDING];
 }
 
+
 function json(data, headers, status = 200) {
-  return Response.json(data, { status, headers });
+  return Response.json(data, {
+    status,
+    headers
+  });
 }
 
-function errorResponse(error, headers, status = 500) {
-  return json({ success: false, error: error.message }, headers, status);
-}
 
 function normalizeStatus(status) {
-  const value = String(status || "").toLowerCase();
-  if (!["pending", "approved", "rejected"].includes(value)) {
+
+  const value =
+    String(status || "").toLowerCase();
+
+  if (
+    ![
+      "pending",
+      "approved",
+      "rejected"
+    ].includes(value)
+  ) {
     throw new Error("Invalid status");
   }
+
   return value;
 }
 
+
 function isValidPhone(phone) {
-    return !phone || /^\+[1-9]\d{7,14}$/.test(String(phone).trim());
+
+  return (
+    !phone ||
+    /^\+?[0-9\s().-]{7,20}$/.test(
+      String(phone).trim()
+    )
+  );
 }
+
 
 function validateMessage(message) {
-  const length = String(message || "").trim().length;
-  if (length < 10) throw new Error("Message must be at least 10 characters.");
-  if (length > 1000) throw new Error("Message must be 1000 characters or fewer.");
+
+  const length =
+    String(message || "").trim().length;
+
+  if (length < 10) {
+    throw new Error(
+      "Message must be at least 10 characters."
+    );
+  }
+
+  if (length > 1000) {
+    throw new Error(
+      "Message must be 1000 characters or fewer."
+    );
+  }
 }
 
+
+
+/* =========================================================
+   STUDENT MAPPING
+========================================================= */
+
 function mapStudent(row) {
-  const topics = row.topic_names ? row.topic_names.split("||").filter(Boolean) : [];
-  const topicScores = row.topic_scores ? row.topic_scores.split("||").map(Number).filter(Number.isFinite) : [];
-  const completedTopics = Number(row.completed_topics || 0);
-  const totalTopics = Number(row.total_topics || 0);
-  const progress = totalTopics ? Math.round((completedTopics / totalTopics) * 100) : 0;
-  const averageMarks = topicScores.length
-    ? Math.round(topicScores.reduce((sum, score) => sum + score, 0) / topicScores.length)
-    : 0;
+
+  const topics =
+    row.topic_names
+      ? row.topic_names
+          .split("||")
+          .filter(Boolean)
+      : [];
+
+
+  const topicScores =
+    row.topic_scores
+      ? row.topic_scores
+          .split("||")
+          .map(Number)
+          .filter(Number.isFinite)
+      : [];
+
+
+  const completedTopics =
+    Number(row.completed_topics || 0);
+
+
+  const totalTopics =
+    Number(row.total_topics || 0);
+
+
+  const progress =
+    totalTopics
+      ? Math.round(
+          (completedTopics / totalTopics) * 100
+        )
+      : 0;
+
+
+  const averageMarks =
+    topicScores.length
+      ? Math.round(
+          topicScores.reduce(
+            (sum, score) => sum + score,
+            0
+          ) / topicScores.length
+        )
+      : 0;
+
 
   return {
+
     id: row.id,
+
     full_name: row.full_name,
+
     grade: row.grade,
+
     school: row.school,
+
     status: row.status,
+
     tutor_id: row.tutor_id,
+
     tutor_name: row.tutor_name,
-    completed_sessions: Number(row.completed_sessions || 0),
-    total_topics: totalTopics,
-    completed_topics: completedTopics,
+
+    completed_sessions:
+      Number(row.completed_sessions || 0),
+
+    total_topics:
+      totalTopics,
+
+    completed_topics:
+      completedTopics,
+
     progress,
-    average_marks: averageMarks,
-    completed_topic_names: topics,
-    topic_scores: topicScores,
+
+    average_marks:
+      averageMarks,
+
+    completed_topic_names:
+      topics,
+
+    topic_scores:
+      topicScores
   };
 }
 
-async function getStudents(db) {
-  const result = await db.prepare(`
-    SELECT
-      s.id,
-      s.full_name,
-      s.grade,
-      s.school,
-      s.status,
-      ua.id AS tutor_id,
-      ua.full_name AS tutor_name,
-      COUNT(DISTINCT CASE WHEN ts.status = 'completed' THEN ts.id END) AS completed_sessions,
-      COUNT(DISTINCT st.id) AS total_topics,
-      COUNT(DISTINCT CASE WHEN st.completed_at IS NOT NULL THEN st.id END) AS completed_topics,
-      GROUP_CONCAT(CASE WHEN st.completed_at IS NOT NULL THEN st.topic_name END, '||') AS topic_names,
-      GROUP_CONCAT(CASE WHEN st.completed_at IS NOT NULL THEN st.score END, '||') AS topic_scores
-    FROM students s
-    LEFT JOIN student_assignments sa
-      ON sa.student_id = s.id AND sa.status = 'active'
-    LEFT JOIN user_accounts ua
-      ON ua.id = sa.tutor_id
-    LEFT JOIN student_topics st
-      ON st.student_id = s.id
-    LEFT JOIN tutoring_sessions ts
-      ON ts.student_id = s.id
-    GROUP BY s.id
-    ORDER BY s.full_name
-  `).all();
 
-  return (result.results || []).map(mapStudent);
+
+/* =========================================================
+   GET STUDENTS
+========================================================= */
+
+async function getStudents(db) {
+
+  const result =
+    await db.prepare(`
+      SELECT
+
+        s.id,
+        s.full_name,
+        s.grade,
+        s.school,
+        s.status,
+
+        ua.id AS tutor_id,
+        ua.full_name AS tutor_name,
+
+        COUNT(
+          DISTINCT CASE
+            WHEN ts.status = 'completed'
+            THEN ts.id
+          END
+        ) AS completed_sessions,
+
+        COUNT(
+          DISTINCT st.id
+        ) AS total_topics,
+
+        COUNT(
+          DISTINCT CASE
+            WHEN st.completed_at IS NOT NULL
+            THEN st.id
+          END
+        ) AS completed_topics,
+
+        GROUP_CONCAT(
+          CASE
+            WHEN st.completed_at IS NOT NULL
+            THEN st.topic_name
+          END,
+          '||'
+        ) AS topic_names,
+
+        GROUP_CONCAT(
+          CASE
+            WHEN st.completed_at IS NOT NULL
+            THEN st.score
+          END,
+          '||'
+        ) AS topic_scores
+
+      FROM students s
+
+      LEFT JOIN student_assignments sa
+        ON sa.student_id = s.id
+        AND sa.status = 'active'
+
+      LEFT JOIN user_accounts ua
+        ON ua.id = sa.tutor_id
+
+      LEFT JOIN student_topics st
+        ON st.student_id = s.id
+
+      LEFT JOIN tutoring_sessions ts
+        ON ts.student_id = s.id
+
+      GROUP BY s.id
+
+      ORDER BY s.full_name
+    `).all();
+
+
+  return (result.results || [])
+    .map(mapStudent);
 }
 
+
+
+/* =========================================================
+   GET TUTORS
+========================================================= */
+
 async function getTutors(db) {
-  const result = await db.prepare(`
-    SELECT
-      ua.id,
-      ua.full_name,
-      ua.email,
-      ua.phone,
-      ua.status,
-      COUNT(sa.student_id) AS assigned_students
-    FROM user_accounts ua
-    LEFT JOIN student_assignments sa
-      ON sa.tutor_id = ua.id AND sa.status = 'active'
-    WHERE ua.role = 'tutor'
-    GROUP BY ua.id
-    ORDER BY ua.full_name
-  `).all();
+
+  const result =
+    await db.prepare(`
+      SELECT
+
+        ua.id,
+        ua.full_name,
+        ua.email,
+        ua.phone,
+        ua.status,
+
+        COUNT(
+          sa.student_id
+        ) AS assigned_students
+
+      FROM user_accounts ua
+
+      LEFT JOIN student_assignments sa
+
+        ON sa.tutor_id = ua.id
+
+        AND sa.status = 'active'
+
+      WHERE ua.role = 'tutor'
+
+      GROUP BY ua.id
+
+      ORDER BY ua.full_name
+    `).all();
+
 
   return (result.results || []).map(row => ({
+
     id: row.id,
+
     full_name: row.full_name,
+
     email: row.email,
+
     phone: row.phone,
+
     status: row.status,
-    assigned_students: Number(row.assigned_students || 0),
+
+    assigned_students:
+      Number(row.assigned_students || 0)
+
   }));
 }
 
+
+
+/* =========================================================
+   GET VOLUNTEERS
+========================================================= */
+
+async function getVolunteers(db) {
+
+  const result =
+    await db.prepare(`
+      SELECT
+
+        ua.id,
+        ua.full_name,
+        ua.email,
+        ua.phone,
+        ua.status,
+        ua.notification_message,
+
+        vt.task_title AS current_task
+
+      FROM user_accounts ua
+
+      LEFT JOIN volunteer_tasks vt
+
+        ON vt.volunteer_id = ua.id
+
+        AND vt.status = 'open'
+
+      WHERE ua.role = 'volunteer'
+
+      ORDER BY ua.full_name
+    `).all();
+
+
+  return result.results || [];
+}
+
+
+
+/* =========================================================
+   REPORTS
+========================================================= */
+
 async function getReports(db) {
-  const students = await getStudents(db);
-  const completedSessions = students.reduce((sum, student) => sum + student.completed_sessions, 0);
-  const averageProgress = students.length
-    ? Math.round(students.reduce((sum, student) => sum + student.progress, 0) / students.length)
-    : 0;
-  const scoredStudents = students.filter(student => student.average_marks > 0);
-  const averageMarks = scoredStudents.length
-    ? Math.round(scoredStudents.reduce((sum, student) => sum + student.average_marks, 0) / scoredStudents.length)
-    : 0;
-  const activePairs = students.filter(student => student.tutor_id).length;
+
+  const students =
+    await getStudents(db);
+
+
+  const completedSessions =
+    students.reduce(
+      (sum, student) =>
+        sum + student.completed_sessions,
+      0
+    );
+
+
+  const averageProgress =
+    students.length
+
+      ? Math.round(
+
+          students.reduce(
+            (sum, student) =>
+              sum + student.progress,
+            0
+          ) / students.length
+
+        )
+
+      : 0;
+
+
+  const scoredStudents =
+    students.filter(
+      student =>
+        student.average_marks > 0
+    );
+
+
+  const averageMarks =
+    scoredStudents.length
+
+      ? Math.round(
+
+          scoredStudents.reduce(
+            (sum, student) =>
+              sum + student.average_marks,
+            0
+          ) / scoredStudents.length
+
+        )
+
+      : 0;
+
+
+  const activePairs =
+    students.filter(
+      student =>
+        student.tutor_id
+    ).length;
+
 
   return {
-    total_completed_sessions: completedSessions,
-    average_student_progress: averageProgress,
-    average_marks: averageMarks,
-    active_tutor_student_pairs: activePairs,
-    unassigned_students: students.length - activePairs,
-    students,
+
+    total_completed_sessions:
+      completedSessions,
+
+    average_student_progress:
+      averageProgress,
+
+    average_marks:
+      averageMarks,
+
+    active_tutor_student_pairs:
+      activePairs,
+
+    unassigned_students:
+      students.length - activePairs,
+
+    students
   };
 }
 
-export default {
-  async fetch(request, env) {
-    const corsHeaders = {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "GET, POST, PATCH, DELETE, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type"
-    };
 
-    if (request.method === "OPTIONS") {
-      return new Response(null, { headers: corsHeaders });
-    }
 
-    const url = new URL(request.url);
-    const db = getDb(env);
+/* =========================================================
+   QUEUE NOTIFICATION
+========================================================= */
 
-    try {
-      if (url.pathname === "/api/applications-count" && request.method === "GET") {
-        const result = await db
-          .prepare("SELECT COUNT(*) as count FROM volunteer_applications")
-          .first();
-
-        return json({ success: true, applications: result.count }, corsHeaders);
-      }
-
-      if (url.pathname === "/api/application" && request.method === "POST") {
-  const data = await request.json();
-
-  if (!isValidPhone(data.phone)) {
-    return json({ success: false, error: "Phone number must contain only numbers." }, corsHeaders, 400);
+async function queueNotification(
+  db,
+  {
+    userId = null,
+    email,
+    message,
+    now
   }
-
-  validateMessage(data.message);
-
-  const existingVolunteer = await db.prepare(`
-    SELECT id FROM volunteer_applications
-    WHERE email = ?
-    LIMIT 1
-  `).bind(data.email).first();
-
-  if (existingVolunteer) {
-    return json(
-      {
-        success: false,
-        error: "An application with this email already exists. Please sign in or use a different email address."
-      },
-      corsHeaders,
-      409
-    );
-  }
+) {
 
   await db.prepare(`
-    INSERT INTO volunteer_applications (
-      id, full_name, email, phone, role, skills, message, password_hash, status, created_at
-    )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `)
-    .bind(
-      crypto.randomUUID(),
-      data.full_name,
-      data.email,
-      data.phone,
-      data.role,
-      data.skills,
-      data.message,
-      await hashPassword(data.password || ""),
-      "pending",
-      new Date().toISOString()
-    )
-    .run();
+    INSERT INTO notifications (
 
-  return json({ success: true, message: "Application submitted successfully" }, corsHeaders);
+      id,
+
+      recipient_user_id,
+
+      recipient_email,
+
+      message,
+
+      status,
+
+      created_at
+
+    )
+
+    VALUES (?, ?, ?, ?, ?, ?)
+
+  `).bind(
+
+    crypto.randomUUID(),
+
+    userId,
+
+    email,
+
+    message,
+
+    "queued",
+
+    now
+
+  ).run();
 }
 
-      if (url.pathname === "/api/tutor-signup" && request.method === "POST") {
-        const data = await request.json();
+
+
+/* =========================================================
+   CREATE USER AFTER APPROVAL
+========================================================= */
+
+async function createOrUpdateUserFromApplication(
+  db,
+  application,
+  role,
+  statusMessage,
+  now
+) {
+
+  const existingUser =
+
+    await db.prepare(`
+      SELECT id
+
+      FROM user_accounts
+
+      WHERE email = ?
+    `)
+
+    .bind(application.email)
+
+    .first();
+
+
+  if (existingUser?.id) {
+
+    await db.prepare(`
+      UPDATE user_accounts
+
+      SET
+
+        full_name = ?,
+
+        phone = ?,
+
+        role = ?,
+
+        status = ?,
+
+        notification_message = ?,
+
+        updated_at = ?
+
+      WHERE id = ?
+    `)
+
+    .bind(
+
+      application.full_name,
+
+      application.phone || "",
+
+      role,
+
+      "active",
+
+      statusMessage,
+
+      now,
+
+      existingUser.id
+
+    )
+
+    .run();
+
+
+    return existingUser.id;
+  }
+
+
+  const userId =
+    crypto.randomUUID();
+
+
+  await db.prepare(`
+    INSERT INTO user_accounts (
+
+      id,
+
+      full_name,
+
+      email,
+
+      phone,
+
+      role,
+
+      password_hash,
+
+      status,
+
+      notification_message,
+
+      created_at,
+
+      updated_at
+
+    )
+
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+
+  `)
+
+  .bind(
+
+    userId,
+
+    application.full_name,
+
+    application.email,
+
+    application.phone || "",
+
+    role,
+
+    application.password_hash || null,
+
+    "active",
+
+    statusMessage,
+
+    now,
+
+    now
+
+  )
+
+  .run();
+
+
+  return userId;
+}
+
+
+
+/* =========================================================
+   CLOUDFLARE WORKER
+========================================================= */
+
+export default {
+
+  async fetch(request, env) {
+
+
+    const corsHeaders = {
+
+      "Access-Control-Allow-Origin": "*",
+
+      "Access-Control-Allow-Methods":
+        "GET, POST, PATCH, DELETE, OPTIONS",
+
+      "Access-Control-Allow-Headers":
+        "Content-Type"
+    };
+
+
+    if (request.method === "OPTIONS") {
+
+      return new Response(
+        null,
+        {
+          headers: corsHeaders
+        }
+      );
+    }
+
+
+    const url =
+      new URL(request.url);
+
+
+    const db =
+      getDb(env);
+
+
+
+    try {
+
+
+      /* =====================================================
+         APPLICATION COUNT
+      ===================================================== */
+
+      if (
+
+        url.pathname ===
+          "/api/applications-count"
+
+        &&
+
+        request.method === "GET"
+
+      ) {
+
+        const result =
+
+          await db
+
+            .prepare(`
+              SELECT COUNT(*) as count
+
+              FROM volunteer_applications
+            `)
+
+            .first();
+
+
+        return json(
+
+          {
+
+            success: true,
+
+            applications:
+              result.count
+
+          },
+
+          corsHeaders
+        );
+      }
+
+
+
+      /* =====================================================
+         VOLUNTEER APPLICATION SUBMISSION
+      ===================================================== */
+
+      if (
+
+        url.pathname ===
+          "/api/application"
+
+        &&
+
+        request.method === "POST"
+
+      ) {
+
+        const data =
+          await request.json();
+
 
         if (!isValidPhone(data.phone)) {
-          return json({ success: false, error: "Phone number must contain only numbers." }, corsHeaders, 400);
+
+          return json(
+
+            {
+
+              success: false,
+
+              error:
+                "Phone number format is invalid."
+
+            },
+
+            corsHeaders,
+
+            400
+          );
         }
 
-        await db.prepare(`
-  INSERT INTO tutor_applications (
-    id, full_name, email, phone, skills, availability, password_hash, status, created_at
-  )
-  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-`)
-.bind(
-  crypto.randomUUID(),
-  data.full_name,
-  data.email,
-  data.phone,
-  data.skills || "",
-  data.availability || "",
-  await hashPassword(data.password || ""),
-  "pending",
-  new Date().toISOString()
-)
-.run();
 
-return json({ success: true, message: "Tutor application submitted" }, corsHeaders);
+        validateMessage(
+          data.message
+        );
+
+
+        const existingVolunteer =
+
+          await db.prepare(`
+            SELECT id
+
+            FROM volunteer_applications
+
+            WHERE email = ?
+
+            LIMIT 1
+          `)
+
+          .bind(data.email)
+
+          .first();
+
+
+        if (existingVolunteer) {
+
+          return json(
+
+            {
+
+              success: false,
+
+              error:
+                "An application with this email already exists. Please sign in or use a different email address."
+
+            },
+
+            corsHeaders,
+
+            409
+          );
+        }
+
+
+        await db.prepare(`
+          INSERT INTO volunteer_applications (
+
+            id,
+
+            full_name,
+
+            email,
+
+            phone,
+
+            role,
+
+            skills,
+
+            message,
+
+            password_hash,
+
+            status,
+
+            created_at
+
+          )
+
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+
+        `)
+
+        .bind(
+
+          crypto.randomUUID(),
+
+          data.full_name,
+
+          data.email,
+
+          data.phone || "",
+
+          data.role,
+
+          data.skills || "",
+
+          data.message,
+
+          await hashPassword(
+            data.password || ""
+          ),
+
+          "pending",
+
+          new Date().toISOString()
+
+        )
+
+        .run();
+
+
+        return json(
+
+          {
+
+            success: true,
+
+            message:
+              "Application submitted successfully"
+
+          },
+
+          corsHeaders
+        );
       }
 
-      if (url.pathname === "/api/admin/stats" && request.method === "GET") {
-        const [tutors, students, pendingApplications, sessions] = await Promise.all([
-          db.prepare("SELECT COUNT(*) AS count FROM user_accounts WHERE role = 'tutor'").first(),
-          db.prepare("SELECT COUNT(*) AS count FROM students").first(),
-          db.prepare("SELECT COUNT(*) AS count FROM volunteer_applications WHERE status = 'pending'").first(),
-          db.prepare("SELECT COUNT(*) AS count FROM tutoring_sessions WHERE status = 'completed'").first(),
+
+
+      /* =====================================================
+         TUTOR SIGNUP
+      ===================================================== */
+
+      if (
+
+        url.pathname ===
+          "/api/tutor-signup"
+
+        &&
+
+        request.method === "POST"
+
+      ) {
+
+        const data =
+          await request.json();
+
+
+        if (!isValidPhone(data.phone)) {
+
+          return json(
+
+            {
+
+              success: false,
+
+              error:
+                "Phone number format is invalid."
+
+            },
+
+            corsHeaders,
+
+            400
+          );
+        }
+
+
+        const existingTutor =
+
+          await db.prepare(`
+            SELECT id
+
+            FROM tutor_applications
+
+            WHERE email = ?
+
+            LIMIT 1
+          `)
+
+          .bind(data.email)
+
+          .first();
+
+
+        if (existingTutor) {
+
+          return json(
+
+            {
+
+              success: false,
+
+              error:
+                "A tutor application with this email already exists. Please sign in or use a different email address."
+
+            },
+
+            corsHeaders,
+
+            409
+          );
+        }
+
+
+        await db.prepare(`
+          INSERT INTO tutor_applications (
+
+            id,
+
+            full_name,
+
+            email,
+
+            phone,
+
+            skills,
+
+            availability,
+
+            password_hash,
+
+            status,
+
+            created_at
+
+          )
+
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+
+        `)
+
+        .bind(
+
+          crypto.randomUUID(),
+
+          data.full_name,
+
+          data.email,
+
+          data.phone || "",
+
+          data.skills || "",
+
+          data.availability || "",
+
+          await hashPassword(
+            data.password || ""
+          ),
+
+          "pending",
+
+          new Date().toISOString()
+
+        )
+
+        .run();
+
+
+        return json(
+
+          {
+
+            success: true,
+
+            message:
+              "Tutor application submitted"
+
+          },
+
+          corsHeaders
+        );
+      }
+
+
+
+      /* =====================================================
+         ADMIN STATISTICS
+      ===================================================== */
+
+      if (
+
+        url.pathname ===
+          "/api/admin/stats"
+
+        &&
+
+        request.method === "GET"
+
+      ) {
+
+        const [
+
+          tutors,
+
+          students,
+
+          pendingVolunteers,
+
+          pendingTutors,
+
+          sessions
+
+        ] = await Promise.all([
+
+
+          db.prepare(`
+            SELECT COUNT(*) AS count
+
+            FROM user_accounts
+
+            WHERE role = 'tutor'
+          `).first(),
+
+
+          db.prepare(`
+            SELECT COUNT(*) AS count
+
+            FROM students
+          `).first(),
+
+
+          db.prepare(`
+            SELECT COUNT(*) AS count
+
+            FROM volunteer_applications
+
+            WHERE status = 'pending'
+          `).first(),
+
+
+          db.prepare(`
+            SELECT COUNT(*) AS count
+
+            FROM tutor_applications
+
+            WHERE status = 'pending'
+          `).first(),
+
+
+          db.prepare(`
+            SELECT COUNT(*) AS count
+
+            FROM tutoring_sessions
+
+            WHERE status = 'completed'
+          `).first()
+
         ]);
 
-        return json({
-          success: true,
-          stats: {
-            total_tutors: tutors.count || 0,
-            total_students: students.count || 0,
-            pending_applications: pendingApplications.count || 0,
-            completed_sessions: sessions.count || 0,
+
+        return json(
+
+          {
+
+            success: true,
+
+            stats: {
+
+              total_tutors:
+                tutors.count || 0,
+
+              total_students:
+                students.count || 0,
+
+              pending_applications:
+
+                (pendingVolunteers.count || 0)
+
+                +
+
+                (pendingTutors.count || 0),
+
+              completed_sessions:
+                sessions.count || 0
+
+            }
+
           },
-        }, corsHeaders);
+
+          corsHeaders
+        );
       }
 
-      if (url.pathname === "/api/admin/volunteer-applications" && request.method === "GET") {
-        const result = await db.prepare(`
-          SELECT id, full_name, email, phone, role, skills, message, status, created_at, reviewed_at
-          FROM volunteer_applications
-          ORDER BY
-            CASE status WHEN 'pending' THEN 0 WHEN 'approved' THEN 1 ELSE 2 END,
-            created_at DESC
-        `).all();
 
-        return json({ success: true, applications: result.results || [] }, corsHeaders);
+
+      /* =====================================================
+         GET VOLUNTEER APPLICATIONS
+      ===================================================== */
+
+      if (
+
+        url.pathname ===
+          "/api/admin/volunteer-applications"
+
+        &&
+
+        request.method === "GET"
+
+      ) {
+
+        const result =
+
+          await db.prepare(`
+            SELECT
+
+              id,
+
+              full_name,
+
+              email,
+
+              phone,
+
+              role,
+
+              skills,
+
+              message,
+
+              status,
+
+              created_at,
+
+              reviewed_at
+
+            FROM volunteer_applications
+
+            ORDER BY
+
+              CASE status
+
+                WHEN 'pending' THEN 0
+
+                WHEN 'approved' THEN 1
+
+                ELSE 2
+
+              END,
+
+              created_at DESC
+          `)
+
+          .all();
+
+
+        return json(
+
+          {
+
+            success: true,
+
+            applications:
+              result.results || []
+
+          },
+
+          corsHeaders
+        );
       }
 
-      const volunteerStatusMatch = url.pathname.match(/^\/api\/admin\/volunteer-applications\/([^/]+)\/status$/);
-      if (volunteerStatusMatch && request.method === "PATCH") {
-        const applicationId = decodeURIComponent(volunteerStatusMatch[1]);
-        const { status } = await request.json();
-        const normalizedStatus = normalizeStatus(status);
-        const reviewedAt = new Date().toISOString();
+
+
+      /* =====================================================
+         VOLUNTEER APPROVE / REJECT
+      ===================================================== */
+
+      const volunteerStatusMatch =
+
+        url.pathname.match(
+
+          /^\/api\/admin\/volunteer-applications\/([^/]+)\/status$/
+
+        );
+
+
+      if (
+
+        volunteerStatusMatch
+
+        &&
+
+        request.method === "PATCH"
+
+      ) {
+
+        const applicationId =
+
+          decodeURIComponent(
+            volunteerStatusMatch[1]
+          );
+
+
+        const { status } =
+          await request.json();
+
+
+        const normalizedStatus =
+          normalizeStatus(status);
+
+
+        const reviewedAt =
+          new Date().toISOString();
+
 
         await db.prepare(`
           UPDATE volunteer_applications
-          SET status = ?, reviewed_at = ?
+
+          SET
+
+            status = ?,
+
+            reviewed_at = ?
+
           WHERE id = ?
-        `).bind(normalizedStatus, reviewedAt, applicationId).run();
+        `)
 
-        const application = await db.prepare(`
-          SELECT id, full_name, email, phone, role, skills, message, status, created_at, reviewed_at
-          FROM volunteer_applications
-          WHERE id = ?
-        `).bind(applicationId).first();
+        .bind(
 
-        if (!application) return json({ success: false, error: "Application not found" }, corsHeaders, 404);
+          normalizedStatus,
 
-        if (normalizedStatus === "approved") {
-          const existingUser = await db.prepare("SELECT id FROM user_accounts WHERE email = ?").bind(application.email).first();
-          let userId = existingUser?.id;
-          if (!userId) {
-            userId = crypto.randomUUID();
-            await db.prepare(`
-              INSERT INTO user_accounts (
-                id, full_name, email, phone, role, status, notification_message, created_at, updated_at
-              )
-              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-            `).bind(
-              userId,
-              application.full_name,
-              application.email,
-              application.phone,
-              "volunteer",
-              "active",
-              "Your volunteer application has been approved.",
-              reviewedAt,
-              reviewedAt
-            ).run();
-          }
+          reviewedAt,
+
+          applicationId
+
+        )
+
+        .run();
+
+
+        const application =
 
           await db.prepare(`
-            INSERT INTO notifications (
-              id, recipient_user_id, recipient_email, message, status, created_at
-            )
-            VALUES (?, ?, ?, ?, ?, ?)
-          `).bind(
-            crypto.randomUUID(),
-            userId,
-            application.email,
-            "Your volunteer application has been approved. Thank you for joining Seeds of Success.",
-            "queued",
-            reviewedAt
-          ).run();
+            SELECT
+
+              id,
+
+              full_name,
+
+              email,
+
+              phone,
+
+              role,
+
+              skills,
+
+              message,
+
+              password_hash,
+
+              status,
+
+              created_at,
+
+              reviewed_at
+
+            FROM volunteer_applications
+
+            WHERE id = ?
+          `)
+
+          .bind(applicationId)
+
+          .first();
+
+
+        if (!application) {
+
+          return json(
+
+            {
+
+              success: false,
+
+              error:
+                "Application not found"
+
+            },
+
+            corsHeaders,
+
+            404
+          );
         }
 
-        return json({ success: true, application }, corsHeaders);
+
+        let userId = null;
+
+        let notificationMessage = "";
+
+
+        if (
+          normalizedStatus === "approved"
+        ) {
+
+          notificationMessage =
+            "Your volunteer application has been approved. Thank you for joining Seeds of Success.";
+
+
+          userId =
+
+            await createOrUpdateUserFromApplication(
+
+              db,
+
+              application,
+
+              "volunteer",
+
+              "Your volunteer application has been approved.",
+
+              reviewedAt
+            );
+        }
+
+
+        else if (
+          normalizedStatus === "rejected"
+        ) {
+
+          notificationMessage =
+            "Thank you for applying to volunteer with Seeds of Success. At this time, your application was not selected.";
+        }
+
+
+        if (notificationMessage) {
+
+          await queueNotification(
+
+            db,
+
+            {
+
+              userId,
+
+              email:
+                application.email,
+
+              message:
+                notificationMessage,
+
+              now:
+                reviewedAt
+
+            }
+
+          );
+        }
+
+
+        return json(
+
+          {
+
+            success: true,
+
+            application
+
+          },
+
+          corsHeaders
+        );
       }
 
-      if (url.pathname === "/api/admin/tutors" && request.method === "GET") {
-        return json({ success: true, tutors: await getTutors(db) }, corsHeaders);
+
+
+      /* =====================================================
+         GET TUTOR APPLICATIONS
+      ===================================================== */
+
+      if (
+
+        url.pathname ===
+          "/api/admin/tutor-applications"
+
+        &&
+
+        request.method === "GET"
+
+      ) {
+
+        const result =
+
+          await db.prepare(`
+            SELECT
+
+              id,
+
+              full_name,
+
+              email,
+
+              phone,
+
+              skills,
+
+              availability,
+
+              message,
+
+              status,
+
+              created_at,
+
+              reviewed_at
+
+            FROM tutor_applications
+
+            ORDER BY
+
+              CASE status
+
+                WHEN 'pending' THEN 0
+
+                WHEN 'approved' THEN 1
+
+                ELSE 2
+
+              END,
+
+              created_at DESC
+          `)
+
+          .all();
+
+
+        return json(
+
+          {
+
+            success: true,
+
+            applications:
+              result.results || []
+
+          },
+
+          corsHeaders
+        );
       }
 
-      if (url.pathname === "/api/admin/students" && request.method === "GET") {
-        return json({ success: true, students: await getStudents(db) }, corsHeaders);
+
+
+      /* =====================================================
+         TUTOR APPROVE / REJECT
+      ===================================================== */
+
+      const tutorStatusMatch =
+
+        url.pathname.match(
+
+          /^\/api\/admin\/tutor-applications\/([^/]+)\/status$/
+
+        );
+
+
+      if (
+
+        tutorStatusMatch
+
+        &&
+
+        request.method === "PATCH"
+
+      ) {
+
+        const applicationId =
+
+          decodeURIComponent(
+            tutorStatusMatch[1]
+          );
+
+
+        const { status } =
+          await request.json();
+
+
+        const normalizedStatus =
+          normalizeStatus(status);
+
+
+        const reviewedAt =
+          new Date().toISOString();
+
+
+        await db.prepare(`
+          UPDATE tutor_applications
+
+          SET
+
+            status = ?,
+
+            reviewed_at = ?
+
+          WHERE id = ?
+        `)
+
+        .bind(
+
+          normalizedStatus,
+
+          reviewedAt,
+
+          applicationId
+
+        )
+
+        .run();
+
+
+        const application =
+
+          await db.prepare(`
+            SELECT
+
+              id,
+
+              full_name,
+
+              email,
+
+              phone,
+
+              skills,
+
+              availability,
+
+              message,
+
+              password_hash,
+
+              status,
+
+              created_at,
+
+              reviewed_at
+
+            FROM tutor_applications
+
+            WHERE id = ?
+          `)
+
+          .bind(applicationId)
+
+          .first();
+
+
+        if (!application) {
+
+          return json(
+
+            {
+
+              success: false,
+
+              error:
+                "Tutor application not found"
+
+            },
+
+            corsHeaders,
+
+            404
+          );
+        }
+
+
+        let userId = null;
+
+        let notificationMessage = "";
+
+
+        if (
+          normalizedStatus === "approved"
+        ) {
+
+          notificationMessage =
+            "Your tutor application has been approved. Welcome to Seeds of Success.";
+
+
+          userId =
+
+            await createOrUpdateUserFromApplication(
+
+              db,
+
+              application,
+
+              "tutor",
+
+              "Your tutor application has been approved.",
+
+              reviewedAt
+            );
+        }
+
+
+        else if (
+          normalizedStatus === "rejected"
+        ) {
+
+          notificationMessage =
+            "Thank you for applying as a tutor with Seeds of Success. At this time, your application was not selected.";
+        }
+
+
+        if (notificationMessage) {
+
+          await queueNotification(
+
+            db,
+
+            {
+
+              userId,
+
+              email:
+                application.email,
+
+              message:
+                notificationMessage,
+
+              now:
+                reviewedAt
+
+            }
+
+          );
+        }
+
+
+        return json(
+
+          {
+
+            success: true,
+
+            application
+
+          },
+
+          corsHeaders
+        );
       }
 
-      if (url.pathname === "/api/admin/assign-tutor" && request.method === "POST") {
-        const { student_id, tutor_id, assigned_by_admin_id } = await request.json();
-        if (!student_id) return json({ success: false, error: "student_id is required" }, corsHeaders, 400);
 
-        const now = new Date().toISOString();
+
+      /* =====================================================
+         GET APPROVED TUTORS
+      ===================================================== */
+
+      if (
+
+        url.pathname ===
+          "/api/admin/tutors"
+
+        &&
+
+        request.method === "GET"
+
+      ) {
+
+        return json(
+
+          {
+
+            success: true,
+
+            tutors:
+              await getTutors(db)
+
+          },
+
+          corsHeaders
+        );
+      }
+
+
+
+      /* =====================================================
+         GET APPROVED VOLUNTEERS
+      ===================================================== */
+
+      if (
+
+        url.pathname ===
+          "/api/admin/volunteers"
+
+        &&
+
+        request.method === "GET"
+
+      ) {
+
+        return json(
+
+          {
+
+            success: true,
+
+            volunteers:
+              await getVolunteers(db)
+
+          },
+
+          corsHeaders
+        );
+      }
+
+
+
+      /* =====================================================
+         GET STUDENTS
+      ===================================================== */
+
+      if (
+
+        url.pathname ===
+          "/api/admin/students"
+
+        &&
+
+        request.method === "GET"
+
+      ) {
+
+        return json(
+
+          {
+
+            success: true,
+
+            students:
+              await getStudents(db)
+
+          },
+
+          corsHeaders
+        );
+      }
+
+
+
+      /* =====================================================
+         ASSIGN TUTOR TO STUDENT
+      ===================================================== */
+
+      if (
+
+        url.pathname ===
+          "/api/admin/assign-tutor"
+
+        &&
+
+        request.method === "POST"
+
+      ) {
+
+        const {
+
+          student_id,
+
+          tutor_id,
+
+          assigned_by_admin_id
+
+        } = await request.json();
+
+
+        if (!student_id) {
+
+          return json(
+
+            {
+
+              success: false,
+
+              error:
+                "student_id is required"
+
+            },
+
+            corsHeaders,
+
+            400
+          );
+        }
+
+
+        const now =
+          new Date().toISOString();
+
+
         await db.prepare(`
           UPDATE student_assignments
-          SET status = 'reassigned', updated_at = ?
-          WHERE student_id = ? AND status = 'active'
-        `).bind(now, student_id).run();
+
+          SET
+
+            status = 'reassigned',
+
+            updated_at = ?
+
+          WHERE
+
+            student_id = ?
+
+            AND status = 'active'
+        `)
+
+        .bind(
+
+          now,
+
+          student_id
+
+        )
+
+        .run();
+
 
         if (tutor_id) {
+
           await db.prepare(`
             INSERT INTO student_assignments (
-              id, student_id, tutor_id, assigned_by_admin_id, status, created_at, updated_at
+
+              id,
+
+              student_id,
+
+              tutor_id,
+
+              assigned_by_admin_id,
+
+              status,
+
+              created_at,
+
+              updated_at
+
             )
+
             VALUES (?, ?, ?, ?, ?, ?, ?)
-          `).bind(
+
+          `)
+
+          .bind(
+
             crypto.randomUUID(),
+
             student_id,
+
             tutor_id,
+
             assigned_by_admin_id || null,
+
             "active",
+
             now,
+
             now
-          ).run();
+
+          )
+
+          .run();
         }
 
-        return json({ success: true, students: await getStudents(db), tutors: await getTutors(db) }, corsHeaders);
+
+        return json(
+
+          {
+
+            success: true,
+
+            students:
+              await getStudents(db),
+
+            tutors:
+              await getTutors(db)
+
+          },
+
+          corsHeaders
+        );
       }
 
-      if (url.pathname === "/api/admin/reports" && request.method === "GET") {
-        return json({ success: true, reports: await getReports(db) }, corsHeaders);
+
+
+      /* =====================================================
+         REPORTS
+      ===================================================== */
+
+      if (
+
+        url.pathname ===
+          "/api/admin/reports"
+
+        &&
+
+        request.method === "GET"
+
+      ) {
+
+        return json(
+
+          {
+
+            success: true,
+
+            reports:
+              await getReports(db)
+
+          },
+
+          corsHeaders
+        );
       }
 
-      if (url.pathname === "/api/admin/volunteer-tasks" && request.method === "POST") {
-        const data = await request.json();
-        if (!data.volunteer_id || !data.task_title) {
-          return json({ success: false, error: "volunteer_id and task_title are required" }, corsHeaders, 400);
+
+
+      /* =====================================================
+         VOLUNTEER TASKS
+      ===================================================== */
+
+      if (
+
+        url.pathname ===
+          "/api/admin/volunteer-tasks"
+
+        &&
+
+        request.method === "POST"
+
+      ) {
+
+        const data =
+          await request.json();
+
+
+        if (
+
+          !data.volunteer_id
+
+          ||
+
+          !data.task_title
+
+        ) {
+
+          return json(
+
+            {
+
+              success: false,
+
+              error:
+                "volunteer_id and task_title are required"
+
+            },
+
+            corsHeaders,
+
+            400
+          );
         }
 
-        const now = new Date().toISOString();
-        const taskId = crypto.randomUUID();
+
+        const now =
+          new Date().toISOString();
+
+
+        const taskId =
+          crypto.randomUUID();
+
+
         await db.prepare(`
           INSERT INTO volunteer_tasks (
-            id, volunteer_id, assigned_by_admin_id, task_title, task_notes, due_at, status, created_at, updated_at
+
+            id,
+
+            volunteer_id,
+
+            assigned_by_admin_id,
+
+            task_title,
+
+            task_notes,
+
+            due_at,
+
+            status,
+
+            created_at,
+
+            updated_at
+
           )
+
           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `).bind(
+
+        `)
+
+        .bind(
+
           taskId,
+
           data.volunteer_id,
+
           data.assigned_by_admin_id || null,
+
           data.task_title,
+
           data.task_notes || null,
+
           data.due_at || null,
+
           "open",
+
           now,
+
           now
-        ).run();
 
-        const task = await db.prepare(`
-          SELECT vt.id, vt.volunteer_id, ua.full_name AS volunteer_name, vt.task_title, vt.task_notes, vt.due_at, vt.status, vt.created_at
-          FROM volunteer_tasks vt
-          JOIN user_accounts ua ON ua.id = vt.volunteer_id
-          WHERE vt.id = ?
-        `).bind(taskId).first();
+        )
 
-        return json({ success: true, task }, corsHeaders, 201);
+        .run();
+
+
+        const task =
+
+          await db.prepare(`
+            SELECT
+
+              vt.id,
+
+              vt.volunteer_id,
+
+              ua.full_name
+                AS volunteer_name,
+
+              ua.email
+                AS recipient_email,
+
+              vt.task_title,
+
+              vt.task_notes,
+
+              vt.due_at,
+
+              vt.status,
+
+              vt.created_at
+
+            FROM volunteer_tasks vt
+
+            JOIN user_accounts ua
+
+              ON ua.id =
+                 vt.volunteer_id
+
+            WHERE vt.id = ?
+          `)
+
+          .bind(taskId)
+
+          .first();
+
+
+        await queueNotification(
+
+          db,
+
+          {
+
+            userId:
+              data.volunteer_id,
+
+            email:
+              task?.recipient_email || null,
+
+            message:
+              `New volunteer task assigned: ${data.task_title}`,
+
+            now
+
+          }
+
+        );
+
+
+        return json(
+
+          {
+
+            success: true,
+
+            task
+
+          },
+
+          corsHeaders,
+
+          201
+        );
       }
 
-      return json({ success: true, message: "Seeds of Success API" }, corsHeaders);
-    } catch (error) {
-  const message = error.message || "";
 
-  if (message.includes("UNIQUE") || message.includes("user_accounts.email")) {
-    return json(
-      {
-        success: false,
-        error: "An account with this email already exists. Please sign in or use a different email address."
-      },
-      corsHeaders,
-      409
-    );
-  }
 
-  if (message.includes("Message must")) {
-    return json({ success: false, error: message }, corsHeaders, 400);
-  }
+      /* =====================================================
+         DEFAULT API RESPONSE
+      ===================================================== */
 
-  return json(
-    {
-      success: false,
-      error: "Something went wrong. Please try again later."
-    },
-    corsHeaders,
-    500
-  );
-}
+      return json(
+
+        {
+
+          success: true,
+
+          message:
+            "Seeds of Success API"
+
+        },
+
+        corsHeaders
+      );
+
+
+    }
+
+    catch (error) {
+
+
+      const message =
+        error.message || "";
+
+
+      console.error(
+        "Worker error:",
+        error
+      );
+
+
+      if (
+
+        message.includes("UNIQUE")
+
+        ||
+
+        message.includes(
+          "user_accounts.email"
+        )
+
+      ) {
+
+        return json(
+
+          {
+
+            success: false,
+
+            error:
+              "An account with this email already exists. Please sign in or use a different email address."
+
+          },
+
+          corsHeaders,
+
+          409
+        );
+      }
+
+
+      if (
+        message.includes("Message must")
+      ) {
+
+        return json(
+
+          {
+
+            success: false,
+
+            error: message
+
+          },
+
+          corsHeaders,
+
+          400
+        );
+      }
+
+
+      return json(
+
+        {
+
+          success: false,
+
+          error:
+            "Something went wrong. Please try again later."
+
+        },
+
+        corsHeaders,
+
+        500
+      );
+    }
   }
 };
