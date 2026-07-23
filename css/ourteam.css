@@ -3,209 +3,454 @@
    Page-specific styles only. Shared styles are in common.css.
    ============================================================ */
 
-/* ---------------------------------------------------------
-       Seeds of Success — Our Team Page
-       --------------------------------------------------------- */
 
-    /* 1. Reset & base */
+/* ============================================================
+   1. TEAM GRID
+   ============================================================ */
 
-    /* 2. Header & nav */
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 30px;
+}
 
-    /* 3. Hamburger */
 
-    /* 4. Page hero */
+/* ============================================================
+   2. TEAM CARD
+   ============================================================ */
 
-    /* 5. Section title (reused) */
-
-    /* 6. Team grid */
-    .team-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 30px;
-    }
-    .team-card { position: relative;
-      background: #ffffff;
-      border-radius: 18px;
-      padding: 36px 26px;
-      text-align: center;
-      box-shadow: 0 4px 18px rgba(13,110,79,0.08);
-      border: 2px solid #e8efec;
-      transition: all 0.3s ease;
-    }
-    .team-card:hover {
-      transform: translateY(-6px);
-      border-color: #0d6e4f;
-      box-shadow: 0 16px 38px rgba(13,110,79,0.15);
-    }
-    .avatar {
-      width: 110px; height: 110px;
-      border-radius: 50%;
-      margin: 0 auto 18px;
-      display: flex;
-      align-items: center; justify-content: center;
-      color: #fff;
-      font-family: "Playfair Display", serif;
-      font-size: 36px;
-      font-weight: 700;
-      box-shadow: 0 4px 14px rgba(13,110,79,0.25);
-      background: linear-gradient(135deg, #0d6e4f, #14906a);
-      overflow: hidden;
-    }
-    .avatar img {
-      width: 100%; height: 100%;
-      object-fit: cover;
-      border-radius: 50%;
-      display: block;
-    }
-    /* Different colors for variety */
-    .avatar.alt-1 { background: linear-gradient(135deg, #f5a623, #f7b945); color: #1f2d2a; }
-    .avatar.alt-2 { background: linear-gradient(135deg, #14906a, #1fb585); }
-    .avatar.alt-3 { background: linear-gradient(135deg, #102a23, #0d6e4f); }
-    .avatar.alt-4 { background: linear-gradient(135deg, #d97706, #f5a623); }
-
-    .team-card h3 {
-      font-family: "Playfair Display", serif;
-      font-size: 20px;
-      color: #0d6e4f;
-      margin-bottom: 4px;
-    }
-    .role {
-      display: inline-block;
-      background: #f5f9f7;
-      color: #0d6e4f;
-      font-size: 12px;
-      font-weight: 600;
-      letter-spacing: 0.5px;
-      text-transform: sentence-case;
-      padding: 4px 12px;
-      border-radius: 14px;
-      margin: 6px 0 10px;
-    }
-    /* Close (✕) styling for expanded member cards */
-    .member-close {
-      color: #0d6e4f;
-      background: transparent;
-      border: none;
-      cursor: pointer;
-      position: absolute;
-      top: 16px;
-      right: 16px;
-      font-size: 16px;
-      line-height: 1;
-    }
-
-    .team-card .member-details {
-      position: relative;
-      padding-top: 34px;
-    }
-
-    /*  */
-
-    /* keep location styles below */
-    .location {
-      color: #5a6b66;
-      font-size: 14px;
-      line-height: 1.5;
-    }
-
-    /* 7. CTA band */
-    .cta-band {
-      background: linear-gradient(135deg, #f5a623, #f7b945);
-      color: #1f2d2a;
-      padding: 70px 0;
-      text-align: center;
-    }
-    .cta-band h2 {
-      font-family: "Playfair Display", serif;
-      font-size: clamp(26px, 3.5vw, 36px);
-      margin-bottom: 14px;
-    }
-    .cta-band p { margin-bottom: 28px; font-size: 17px; }
-
-    /* 8. Footer */
-
-    /* 9. Responsive */
-    @media (max-width: 960px) {
-      .team-grid { grid-template-columns: repeat(2, 1fr); }
-      
-    }
-    @media (max-width: 768px) {
-
-      .team-grid { grid-template-columns: 1fr; }
-      
-    }
-
-    /* 10. Page transitions */
-
-    @keyframes pageFadeIn {
-      from { opacity: 0; transform: translateY(6px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes pageFadeOut {
-      from { opacity: 1; transform: translateY(0); }
-      to   { opacity: 0; transform: translateY(-6px); }
-    }
 .team-card {
+  position: relative;
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 36px 26px;
+  text-align: center;
+  box-shadow: 0 4px 18px rgba(13, 110, 79, 0.08);
+  border: 2px solid #e8efec;
+  transition:
+    transform 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
+
   cursor: pointer;
 }
 
 .team-card:hover {
   transform: translateY(-8px) scale(1.02);
+  border-color: #0d6e4f;
+  box-shadow: 0 16px 38px rgba(13, 110, 79, 0.15);
 }
+
+.team-card:focus-visible {
+  outline: 3px solid rgba(13, 110, 79, 0.35);
+  outline-offset: 4px;
+}
+
+
+/* ============================================================
+   3. MEMBER IMAGE
+   ============================================================ */
+
+.avatar {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  margin: 0 auto 18px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  overflow: hidden;
+
+  color: #ffffff;
+  font-family: "Playfair Display", serif;
+  font-size: 36px;
+  font-weight: 700;
+
+  background: linear-gradient(135deg, #0d6e4f, #14906a);
+  box-shadow: 0 4px 14px rgba(13, 110, 79, 0.25);
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.avatar.alt-1 {
+  background: linear-gradient(135deg, #f5a623, #f7b945);
+  color: #1f2d2a;
+}
+
+.avatar.alt-2 {
+  background: linear-gradient(135deg, #14906a, #1fb585);
+}
+
+.avatar.alt-3 {
+  background: linear-gradient(135deg, #102a23, #0d6e4f);
+}
+
+.avatar.alt-4 {
+  background: linear-gradient(135deg, #d97706, #f5a623);
+}
+
+
+/* ============================================================
+   4. MEMBER TEXT
+   ============================================================ */
+
+.team-card h3 {
+  margin: 0 0 4px;
+  color: #0d6e4f;
+  font-family: "Playfair Display", serif;
+  font-size: 20px;
+}
+
+.role {
+  display: inline-block;
+  margin: 6px 0 10px;
+  padding: 4px 12px;
+  border-radius: 14px;
+
+  background: #f5f9f7;
+  color: #0d6e4f;
+
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.location {
+  margin: 4px 0 0;
+  color: #5a6b66;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+
+/* Hide details inside the original cards */
 
 .member-details {
   display: none !important;
 }
 
+
+/* ============================================================
+   5. POPUP BACKGROUND
+   ============================================================ */
+
 .team-popup {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.55);
-  display: none;
-  align-items: center;
-  justify-content: center;
   z-index: 99999;
+
+  display: none;
+
+  /*
+   * Do not vertically center the popup.
+   * A long popup would move above the mobile screen.
+   */
+  align-items: flex-start;
+  justify-content: center;
+
   padding: 20px;
+
+  background: rgba(0, 0, 0, 0.58);
+
+  /*
+   * Allows the full popup to scroll when its content is taller
+   * than the device screen.
+   */
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 .team-popup.show {
   display: flex;
 }
 
-.team-popup-box {
-  background: #ffffff;
-  max-width: 620px;
-  width: 100%;
-  border-radius: 22px;
-  padding: 36px 28px;
-  text-align: center;
-  position: relative;
-  animation: popupZoom 0.35s ease;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+
+/* Prevent background page scrolling */
+
+body.popup-open {
+  overflow: hidden;
 }
+
+
+/* ============================================================
+   6. POPUP BOX
+   ============================================================ */
+
+.team-popup-box {
+  position: relative;
+
+  width: 100%;
+  max-width: 620px;
+  margin: 0 auto;
+
+  padding: 42px 34px 36px;
+
+  background: #ffffff;
+  border-radius: 22px;
+
+  text-align: center;
+
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+  animation: popupZoom 0.35s ease;
+}
+
+
+/* ============================================================
+   7. POPUP CLOSE BUTTON
+   ============================================================ */
 
 .team-popup-close {
   position: absolute;
-  top: 16px;
-  right: 18px;
+  top: 15px;
+  right: 17px;
+  z-index: 10;
+
+  width: 42px;
+  height: 42px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
   border: none;
-  background: transparent;
-  font-size: 22px;
-  cursor: pointer;
+  border-radius: 50%;
+
+  background: rgba(245, 249, 247, 0.95);
   color: #0d6e4f;
+
+  font-family: Arial, sans-serif;
+  font-size: 24px;
+  line-height: 1;
+
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease;
 }
 
-.team-popup-box .member-close {
-  display: none;
+.team-popup-close:hover {
+  background: #e7f3ee;
+  transform: rotate(90deg);
 }
+
+.team-popup-close:focus-visible {
+  outline: 3px solid rgba(13, 110, 79, 0.35);
+  outline-offset: 2px;
+}
+
+
+/* ============================================================
+   8. POPUP MEMBER CONTENT
+   ============================================================ */
+
+.team-popup-box .avatar {
+  width: 140px;
+  height: 140px;
+  margin-top: 0;
+  margin-bottom: 24px;
+}
+
+.team-popup-box h3 {
+  margin: 0 0 8px;
+
+  color: #1f2d2a;
+  font-family: "Playfair Display", serif;
+  font-size: clamp(24px, 4vw, 30px);
+  line-height: 1.25;
+}
+
+.team-popup-box .role {
+  margin: 0 0 20px;
+  padding: 7px 16px;
+
+  border-radius: 20px;
+
+  font-size: 14px;
+}
+
+.popup-member-details {
+  margin-top: 8px;
+}
+
+.popup-member-details p {
+  max-width: 500px;
+  margin: 0 auto 18px;
+
+  color: #4e5f5a;
+  font-size: 16px;
+  line-height: 1.8;
+}
+
+.popup-member-details p:last-child {
+  margin-bottom: 0;
+}
+
+/*
+ * The details copied into the popup may contain an older close
+ * button. Hide it because the popup already has its own button.
+ */
+.team-popup-box .member-close {
+  display: none !important;
+}
+
+
+/* ============================================================
+   9. CTA BAND
+   ============================================================ */
+
+.cta-band {
+  padding: 70px 0;
+  text-align: center;
+
+  background: linear-gradient(135deg, #f5a623, #f7b945);
+  color: #1f2d2a;
+}
+
+.cta-band h2 {
+  margin-bottom: 14px;
+
+  font-family: "Playfair Display", serif;
+  font-size: clamp(26px, 3.5vw, 36px);
+}
+
+.cta-band p {
+  margin-bottom: 28px;
+  font-size: 17px;
+}
+
+
+/* ============================================================
+   10. POPUP ANIMATION
+   ============================================================ */
 
 @keyframes popupZoom {
   from {
     opacity: 0;
-    transform: scale(0.85) translateY(20px);
+    transform: scale(0.9) translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: scale(1) translateY(0);
+  }
+}
+
+
+/* ============================================================
+   11. PAGE TRANSITIONS
+   ============================================================ */
+
+@keyframes pageFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pageFadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
+
+/* ============================================================
+   12. TABLET
+   ============================================================ */
+
+@media (max-width: 960px) {
+  .team-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+
+/* ============================================================
+   13. MOBILE
+   ============================================================ */
+
+@media (max-width: 768px) {
+  .team-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .team-popup {
+    padding: 12px;
+  }
+
+  .team-popup-box {
+    padding: 38px 22px 30px;
+    border-radius: 18px;
+  }
+
+  .team-popup-box .avatar {
+    width: 125px;
+    height: 125px;
+    margin-bottom: 20px;
+  }
+
+  .team-popup-close {
+    top: 10px;
+    right: 10px;
+    width: 40px;
+    height: 40px;
+    font-size: 22px;
+  }
+
+  .popup-member-details p {
+    font-size: 15px;
+    line-height: 1.75;
+  }
+}
+
+
+/* ============================================================
+   14. SMALL MOBILE
+   ============================================================ */
+
+@media (max-width: 420px) {
+  .team-card {
+    padding: 30px 18px;
+  }
+
+  .team-popup {
+    padding: 8px;
+  }
+
+  .team-popup-box {
+    padding: 36px 18px 26px;
+    border-radius: 16px;
+  }
+
+  .team-popup-box h3 {
+    font-size: 24px;
+  }
+
+  .popup-member-details p {
+    font-size: 15px;
+    line-height: 1.7;
   }
 }

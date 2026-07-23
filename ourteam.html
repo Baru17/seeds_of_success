@@ -201,22 +201,24 @@
           <p class="location">Aldie, VA</p>
         </div>
 
-        <div class="team-card" data-member="thara">
-          <div class="avatar"><img src="Images/Praneetha.png" alt="Thara Venkatesan"></div>
+        <div class="team-card" data-member="praneetha">
+          <div class="avatar"><img src="Images/Praneetha.png" alt="Praneeths"></div>
           <h3>Praneetha</h3>
           <span class="role">Tutor</span>
           <p class="location">Aldie, VA</p>
           <div class="member-details" style="display:none;">
-            <button type="button" class="member-close" aria-label="Close" title="Close">✕</button>
-            <p style="margin-top: 12px; font-size: 14px; line-height: 1.7; color: #3e4d49; max-width: 340px; margin-left: auto; margin-right: auto;">
+  <button type="button" class="member-close" aria-label="Close" title="Close">✕</button>
+
+  <p style="margin-top: 12px; font-size: 14px; line-height: 1.7; color: #3e4d49; max-width: 340px; margin-left: auto; margin-right: auto;">
               Praneetha is a rising sophomore at John Champe High School in Aldie, Virginia.
 Outside of school in her own time she involves herself in activies such as swim, and runs our own nail business from home. She has been a fluent tamil speaker since birth, and overtime has improved her writing and reading skills.
-With her variety of skills she is very much involved in her community helping in ways she can.
-            <p style="margin-top: 10px; font-size: 14px; line-height: 1.7; color: #3e4d49; max-width: 340px; margin-left: auto; margin-right: auto;">
-              To extend her aid across the globe she grabbed on the opportunity to participate in Seeds of Sucess.
-Praneetha appreciates and is thrilled to be a part of a community that has such a meaningful impact on eager individuals who want to grow their skills.
             </p>
-          </div>
+            <p style="margin-top: 10px; font-size: 14px; line-height: 1.7; color: #3e4d49; max-width: 340px; margin-left: auto; margin-right: auto;">
+              With her variety of skills she is very much involved in her community helping in ways she can.
+To extend her aid across the globe she grabbed on the opportunity to participate in Seeds of Sucess.
+Praneetha appreciates and is thrilled to be a part of a community that has such a meaningful impact on eager individuals who want to grow their skills
+ </p>
+</div>
         </div>
        
 
@@ -263,54 +265,99 @@ Praneetha appreciates and is thrilled to be a part of a community that has such 
       </div>
     </div>
   </footer>
-<div class="team-popup" id="teamPopup">
+<div
+  class="team-popup"
+  id="teamPopup"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="teamPopupName"
+>
   <div class="team-popup-box">
-    <button class="team-popup-close" onclick="closeTeamPopup()">✕</button>
+    <button
+      type="button"
+      class="team-popup-close"
+      id="teamPopupClose"
+      aria-label="Close team member details"
+      title="Close"
+    >
+      ✕
+    </button>
+
     <div id="teamPopupContent"></div>
   </div>
 </div>
   <script>
-  const memberCards = document.querySelectorAll(".team-card[data-member]");
+  const memberCards = document.querySelectorAll(
+    ".team-card[data-member]"
+  );
 
   const popup = document.getElementById("teamPopup");
   const popupContent = document.getElementById("teamPopupContent");
+  const popupCloseButton = document.getElementById("teamPopupClose");
 
-  memberCards.forEach(card => {
-    card.addEventListener("click", () => {
-      const avatar = card.querySelector(".avatar").outerHTML;
-      const name = card.querySelector("h3").outerHTML;
-      const role = card.querySelector(".role").outerHTML;
-      const details = card.querySelector(".member-details");
+  function openTeamPopup(card) {
+    const avatar = card.querySelector(".avatar");
+    const name = card.querySelector("h3");
+    const role = card.querySelector(".role");
+    const details = card.querySelector(".member-details");
 
-      if (!details) return;
+    if (!avatar || !name || !role || !details) {
+      return;
+    }
 
-      popupContent.innerHTML = `
-        ${avatar}
-        ${name}
-        ${role}
-        <div class="popup-member-details">
-          ${details.innerHTML}
-        </div>
-      `;
+    popupContent.innerHTML = `
+      ${avatar.outerHTML}
 
-      popup.classList.add("show");
-      document.body.style.overflow = "hidden";
-    });
-  });
+      <h3 id="teamPopupName">
+        ${name.textContent}
+      </h3>
+
+      ${role.outerHTML}
+
+      <div class="popup-member-details">
+        ${details.innerHTML}
+      </div>
+    `;
+
+    popup.classList.add("show");
+    document.body.classList.add("popup-open");
+
+    popup.scrollTop = 0;
+    popupCloseButton.focus();
+  }
 
   function closeTeamPopup() {
     popup.classList.remove("show");
-    document.body.style.overflow = "";
+    document.body.classList.remove("popup-open");
+    popupContent.innerHTML = "";
   }
 
-  popup.addEventListener("click", (e) => {
-    if (e.target === popup) {
+  memberCards.forEach((card) => {
+    card.addEventListener("click", () => {
+      openTeamPopup(card);
+    });
+
+    card.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        openTeamPopup(card);
+      }
+    });
+
+    card.setAttribute("tabindex", "0");
+    card.setAttribute("role", "button");
+  });
+
+  popupCloseButton.addEventListener("click", closeTeamPopup);
+
+  popup.addEventListener("click", (event) => {
+    if (event.target === popup) {
       closeTeamPopup();
     }
   });
 
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") {
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && popup.classList.contains("show")) {
       closeTeamPopup();
     }
   });
