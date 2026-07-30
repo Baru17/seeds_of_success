@@ -67,3 +67,11 @@ window.addEventListener("pageshow", function () {
     document.body.classList.remove("is-leaving");
     if (loader) loader.classList.remove("show");
 });
+
+// ==========================
+// Dynamic Footer Year
+// ==========================
+
+document.querySelectorAll(".footer-bottom").forEach(el => {
+    el.textContent = el.textContent.replace(/\b\d{4}\b/, new Date().getFullYear());
+});

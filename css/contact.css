@@ -32,16 +32,25 @@
     text-align:justify;
 }
 
-.contact-note{
-    margin-top:30px;
-    padding:20px 24px;
-    background:#f5f9f7;
-    border-left:5px solid #f5a623;
-    border-radius:14px;
-    color:#445550;
-    line-height:1.7;
-    box-shadow:0 4px 12px rgba(13,110,79,.08);
+.nonprofit-info{
+    margin-top:32px;
+    padding-top:24px;
+    border-top:2px solid #e6efeb;
 }
+
+.nonprofit-info p{
+    font-size:14px;
+    line-height:1.8;
+    color:#566862;
+    margin-bottom:8px;
+}
+
+.nonprofit-info .address{
+    font-weight:500;
+    color:#0d6e4f;
+    margin-top:10px;
+}
+
 
 /* Contact Form */
 
@@ -104,7 +113,8 @@
 /* Animation */
 
 .contact-info-box,
-.contact-form-card{
+.contact-form-card,
+.nonprofit-info{
     animation:fadeUp .8s ease;
 }
 
@@ -144,6 +154,14 @@
         text-align:left;
     }
 
+    .nonprofit-info{
+        text-align:center;
+    }
+
+    .nonprofit-info .address{
+        text-align:center;
+    }
+
 }
 
 @media(max-width:480px){
@@ -155,6 +173,15 @@
     .form-group input,
     .form-group textarea{
         padding:13px 15px;
+    }
+
+    .nonprofit-info{
+        margin-top:24px;
+        padding-top:18px;
+    }
+
+    .nonprofit-info p{
+        font-size:13px;
     }
 
 }
