@@ -146,11 +146,7 @@
 </div>
 
 <script>
-  function handleContactForm(e) {
-    e.preventDefault();
-    showCustomAlert("Thank you for reaching out! Contact form integration will be added soon.");
-    e.target.reset();
-  }
+  const API_BASE = "https://worker-api.seedsofsuccessngo.workers.dev";
 
   function showCustomAlert(message) {
     document.getElementById("customAlertMessage").textContent = message;
@@ -159,6 +155,54 @@
 
   function closeCustomAlert() {
     document.getElementById("customAlert").classList.remove("show");
+  }
+
+  function setLoading(btn, loading) {
+    if (loading) {
+      btn.dataset.origText = btn.textContent;
+      btn.disabled = true;
+      btn.innerHTML = '<span class="btn-spinner"></span> Sending...';
+    } else {
+      btn.disabled = false;
+      btn.innerHTML = btn.dataset.origText || "Send Message";
+    }
+  }
+
+  async function handleContactForm(e) {
+    e.preventDefault();
+
+    const btn = e.target.querySelector("button[type=submit]");
+    const form = e.target;
+
+    const payload = {
+      full_name: document.getElementById("fullname").value.trim(),
+      email: document.getElementById("email").value.trim(),
+      subject: document.getElementById("subject").value.trim(),
+      message: document.getElementById("message").value.trim()
+    };
+
+    setLoading(btn, true);
+
+    try {
+      const res = await fetch(API_BASE + "/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || data.success === false) {
+        throw new Error(data.error || "Something went wrong. Please try again.");
+      }
+
+      showCustomAlert(data.message || "Thank you for your message! We'll get back to you soon.");
+      form.reset();
+    } catch (err) {
+      showCustomAlert(err.message);
+    } finally {
+      setLoading(btn, false);
+    }
   }
 </script>
 

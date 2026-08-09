@@ -251,6 +251,14 @@
       "https://cdn.jsdelivr.net/npm/intl-tel-input@23.8.1/build/js/utils.js"
   });
 
+  const API_BASE = [
+    "localhost",
+    "127.0.0.1",
+    "::1"
+  ].includes(window.location.hostname)
+    ? "http://127.0.0.1:8787"
+    : "https://worker-api.seedsofsuccessngo.workers.dev";
+
   async function submitVolunteer(event) {
     event.preventDefault();
 
@@ -361,7 +369,7 @@
 
     try {
       const response = await fetch(
-        "https://worker-api.seedsofsuccessngo.workers.dev/api/application",
+        API_BASE + "/api/application",
         {
           method: "POST",
           headers: {

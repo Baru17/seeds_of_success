@@ -81,6 +81,118 @@ function validateMessage(message) {
 
 
 
+function escapeHtml(str) {
+  return String(str || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+
+async function sendResendEmail(
+  env,
+  { to, replyTo, subject, html }
+) {
+  const apiKey = env.RESEND_API_KEY;
+
+  if (!apiKey) {
+    throw new Error("Resend API key not configured.");
+  }
+
+  const fromAddress =
+    env.EMAIL_FROM_ADDRESS || "onboarding@resend.dev";
+
+  const response = await fetch(
+    "https://api.resend.com/emails",
+    {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${apiKey}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        from: `Seeds of Success <${fromAddress}>`,
+        to: Array.isArray(to) ? to : [to],
+        reply_to: replyTo,
+        subject,
+        html
+      })
+    }
+  );
+
+  if (!response.ok) {
+    const body = await response.text();
+    throw new Error(
+      `Resend API error (${response.status}): ${body}`
+    );
+  }
+
+  return response.json();
+}
+
+
+async function sendContactEmail(env, { name, email, subject, message }) {
+  const recipient = env.CONTACT_RECIPIENT_EMAIL;
+
+  if (!recipient) {
+    throw new Error("Contact recipient email not configured.");
+  }
+
+  return sendResendEmail(env, {
+    to: recipient,
+    replyTo: email,
+    subject: `[Contact Form] ${subject}`,
+    html: [
+      '<div style="font-family:sans-serif;max-width:600px">',
+      '<h2 style="color:#0d6e4f">New Contact Form Submission</h2>',
+      '<table style="width:100%;border-collapse:collapse">',
+      '<tr><td style="padding:8px 12px;font-weight:600;color:#0d6e4f;border-bottom:1px solid #e6efeb">Name</td><td style="padding:8px 12px;border-bottom:1px solid #e6efeb">' + escapeHtml(name) + '</td></tr>',
+      '<tr><td style="padding:8px 12px;font-weight:600;color:#0d6e4f;border-bottom:1px solid #e6efeb">Email</td><td style="padding:8px 12px;border-bottom:1px solid #e6efeb">' + escapeHtml(email) + '</td></tr>',
+      '<tr><td style="padding:8px 12px;font-weight:600;color:#0d6e4f;border-bottom:1px solid #e6efeb">Subject</td><td style="padding:8px 12px;border-bottom:1px solid #e6efeb">' + escapeHtml(subject) + '</td></tr>',
+      '</table>',
+      '<h3 style="color:#0d6e4f;margin-top:24px">Message</h3>',
+      '<p style="background:#f5faf8;padding:16px;border-radius:8px;line-height:1.7;white-space:pre-wrap">' + escapeHtml(message) + '</p>',
+      '<hr style="border:none;border-top:1px solid #e6efeb;margin-top:24px">',
+      '<p style="font-size:12px;color:#888">Sent via the Seeds of Success contact form.</p>',
+      '</div>'
+    ].join('')
+  });
+}
+
+
+async function sendVolunteerNotificationEmail(env, application) {
+  const recipient = env.VOLUNTEER_NOTIFICATION_EMAIL;
+
+  if (!recipient) {
+    throw new Error("Volunteer notification recipient email not configured.");
+  }
+
+  return sendResendEmail(env, {
+    to: recipient,
+    replyTo: application.email,
+    subject: "New Volunteer Registration - Seeds of Success",
+    html: [
+      '<div style="font-family:sans-serif;max-width:600px">',
+      '<h2 style="color:#0d6e4f">New Volunteer Registration</h2>',
+      '<p style="color:#555;line-height:1.6">A new volunteer has submitted an application to Seeds of Success.</p>',
+      '<table style="width:100%;border-collapse:collapse">',
+      '<tr><td style="padding:8px 12px;font-weight:600;color:#0d6e4f;border-bottom:1px solid #e6efeb">Full Name</td><td style="padding:8px 12px;border-bottom:1px solid #e6efeb">' + escapeHtml(application.full_name) + '</td></tr>',
+      '<tr><td style="padding:8px 12px;font-weight:600;color:#0d6e4f;border-bottom:1px solid #e6efeb">Email</td><td style="padding:8px 12px;border-bottom:1px solid #e6efeb">' + escapeHtml(application.email) + '</td></tr>',
+      '<tr><td style="padding:8px 12px;font-weight:600;color:#0d6e4f;border-bottom:1px solid #e6efeb">Phone</td><td style="padding:8px 12px;border-bottom:1px solid #e6efeb">' + escapeHtml(application.phone || "") + '</td></tr>',
+      '<tr><td style="padding:8px 12px;font-weight:600;color:#0d6e4f;border-bottom:1px solid #e6efeb">Role of Interest</td><td style="padding:8px 12px;border-bottom:1px solid #e6efeb">' + escapeHtml(application.role || "") + '</td></tr>',
+      '<tr><td style="padding:8px 12px;font-weight:600;color:#0d6e4f;border-bottom:1px solid #e6efeb">Skills / Languages</td><td style="padding:8px 12px;border-bottom:1px solid #e6efeb">' + escapeHtml(application.skills || "") + '</td></tr>',
+      '</table>',
+      '<h3 style="color:#0d6e4f;margin-top:24px">Why They Want to Volunteer</h3>',
+      '<p style="background:#f5faf8;padding:16px;border-radius:8px;line-height:1.7;white-space:pre-wrap">' + escapeHtml(application.message) + '</p>',
+      '<hr style="border:none;border-top:1px solid #e6efeb;margin-top:24px">',
+      '<p style="font-size:12px;color:#888">Sent via the Seeds of Success volunteer registration form.</p>',
+      '</div>'
+    ].join('')
+  });
+}
+
 /* =========================================================
    STUDENT MAPPING
 ========================================================= */
@@ -730,6 +842,56 @@ export default {
         const data =
           await request.json();
 
+        const fullName =
+          String(data.full_name || "").trim();
+
+        const email =
+          String(data.email || "").trim();
+
+        if (
+          fullName.length < 2
+          ||
+          fullName.length > 50
+        ) {
+
+          return json(
+
+            {
+
+              success: false,
+
+              error:
+                "Full name must be between 2 and 50 characters."
+
+            },
+
+            corsHeaders,
+
+            400
+          );
+        }
+
+        if (
+          !/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/
+            .test(email)
+        ) {
+
+          return json(
+
+            {
+
+              success: false,
+
+              error:
+                "Please enter a valid email address."
+
+            },
+
+            corsHeaders,
+
+            400
+          );
+        }
 
         if (!isValidPhone(data.phone)) {
 
@@ -757,7 +919,6 @@ export default {
 
 
         const existingVolunteer =
-
           await db.prepare(`
             SELECT id
 
@@ -849,6 +1010,28 @@ export default {
         )
 
         .run();
+
+        try {
+
+          await sendVolunteerNotificationEmail(
+            env,
+            {
+              full_name: fullName,
+              email,
+              phone: data.phone ? String(data.phone) : "",
+              role: data.role || "",
+              skills: data.skills || "",
+              message: data.message
+            }
+          );
+
+        } catch (emailError) {
+
+          console.error(
+            "Volunteer notification email failed:",
+            emailError
+          );
+        }
 
 
         return json(
@@ -2144,6 +2327,120 @@ export default {
         );
       }
 
+
+
+
+
+
+      /* =====================================================
+         CONTACT FORM SUBMISSION
+      ===================================================== */
+
+      if (
+        url.pathname ===
+          "/api/contact"
+        &&
+        request.method === "POST"
+      ) {
+
+        const data =
+          await request.json();
+
+        if (
+          !data.full_name ||
+          String(data.full_name).trim().length < 2
+        ) {
+
+          return json(
+
+            {
+              success: false,
+              error:
+                "Please enter your full name (at least 2 characters)."
+            },
+            corsHeaders,
+            400
+          );
+        }
+
+        if (
+          !data.email ||
+          !/^[^\s@]+@[^\s@]+\.[^\s@]+$/
+            .test(
+              String(data.email).trim()
+            )
+        ) {
+
+          return json(
+
+            {
+              success: false,
+              error:
+                "Please enter a valid email address."
+            },
+            corsHeaders,
+            400
+          );
+        }
+
+        if (
+          !data.subject ||
+          String(data.subject).trim().length < 2
+        ) {
+
+          return json(
+
+            {
+              success: false,
+              error:
+                "Please enter a subject (at least 2 characters)."
+            },
+            corsHeaders,
+            400
+          );
+        }
+
+        if (
+          !data.message ||
+          String(data.message).trim().length < 10
+        ) {
+
+          return json(
+
+            {
+              success: false,
+              error:
+                "Please enter a message (at least 10 characters)."
+            },
+            corsHeaders,
+            400
+          );
+        }
+
+        await sendContactEmail(
+          env,
+          {
+            name:
+              data.full_name.trim(),
+            email:
+              data.email.trim(),
+            subject:
+              data.subject.trim(),
+            message:
+              data.message.trim()
+          }
+        );
+
+        return json(
+
+          {
+            success: true,
+            message:
+              "Thank you for your message! We'll get back to you soon."
+          },
+          corsHeaders
+        );
+      }
 
 
       /* =====================================================
