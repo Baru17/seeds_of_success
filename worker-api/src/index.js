@@ -186,6 +186,46 @@ async function sendVolunteerNotificationEmail(env, application) {
       '</table>',
       '<h3 style="color:#0d6e4f;margin-top:24px">Why They Want to Volunteer</h3>',
       '<p style="background:#f5faf8;padding:16px;border-radius:8px;line-height:1.7;white-space:pre-wrap">' + escapeHtml(application.message) + '</p>',
+'<hr style="border:none;border-top:1px solid #e6efeb;margin-top:24px">',
+      '<p style="font-size:12px;color:#888">Sent via the Seeds of Success volunteer registration form.</p>',
+      '</div>'
+    ].join('')
+  });
+}
+
+
+async function sendContactConfirmationEmail(env, { name, email }) {
+  return sendResendEmail(env, {
+    to: email,
+    subject: "Thank You for Contacting Seeds of Success",
+    html: [
+      '<div style="font-family:sans-serif;max-width:600px">',
+      '<p style="color:#333;line-height:1.7">Hi ' + escapeHtml(name) + ',</p>',
+      '<p style="color:#333;line-height:1.7">Thank you for contacting Seeds of Success!</p>',
+      '<p style="color:#333;line-height:1.7">We have successfully received your message. Our team will review it and get back to you as soon as possible.</p>',
+      '<p style="color:#333;line-height:1.7">We appreciate you reaching out and your interest in Seeds of Success.</p>',
+      '<p style="color:#333;line-height:1.7">Best regards,</p>',
+      '<p style="color:#0d6e4f;font-weight:600">Seeds of Success Team</p>',
+      '<hr style="border:none;border-top:1px solid #e6efeb;margin-top:24px">',
+      '<p style="font-size:12px;color:#888">Sent via the Seeds of Success contact form.</p>',
+      '</div>'
+    ].join('')
+  });
+}
+
+
+async function sendVolunteerConfirmationEmail(env, { name, email }) {
+  return sendResendEmail(env, {
+    to: email,
+    subject: "Volunteer Registration Received \u2013 Seeds of Success",
+    html: [
+      '<div style="font-family:sans-serif;max-width:600px">',
+      '<p style="color:#333;line-height:1.7">Hi ' + escapeHtml(name) + ',</p>',
+      '<p style="color:#333;line-height:1.7">Thank you for registering as a volunteer with Seeds of Success!</p>',
+      '<p style="color:#333;line-height:1.7">We have successfully received your volunteer application. Our team will review your application and get back to you if any further information is required.</p>',
+      '<p style="color:#333;line-height:1.7">We appreciate your interest in supporting Seeds of Success and making a difference.</p>',
+      '<p style="color:#333;line-height:1.7">Best regards,</p>',
+      '<p style="color:#0d6e4f;font-weight:600">Seeds of Success Team</p>',
       '<hr style="border:none;border-top:1px solid #e6efeb;margin-top:24px">',
       '<p style="font-size:12px;color:#888">Sent via the Seeds of Success volunteer registration form.</p>',
       '</div>'
@@ -193,10 +233,10 @@ async function sendVolunteerNotificationEmail(env, application) {
   });
 }
 
+
 /* =========================================================
    STUDENT MAPPING
 ========================================================= */
-
 function mapStudent(row) {
 
   const topics =
@@ -1029,6 +1069,24 @@ export default {
 
           console.error(
             "Volunteer notification email failed:",
+            emailError
+          );
+        }
+
+        try {
+
+          await sendVolunteerConfirmationEmail(
+            env,
+            {
+              name: fullName,
+              email
+            }
+          );
+
+        } catch (emailError) {
+
+          console.error(
+            "Volunteer confirmation email failed:",
             emailError
           );
         }
@@ -2430,6 +2488,26 @@ export default {
               data.message.trim()
           }
         );
+
+        try {
+
+          await sendContactConfirmationEmail(
+            env,
+            {
+              name:
+                data.full_name.trim(),
+              email:
+                data.email.trim()
+            }
+          );
+
+        } catch (emailError) {
+
+          console.error(
+            "Contact confirmation email failed:",
+            emailError
+          );
+        }
 
         return json(
 

@@ -91,9 +91,11 @@ describe("Seeds of Success worker", () => {
 	});
 
 	it("still registers the volunteer when the notification email fails", async () => {
-		vi.spyOn(globalThis, "fetch").mockRejectedValueOnce(
-			new Error("Resend API down")
-		);
+		vi.spyOn(globalThis, "fetch")
+			.mockRejectedValueOnce(new Error("Resend API down"))
+			.mockResolvedValueOnce(
+				new Response(JSON.stringify({ id: "email-confirmation" }), { status: 200 })
+			);
 
 		let bindValues = [];
 		const request = new Request("http://example.com/api/application", {
@@ -123,6 +125,7 @@ describe("Seeds of Success worker", () => {
 					};
 				},
 			},
+			RESEND_API_KEY: "test-key",
 			VOLUNTEER_NOTIFICATION_EMAIL: "team@seedsofsuccessngo.org",
 			EMAIL_FROM_ADDRESS: "onboarding@resend.dev",
 		};
@@ -133,6 +136,182 @@ describe("Seeds of Success worker", () => {
 			message: "Application submitted successfully",
 		});
 		expect(bindValues[7]).toMatch(/^[a-f0-9]{64}$/);
+		vi.mocked(globalThis.fetch).mockRestore();
+	});
+
+	it("sends a confirmation email to the contact user on success", async () => {
+		const sentEmails = [];
+		vi.spyOn(globalThis, "fetch").mockImplementation(async (_url, init) => {
+			sentEmails.push(JSON.parse(init.body));
+			return new Response(JSON.stringify({ id: "email-1" }), { status: 200 });
+		});
+
+		const request = new Request("http://example.com/api/contact", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({
+				full_name: "Jane Doe",
+				email: "jane@example.com",
+				subject: "Volunteering question",
+				message: "I would like to learn more about volunteering opportunities.",
+			}),
+		});
+		const mockEnv = {
+			CONTACT_RECIPIENT_EMAIL: "team@seedsofsuccessngo.org",
+			RESEND_API_KEY: "test-key",
+			EMAIL_FROM_ADDRESS: "onboarding@resend.dev",
+		};
+
+		const response = await worker.fetch(request, mockEnv);
+		expect(await response.json()).toEqual({
+			success: true,
+			message: "Thank you for your message! We'll get back to you soon.",
+		});
+		expect(sentEmails).toHaveLength(2);
+		expect(sentEmails[0].to).toEqual(["team@seedsofsuccessngo.org"]);
+		expect(sentEmails[0].subject).toBe("[Contact Form] Volunteering question");
+		expect(sentEmails[1].to).toEqual(["jane@example.com"]);
+		expect(sentEmails[1].subject).toBe("Thank You for Contacting Seeds of Success");
+		expect(sentEmails[1].html).toContain("Hi Jane Doe");
+		expect(sentEmails[1].html).toContain("We have successfully received your message.");
+		vi.mocked(globalThis.fetch).mockRestore();
+	});
+
+	it("still handles a contact submission when the confirmation email fails", async () => {
+		let callCount = 0;
+		vi.spyOn(globalThis, "fetch").mockImplementation(async () => {
+			callCount += 1;
+			if (callCount > 1) {
+				throw new Error("Resend API down");
+			}
+			return new Response(JSON.stringify({ id: "email-1" }), { status: 200 });
+		});
+
+		const request = new Request("http://example.com/api/contact", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({
+				full_name: "Jane Doe",
+				email: "jane@example.com",
+				subject: "Volunteering question",
+				message: "I would like to learn more about volunteering opportunities.",
+			}),
+		});
+		const mockEnv = {
+			CONTACT_RECIPIENT_EMAIL: "team@seedsofsuccessngo.org",
+			RESEND_API_KEY: "test-key",
+			EMAIL_FROM_ADDRESS: "onboarding@resend.dev",
+		};
+
+		const response = await worker.fetch(request, mockEnv);
+		expect(await response.json()).toEqual({
+			success: true,
+			message: "Thank you for your message! We'll get back to you soon.",
+		});
+		expect(callCount).toBe(2);
+		vi.mocked(globalThis.fetch).mockRestore();
+	});
+
+	it("sends a confirmation email to the volunteer on successful registration", async () => {
+		const sentEmails = [];
+		vi.spyOn(globalThis, "fetch").mockImplementation(async (_url, init) => {
+			sentEmails.push(JSON.parse(init.body));
+			return new Response(JSON.stringify({ id: "email-1" }), { status: 200 });
+		});
+
+		const request = new Request("http://example.com/api/application", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({
+				full_name: "Test Volunteer",
+				email: "volunteer@example.com",
+				phone: "555-0100",
+				role: "Technology Implementer",
+				skills: "Web",
+				message: "I can help.",
+				password: "password123",
+			}),
+		});
+		const mockEnv = {
+			sos_db: {
+				prepare() {
+					return {
+						bind() {
+							return {
+								run: async () => ({ success: true }),
+								first: async () => null,
+							};
+						},
+					};
+				},
+			},
+			RESEND_API_KEY: "test-key",
+			VOLUNTEER_NOTIFICATION_EMAIL: "team@seedsofsuccessngo.org",
+			EMAIL_FROM_ADDRESS: "onboarding@resend.dev",
+		};
+
+		const response = await worker.fetch(request, mockEnv);
+		expect(await response.json()).toEqual({
+			success: true,
+			message: "Application submitted successfully",
+		});
+		expect(sentEmails).toHaveLength(2);
+		expect(sentEmails[0].to).toEqual(["team@seedsofsuccessngo.org"]);
+		expect(sentEmails[0].subject).toBe("New Volunteer Registration - Seeds of Success");
+		expect(sentEmails[1].to).toEqual(["volunteer@example.com"]);
+		expect(sentEmails[1].subject).toBe("Volunteer Registration Received \u2013 Seeds of Success");
+		expect(sentEmails[1].html).toContain("Hi Test Volunteer");
+		expect(sentEmails[1].html).toContain("We have successfully received your volunteer application.");
+		vi.mocked(globalThis.fetch).mockRestore();
+	});
+
+	it("still registers the volunteer when the confirmation email fails", async () => {
+		let callCount = 0;
+		vi.spyOn(globalThis, "fetch").mockImplementation(async () => {
+			callCount += 1;
+			if (callCount > 1) {
+				throw new Error("Confirmation email failed");
+			}
+			return new Response(JSON.stringify({ id: "email-1" }), { status: 200 });
+		});
+
+		const request = new Request("http://example.com/api/application", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({
+				full_name: "Test Volunteer",
+				email: "volunteer@example.com",
+				phone: "555-0100",
+				role: "Technology Implementer",
+				skills: "Web",
+				message: "I can help.",
+				password: "password123",
+			}),
+		});
+		const mockEnv = {
+			sos_db: {
+				prepare() {
+					return {
+						bind() {
+							return {
+								run: async () => ({ success: true }),
+								first: async () => null,
+							};
+						},
+					};
+				},
+			},
+			RESEND_API_KEY: "test-key",
+			VOLUNTEER_NOTIFICATION_EMAIL: "team@example.com",
+			EMAIL_FROM_ADDRESS: "onboarding@resend.dev",
+		};
+
+		const response = await worker.fetch(request, mockEnv);
+		expect(await response.json()).toEqual({
+			success: true,
+			message: "Application submitted successfully",
+		});
+		expect(callCount).toBe(2);
 		vi.mocked(globalThis.fetch).mockRestore();
 	});
 });
