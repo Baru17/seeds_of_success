@@ -219,6 +219,30 @@ button, input, select, textarea { font-family: inherit; }
 }
 .form-row,
 .vol-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+/* Password visibility toggle */
+.password-field { position: relative; }
+.password-field input { padding-right: 46px; }
+.password-toggle {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 8px;
+  color: #7a8f88;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease;
+}
+.password-toggle:hover { color: #0d6e4f; }
+.password-toggle svg { width: 20px; height: 20px; display: block; }
+.password-toggle .icon-off { display: none; }
+.password-toggle.show .icon-on { display: none; }
+.password-toggle.show .icon-off { display: block; }
 .note {
   background: #fff8eb;
   border-left: 4px solid #f5a623;

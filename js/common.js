@@ -75,3 +75,20 @@ window.addEventListener("pageshow", function () {
 document.querySelectorAll(".footer-bottom").forEach(el => {
     el.textContent = el.textContent.replace(/\b\d{4}\b/, new Date().getFullYear());
 });
+
+// ==========================
+// Password visibility toggle
+// ==========================
+
+document.querySelectorAll(".password-toggle").forEach(toggle => {
+    toggle.addEventListener("click", () => {
+        const field = toggle.closest(".password-field");
+        if (!field) return;
+        const input = field.querySelector("input");
+        const isHidden = input.type === "password";
+        input.type = isHidden ? "text" : "password";
+        toggle.classList.toggle("show", !isHidden);
+        toggle.setAttribute("aria-label", isHidden ? "Hide password" : "Show password");
+        input.focus();
+    });
+});
