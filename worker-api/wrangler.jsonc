@@ -39,8 +39,8 @@
 	 * https://developers.cloudflare.com/workers/configuration/secrets/
 	 */
 	"vars": {
-		"CONTACT_RECIPIENT_EMAIL": "bdharan06@gmail.com",
-		"VOLUNTEER_NOTIFICATION_EMAIL": "bdharan06@gmail.com",
+		"CONTACT_RECIPIENT_EMAIL": "seedsofsuccessngo@gmail.com",
+		"VOLUNTEER_NOTIFICATION_EMAIL": "seedsofsuccessngo@gmail.com",
 		"EMAIL_FROM_ADDRESS": "onboarding@resend.dev"
 	}
 	/**
