@@ -147,11 +147,13 @@
 </div>
 
 <script>
-  function handleContactForm(e) {
-    e.preventDefault();
-    showCustomAlert("Thank you for reaching out! Contact form integration will be added soon.");
-    e.target.reset();
-  }
+  const API_BASE = [
+    "localhost",
+    "127.0.0.1",
+    "::1"
+  ].includes(window.location.hostname)
+    ? "http://127.0.0.1:8787"
+    : "https://worker-api.seedsofsuccessngo.workers.dev";
 
   function showCustomAlert(message) {
     document.getElementById("customAlertMessage").textContent = message;
@@ -160,6 +162,103 @@
 
   function closeCustomAlert() {
     document.getElementById("customAlert").classList.remove("show");
+  }
+
+  function setLoading(btn, loading) {
+    if (loading) {
+      btn.dataset.origText = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = "Submitting...";
+    } else {
+      btn.disabled = false;
+      btn.textContent = btn.dataset.origText || "Send Message";
+    }
+  }
+
+  const emailRegex =
+    /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+
+  function validateContactFields(fullName, email, subject, message) {
+    if (fullName.length < 2) {
+      showCustomAlert("Please enter your full name (at least 2 characters).");
+      return false;
+    }
+
+    if (!emailRegex.test(email)) {
+      showCustomAlert("Please enter a valid email address.");
+      return false;
+    }
+
+    if (subject.length < 2) {
+      showCustomAlert("Please enter a subject (at least 2 characters).");
+      return false;
+    }
+
+    if (message.length < 10) {
+      showCustomAlert("Please enter a message (at least 10 characters).");
+      return false;
+    }
+
+    return true;
+  }
+
+  async function handleContactForm(event) {
+    event.preventDefault();
+
+    const fullName = document.getElementById("fullname").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const subject = document.getElementById("subject").value.trim();
+    const message = document.getElementById("message").value.trim();
+
+    if (!validateContactFields(fullName, email, subject, message)) {
+      return;
+    }
+
+    const submitButton = event.target.querySelector('button[type="submit"]');
+    setLoading(submitButton, true);
+
+    try {
+      const response = await fetch(API_BASE + "/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          full_name: fullName,
+          email: email,
+          subject: subject,
+          message: message
+        })
+      });
+
+      let result;
+
+      try {
+        result = await response.json();
+      } catch {
+        throw new Error("Invalid response received from the server.");
+      }
+
+      if (!response.ok || !result.success) {
+        const errorMessage =
+          result.error ||
+          result.message ||
+          "Failed to send your message. Please try again.";
+
+        showCustomAlert(errorMessage);
+        console.error(result);
+        return;
+      }
+
+      event.target.reset();
+      showCustomAlert(result.message || "Thank you for your message! We'll get back to you soon.");
+    } catch (error) {
+      console.error(error);
+
+      showCustomAlert(
+        error.message || "Something went wrong. Please try again."
+      );
+    } finally {
+      setLoading(submitButton, false);
+    }
   }
 </script>
 
