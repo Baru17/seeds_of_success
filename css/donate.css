@@ -1,0 +1,208 @@
+/* ============================================================
+   Seeds of Success — donate.css
+   Page-specific styles only. Shared styles are in common.css.
+   ============================================================ */
+
+/* Form card (reuses common design language from volunteer/contact) */
+.donate-section { padding: 80px 0; background: #f5f9f7; }
+.donate-card {
+  max-width: 620px;
+  margin: 0 auto;
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 48px 44px;
+  box-shadow: 0 12px 40px rgba(13,110,79,0.10);
+  border: 1px solid #e8efec;
+  text-align: center;
+}
+.donate-card h2 {
+  font-family: "Playfair Display", serif;
+  font-size: clamp(26px, 3.5vw, 34px);
+  color: #0d6e4f;
+  margin-bottom: 16px;
+}
+.donate-card .lead {
+  width: 60px; height: 4px;
+  background: #f5a623;
+  border-radius: 2px;
+  margin: 0 auto 24px;
+}
+.donate-card p { color: #3e4d49; font-size: 16px; margin-bottom: 20px; }
+
+.donate-group { margin-bottom: 18px; text-align: left; }
+.donate-group label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: #1f2d2a;
+  margin-bottom: 6px;
+}
+.donate-group input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid #d8e2dd;
+  border-radius: 10px;
+  font-size: 15px;
+  font-family: inherit;
+  color: #1f2d2a;
+  background: #ffffff;
+  transition: all 0.2s ease;
+}
+.donate-group input:focus {
+  outline: none;
+  border-color: #0d6e4f;
+  box-shadow: 0 0 0 3px rgba(13,110,79,0.10);
+}
+
+.amount-input-wrap {
+  position: relative;
+}
+.amount-input-wrap .amount-prefix {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #5a6b66;
+  font-size: 16px;
+  font-weight: 500;
+}
+.amount-input-wrap input {
+  padding-left: 34px;
+}
+.field-hint {
+  font-size: 13px;
+  color: #8aa39c;
+  margin-top: 6px;
+  margin-bottom: 0;
+}
+
+.donate-actions {
+  margin-top: 24px;
+  text-align: center;
+}
+.donate-actions .btn-primary {
+  background: #0d6e4f;
+  color: #ffffff;
+  border: 2px solid #0d6e4f;
+  padding: 14px 36px;
+}
+.donate-actions .btn-primary:hover {
+  background: #0a5239;
+  border-color: #0a5239;
+  transform: translateY(-2px);
+}
+.donate-actions .btn-primary:disabled {
+  opacity: 0.75;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Success / Zelle card */
+.zelle-card { text-align: center; }
+.success-badge {
+  width: 70px; height: 70px;
+  background: linear-gradient(135deg, #0d6e4f, #14906a);
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 18px;
+  font-size: 36px;
+}
+.zelle-intro { color: #3e4d49; font-size: 16px; }
+.zelle-title {
+  font-weight: 600;
+  color: #0d6e4f;
+  font-size: 17px;
+  margin: 18px 0 12px;
+}
+
+.zelle-email-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  background: #fff8eb;
+  border: 1px solid #f4e4c1;
+  border-radius: 14px;
+  padding: 16px 20px;
+  margin: 0 auto 10px;
+}
+.zelle-email-label { font-size: 15px; color: #3e4d49; }
+.zelle-email {
+  font-size: 16px;
+  font-weight: 600;
+  color: #0d6e4f;
+  text-decoration: underline;
+  word-break: break-all;
+}
+.zelle-email:hover { color: #0a5239; }
+.copy-btn {
+  background: #0d6e4f;
+  color: #fff;
+  border: none;
+  padding: 7px 16px;
+  border-radius: 30px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+.copy-btn:hover { background: #0a5239; }
+.copy-btn:disabled { opacity: 0.7; cursor: default; }
+
+.zelle-or { font-size: 15px; color: #3e4d49; margin: 10px 0 16px; }
+
+.qr-box {
+  display: inline-block;
+  background: #ffffff;
+  border: 1px solid #e8efec;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 6px 20px rgba(13,110,79,0.08);
+  margin: 0 auto 14px;
+}
+.qr-box img {
+  width: 220px;
+  height: 220px;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+.zelle-note {
+  font-size: 13px;
+  color: #8aa39c;
+  max-width: 480px;
+  margin: 0 auto 24px;
+}
+
+.form-buttons {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+.form-buttons .btn-primary {
+  background: #0d6e4f;
+  color: #ffffff;
+  border: 2px solid #0d6e4f;
+}
+.form-buttons .btn-primary:hover {
+  background: #0a5239;
+  border-color: #0a5239;
+  transform: translateY(-2px);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .donate-card { padding: 36px 24px; }
+  .qr-box img { width: 180px; height: 180px; }
+}
+@media (max-width: 480px) {
+  .donate-card { padding: 30px 20px; }
+  .zelle-email-box { flex-direction: column; }
+}

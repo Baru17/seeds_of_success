@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/jpeg" href="Images/SeedsOfSuccess_pic.jpeg" />
+  <title>Donate | Seeds of Success</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="css/common.css" />
+  <link rel="stylesheet" href="css/donate.css" />
+</head>
+
+<body>
+
+<header class="site-header">
+  <div class="container nav-wrap">
+    <a href="index.html" class="brand">
+      <img src="Images/SeedsOfSuccess_pic.jpeg" alt="Seeds of Success logo" class="brand-mark" />
+      <span>Seeds of Success</span>
+    </a>
+
+    <button class="hamburger" id="hamburger" aria-label="Open menu">
+      <span></span><span></span><span></span>
+    </button>
+
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="ourteam.html">Our Team</a></li>
+      <li><a href="ourstudents.html">Our Students</a></li>
+      <li><a href="getinvolved.html">Get Involved</a></li>
+      <li><a href="login.html">Login</a></li>
+      <li><a href="donate.html" class="active">Donate</a></li>
+      <li><a href="volunteer.html" class="nav-cta">Volunteer</a></li>
+    </ul>
+  </div>
+</header>
+
+<section class="page-hero">
+  <div class="container page-hero-inner">
+    <h1>Make a Donation</h1>
+    <p>Support our mission and help teach English to children in rural Tamil Nadu.</p>
+  </div>
+</section>
+
+<section class="form-section donate-section">
+  <div class="container">
+    <div class="form-card donate-card" id="formCard">
+      <h2>Donate to Seeds of Success</h2>
+      <div class="lead"></div>
+      <p>Fill in your details below. Once you submit, you'll see how to complete your gift securely through Zelle.</p>
+
+      <form onsubmit="submitDonation(event)" style="text-align:left;" novalidate>
+        <div class="donate-group">
+          <label for="dfullname">Full Name</label>
+          <input type="text" id="dfullname" name="full_name" placeholder="Enter your full name" autocomplete="name" required />
+        </div>
+
+        <div class="donate-group">
+          <label for="demail">Email Address</label>
+          <input type="email" id="demail" name="email" placeholder="you@example.com" autocomplete="email" required />
+        </div>
+
+        <div class="donate-group">
+          <label for="damount">Donation Amount (USD)</label>
+          <div class="amount-input-wrap">
+            <span class="amount-prefix">$</span>
+            <input type="text" id="damount" name="amount" placeholder="50.00" inputmode="decimal" required aria-describedby="amount-hint" />
+          </div>
+          <p class="field-hint" id="amount-hint">Enter any amount in US Dollars, e.g. 50.00 or 75.25</p>
+        </div>
+
+        <div class="donate-actions">
+          <button type="submit" class="btn btn-primary" id="donateSubmitBtn">Submit Donation</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Success / Zelle card (hidden until a successful API response) -->
+    <div class="form-card donate-card zelle-card" id="zelleCard" style="display:none;" aria-live="polite">
+      <div class="success-badge">✓</div>
+      <h2>Thank you for your donation!</h2>
+      <div class="lead"></div>
+
+      <p class="zelle-intro">
+        Your donation information has been successfully submitted. Your intended donation has been recorded — it is not yet complete.
+      </p>
+
+      <p class="zelle-title">You can now complete your donation through Zelle.</p>
+
+      <div class="zelle-email-box">
+        <span class="zelle-email-label">Pay by email:</span>
+        <a class="zelle-email" href="mailto:seedsofsuccess@soslearn.org">seedsofsuccess@soslearn.org</a>
+        <button type="button" class="copy-btn" id="copyEmailBtn" aria-label="Copy Zelle email">Copy</button>
+      </div>
+
+      <p class="zelle-or">Or scan the QR code below.</p>
+
+      <div class="qr-box">
+        <img src="Images/zelle-qr.png" alt="QR code for sending your donation through Zelle to seedsofsuccess@soslearn.org" />
+      </div>
+
+      <p class="zelle-note">
+        Please complete your Zelle payment to finalize your donation. We will not process or verify the payment on this website.
+      </p>
+
+      <div class="form-buttons">
+        <a href="index.html" class="btn btn-primary">Back to Home</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-band">
+  <div class="container">
+    <h2>Every gift makes a difference</h2>
+    <p>Your support helps us reach more children with life-changing English lessons.</p>
+    <a href="getinvolved.html" class="btn">Get Involved</a>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <h4>Seeds of Success</h4>
+        <p>A youth-led, registered nonprofit in Virginia, USA — connecting Tamil-origin tutors abroad with rural children in Tamil Nadu through meaningful 1-on-1 English tutoring partnerships.</p>
+      </div>
+
+      <div>
+        <h4>Quick Links</h4>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="ourteam.html">Our Team</a></li>
+          <li><a href="ourstudents.html">Our Students</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h4>Get In Touch</h4>
+        <ul>
+          <li><a href="getinvolved.html">Get Involved</a></li>
+          <li><a href="volunteer.html">Volunteer</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="donate.html">Donate</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">© 2026 Seeds of Success. All rights reserved. Seeds of Success is a U.S. nonprofit organization recognized as tax-exempt under Section 501(c)(3) of the Internal Revenue Code. EIN 41-3701713.</div>
+  </div>
+</footer>
+
+<div id="customAlert" class="custom-alert">
+  <div class="custom-alert-box">
+    <p id="customAlertMessage"></p>
+    <button onclick="closeCustomAlert()">OK</button>
+  </div>
+</div>
+
+<div class="page-loader" id="pageLoader">
+  <img src="Images/SeedsOfSuccess_pic.jpeg" alt="">
+  <div class="loader-spinner"></div>
+</div>
+
+<script>
+  const API_BASE = [
+    "localhost",
+    "127.0.0.1",
+    "::1"
+  ].includes(window.location.hostname)
+    ? "http://127.0.0.1:8787"
+    : "https://worker-api.seedsofsuccessngo.workers.dev";
+
+  const ZELLE_EMAIL = "seedsofsuccess@soslearn.org";
+
+  function showCustomAlert(message) {
+    document.getElementById("customAlertMessage").textContent = message;
+    document.getElementById("customAlert").classList.add("show");
+  }
+
+  function closeCustomAlert() {
+    document.getElementById("customAlert").classList.remove("show");
+  }
+
+  document.getElementById("copyEmailBtn").addEventListener("click", async (e) => {
+    const btn = e.currentTarget;
+    try {
+      await navigator.clipboard.writeText(ZELLE_EMAIL);
+    } catch (err) {
+      const textarea = document.createElement("textarea");
+      textarea.value = ZELLE_EMAIL;
+      textarea.style.position = "fixed";
+      textarea.style.opacity = "0";
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textarea);
+    }
+    const original = btn.textContent;
+    btn.textContent = "Copied!";
+    btn.disabled = true;
+    setTimeout(() => {
+      btn.textContent = original;
+      btn.disabled = false;
+    }, 1600);
+  });
+
+  function setLoading(btn, loading) {
+    if (loading) {
+      btn.dataset.origText = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = "Submitting...";
+    } else {
+      btn.disabled = false;
+      btn.textContent = btn.dataset.origText || "Submit Donation";
+    }
+  }
+
+  async function submitDonation(event) {
+    event.preventDefault();
+
+    const fullName = document.getElementById("dfullname").value.trim();
+    const email = document.getElementById("demail").value.trim();
+    const amount = document.getElementById("damount").value.trim();
+
+    const emailRegex =
+      /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+    const amountRegex = /^\d+(\.\d{1,2})?$/;
+
+    if (fullName.length < 2) {
+      showCustomAlert("Please enter your full name (at least 2 characters).");
+      return;
+    }
+
+    if (fullName.length > 50) {
+      showCustomAlert("Full name must be 50 characters or fewer.");
+      return;
+    }
+
+    if (!emailRegex.test(email)) {
+      showCustomAlert("Please enter a valid email address.");
+      return;
+    }
+
+    if (!amount) {
+      showCustomAlert("Please enter a donation amount.");
+      return;
+    }
+
+    if (!amountRegex.test(amount)) {
+      showCustomAlert("Please enter a valid donation amount (e.g. 50.00 or 75.25).");
+      return;
+    }
+
+    if (Number(amount) <= 0) {
+      showCustomAlert("Donation amount must be greater than zero.");
+      return;
+    }
+
+    const formCard = document.getElementById("formCard");
+    const zelleCard = document.getElementById("zelleCard");
+    const btn = document.getElementById("donateSubmitBtn");
+
+    setLoading(btn, true);
+
+    try {
+      const response = await fetch(API_BASE + "/api/donations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          full_name: fullName,
+          email: email,
+          amount: amount
+        })
+      });
+
+      let result;
+
+      try {
+        result = await response.json();
+      } catch {
+        throw new Error("Invalid response received from the server.");
+      }
+
+      if (!response.ok || !result.success) {
+        const errorMessage =
+          result.error ||
+          result.message ||
+          "Failed to submit your donation. Please try again.";
+        showCustomAlert(errorMessage);
+        console.error(result);
+        return;
+      }
+
+      document.getElementById("formCard").style.display = "none";
+      document.getElementById("zelleCard").style.display = "block";
+      zelleCard.scrollIntoView({ behavior: "smooth", block: "center" });
+    } catch (error) {
+      console.error(error);
+      showCustomAlert(
+        error.message || "Something went wrong. Please try again."
+      );
+    } finally {
+      setLoading(btn, false);
+    }
+  }
+</script>
+
+<script src="js/common.js"></script>
+
+</body>
+</html>

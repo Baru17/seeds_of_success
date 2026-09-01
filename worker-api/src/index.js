@@ -80,6 +80,48 @@ function validateMessage(message) {
 }
 
 
+function amountToCents(amount) {
+
+  if (
+    amount === undefined ||
+    amount === null
+  ) {
+    throw new Error(
+      "Donation amount is required."
+    );
+  }
+
+  const text =
+    String(amount).trim();
+
+  if (!/^\d+(\.\d{1,2})?$/.test(text)) {
+    throw new Error(
+      "Donation amount must be a positive monetary value."
+    );
+  }
+
+  const dollars =
+    Number(text);
+
+  if (!Number.isFinite(dollars) || dollars <= 0) {
+    throw new Error(
+      "Donation amount must be a positive monetary value."
+    );
+  }
+
+  const rounded =
+    Math.round(dollars * 100);
+
+  if (rounded <= 0) {
+    throw new Error(
+      "Donation amount must be greater than zero."
+    );
+  }
+
+  return rounded;
+}
+
+
 
 function escapeHtml(str) {
   return String(str || "")
@@ -101,8 +143,8 @@ async function sendResendEmail(
     throw new Error("Resend API key not configured.");
   }
 
-  const fromAddress =
-    env.EMAIL_FROM_ADDRESS || "onboarding@resend.dev";
+ const fromAddress =
+    env.EMAIL_FROM_ADDRESS || "Seeds of Success <noreply@soslearn.org>";
 
   const response = await fetch(
     "https://api.resend.com/emails",
@@ -2517,6 +2559,175 @@ export default {
               "Thank you for your message! We'll get back to you soon."
           },
           corsHeaders
+        );
+      }
+
+
+      /* =====================================================
+         DONATION SUBMISSION
+      ===================================================== */
+
+      if (
+        url.pathname ===
+          "/api/donations"
+        &&
+        request.method === "POST"
+      ) {
+
+        const data =
+          await request.json();
+
+        const fullName =
+          String(data.full_name || "").trim();
+
+        const email =
+          String(data.email || "").trim();
+
+        let amountCents;
+
+        if (
+          !fullName
+          ||
+          fullName.length < 2
+          ||
+          fullName.length > 50
+        ) {
+
+          return json(
+
+            {
+
+              success: false,
+
+              error:
+                "Full name must be between 2 and 50 characters."
+
+            },
+
+            corsHeaders,
+
+            400
+          );
+        }
+
+        if (
+          !/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/
+            .test(email)
+        ) {
+
+          return json(
+
+            {
+
+              success: false,
+
+              error:
+                "Please enter a valid email address."
+
+            },
+
+            corsHeaders,
+
+            400
+          );
+        }
+
+        try {
+
+          amountCents =
+            amountToCents(data.amount);
+
+        } catch (amountError) {
+
+          const message =
+            amountError.message ||
+            "Donation amount is invalid.";
+
+          if (message.includes("greater than zero")) {
+
+            return json(
+
+              {
+
+                success: false,
+
+                error: message
+
+              },
+
+              corsHeaders,
+
+              400
+            );
+          }
+
+          return json(
+
+            {
+
+              success: false,
+
+              error: message
+
+            },
+
+            corsHeaders,
+
+            400
+          );
+        }
+
+        const donationId =
+          crypto.randomUUID();
+
+        await db.prepare(`
+          INSERT INTO donations (
+
+            id,
+
+            full_name,
+
+            email,
+
+            amount_cents,
+
+            created_at
+
+          )
+
+          VALUES (?, ?, ?, ?, ?)
+        `)
+
+        .bind(
+
+          donationId,
+
+          fullName,
+
+          email,
+
+          amountCents,
+
+          new Date().toISOString()
+
+        )
+
+        .run();
+
+        return json(
+
+          {
+
+            success: true,
+
+            message:
+              "Donation submission recorded successfully."
+
+          },
+
+          corsHeaders,
+
+          201
         );
       }
 

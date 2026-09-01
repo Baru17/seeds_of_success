@@ -39,9 +39,9 @@
 	 * https://developers.cloudflare.com/workers/configuration/secrets/
 	 */
 	"vars": {
-		"CONTACT_RECIPIENT_EMAIL": "seedsofsuccessngo@gmail.com",
-		"VOLUNTEER_NOTIFICATION_EMAIL": "seedsofsuccessngo@gmail.com",
-		"EMAIL_FROM_ADDRESS": "onboarding@resend.dev"
+		"CONTACT_RECIPIENT_EMAIL": "bdharan06@gmail.com",
+		"VOLUNTEER_NOTIFICATION_EMAIL": "bdharan06@gmail.com",
+		"EMAIL_FROM_ADDRESS": "Seeds of Success <noreply@soslearn.org>"
 	}
 	/**
 	 * Static Assets

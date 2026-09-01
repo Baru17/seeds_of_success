@@ -314,4 +314,211 @@ describe("Seeds of Success worker", () => {
 		expect(callCount).toBe(2);
 		vi.mocked(globalThis.fetch).mockRestore();
 	});
+
+	describe("donations", () => {
+		const donationBody = (overrides = {}) => ({
+			full_name: "Jane Donor",
+			email: "jane@example.com",
+			amount: "50.00",
+			...overrides,
+		});
+
+		const mockDb = ({ onRun, findExisting = null } = {}) => ({
+			sos_db: {
+				prepare() {
+					return {
+						bind(...values) {
+							return {
+								run: onRun ? () => onRun(values) : async () => ({ success: true }),
+								first: async () => findExisting,
+							};
+						},
+					};
+				},
+			},
+		});
+
+		it("stores donation amount as integer cents on success", async () => {
+			let boundValues = [];
+			const response = await worker.fetch(
+				new Request("http://example.com/api/donations", {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify(donationBody()),
+				}),
+				mockDb({
+					onRun: (values) => {
+						boundValues = values;
+						return { success: true };
+					},
+				})
+			);
+
+			expect(response.status).toBe(201);
+			expect(await response.json()).toEqual({
+				success: true,
+				message: "Donation submission recorded successfully.",
+			});
+			expect(boundValues[0]).toMatch(/^[a-f0-9-]{36}$/);
+			expect(boundValues[1]).toBe("Jane Donor");
+			expect(boundValues[2]).toBe("jane@example.com");
+			expect(boundValues[3]).toBe(5000);
+			expect(typeof boundValues[3]).toBe("number");
+			expect(boundValues[4]).toMatch(/^\d{4}-\d{2}-\d{2}T/);
+		});
+
+		it("rejects a donation with a missing name", async () => {
+			const response = await worker.fetch(
+				new Request("http://example.com/api/donations", {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify(donationBody({ full_name: "" })),
+				}),
+				mockDb({
+					onRun: () => {
+						throw new Error("should not be called");
+					},
+				})
+			);
+
+			expect(response.status).toBe(400);
+			expect(await response.json()).toEqual({
+				success: false,
+				error: "Full name must be between 2 and 50 characters.",
+			});
+		});
+
+		it("rejects a donation with an invalid email", async () => {
+			const response = await worker.fetch(
+				new Request("http://example.com/api/donations", {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify(donationBody({ email: "not-an-email" })),
+				}),
+				mockDb({
+					onRun: () => {
+						throw new Error("should not be called");
+					},
+				})
+			);
+
+			expect(response.status).toBe(400);
+			expect(await response.json()).toEqual({
+				success: false,
+				error: "Please enter a valid email address.",
+			});
+		});
+
+		it("rejects a donation with a missing amount", async () => {
+			const response = await worker.fetch(
+				new Request("http://example.com/api/donations", {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify(donationBody({ amount: undefined })),
+				}),
+				mockDb({
+					onRun: () => {
+						throw new Error("should not be called");
+					},
+				})
+			);
+
+			expect(response.status).toBe(400);
+			expect(await response.json()).toEqual({
+				success: false,
+				error: "Donation amount is required.",
+			});
+		});
+
+		it("rejects a zero or negative amount", async () => {
+			for (const amount of ["0", "-5", "0.00"]) {
+				const response = await worker.fetch(
+					new Request("http://example.com/api/donations", {
+						method: "POST",
+						headers: { "Content-Type": "application/json" },
+						body: JSON.stringify(donationBody({ amount })),
+					}),
+					mockDb({
+						onRun: () => {
+							throw new Error("should not be called");
+						},
+					})
+				);
+
+				expect(response.status).toBe(400);
+				const body = await response.json();
+				expect(body.success).toBe(false);
+				expect(body.error).toMatch(/positive|greater than zero/);
+			}
+		});
+
+		it("rejects an invalid amount format", async () => {
+			for (const amount of ["abc", "5.123", "1,000", "Infinity", "1e3"]) {
+				const response = await worker.fetch(
+					new Request("http://example.com/api/donations", {
+						method: "POST",
+						headers: { "Content-Type": "application/json" },
+						body: JSON.stringify(donationBody({ amount })),
+					}),
+					mockDb({
+						onRun: () => {
+							throw new Error("should not be called");
+						},
+					})
+				);
+
+				expect(response.status).toBe(400);
+				const body = await response.json();
+				expect(body.success).toBe(false);
+				expect(body.error).toBe(
+					"Donation amount must be a positive monetary value."
+				);
+			}
+		});
+
+		it("successfully inserts into D1 and returns 201", async () => {
+			let runCalled = false;
+			const response = await worker.fetch(
+				new Request("http://example.com/api/donations", {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify(donationBody({ amount: "25.5" })),
+				}),
+				mockDb({
+					onRun: () => {
+						runCalled = true;
+						return { success: true };
+					},
+				})
+			);
+
+			expect(runCalled).toBe(true);
+			expect(response.status).toBe(201);
+			expect(await response.json()).toEqual({
+				success: true,
+				message: "Donation submission recorded successfully.",
+			});
+		});
+
+		it("returns a 500 error when the database insert fails", async () => {
+			const response = await worker.fetch(
+				new Request("http://example.com/api/donations", {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify(donationBody()),
+				}),
+				mockDb({
+					onRun: () => {
+						throw new Error("D1 insert failed");
+					},
+				})
+			);
+
+			expect(response.status).toBe(500);
+			expect(await response.json()).toEqual({
+				success: false,
+				error: "Something went wrong. Please try again later.",
+			});
+		});
+	});
 });

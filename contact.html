@@ -34,6 +34,7 @@
       <li><a href="ourstudents.html">Our Students</a></li>
       <li><a href="getinvolved.html">Get Involved</a></li>
       <li><a href="login.html">Login</a></li>
+      <li><a href="donate.html">Donate</a></li>
       <li><a href="volunteer.html" class="nav-cta">Volunteer</a></li>
     </ul>
   </div>
@@ -53,15 +54,15 @@
 
       <div class="contact-info-box">
         <h2>Send Us a Message</h2>
+        <p>
+          Have a question, suggestion, partnership idea, or want to support our mission?
+          Fill out the form and our team will get back to you soon.
+        </p>
 
         <div class="nonprofit-info">
-          <p>Seeds of Success is a U.S. nonprofit organization recognized as tax-exempt under Section 501(c)(3) of the Internal Revenue Code. EIN 41-3701713.<br><br></p>
-          <p class="address">Registered address:<br>12924 Dwight St,<br>Herndon, VA 20171 USA<br><br></p>
+          <p>Seeds of Success is a U.S. nonprofit organization recognized as tax-exempt under Section 501(c)(3) of the Internal Revenue Code. EIN 41-3701713.</p>
+          <p class="address">Registered address:<br>12924 Dwight St,<br>Herndon, VA 20171 USA</p>
         </div>
-
-        <p>
-          Have a question, suggestion, partnership idea, or want to support our mission? Fill out the form and our team will get back to you soon.
-        </p>
       </div>
 
       <div class="contact-form-card">
@@ -146,7 +147,13 @@
 </div>
 
 <script>
-  const API_BASE = "https://worker-api.seedsofsuccessngo.workers.dev";
+  const API_BASE = [
+    "localhost",
+    "127.0.0.1",
+    "::1"
+  ].includes(window.location.hostname)
+    ? "http://127.0.0.1:8787"
+    : "https://worker-api.seedsofsuccessngo.workers.dev";
 
   function showCustomAlert(message) {
     document.getElementById("customAlertMessage").textContent = message;
@@ -161,47 +168,96 @@
     if (loading) {
       btn.dataset.origText = btn.textContent;
       btn.disabled = true;
-      btn.innerHTML = '<span class="btn-spinner"></span> Sending...';
+      btn.textContent = "Submitting...";
     } else {
       btn.disabled = false;
-      btn.innerHTML = btn.dataset.origText || "Send Message";
+      btn.textContent = btn.dataset.origText || "Send Message";
     }
   }
 
-  async function handleContactForm(e) {
-    e.preventDefault();
+  const emailRegex =
+    /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
 
-    const btn = e.target.querySelector("button[type=submit]");
-    const form = e.target;
+  function validateContactFields(fullName, email, subject, message) {
+    if (fullName.length < 2) {
+      showCustomAlert("Please enter your full name (at least 2 characters).");
+      return false;
+    }
 
-    const payload = {
-      full_name: document.getElementById("fullname").value.trim(),
-      email: document.getElementById("email").value.trim(),
-      subject: document.getElementById("subject").value.trim(),
-      message: document.getElementById("message").value.trim()
-    };
+    if (!emailRegex.test(email)) {
+      showCustomAlert("Please enter a valid email address.");
+      return false;
+    }
 
-    setLoading(btn, true);
+    if (subject.length < 2) {
+      showCustomAlert("Please enter a subject (at least 2 characters).");
+      return false;
+    }
+
+    if (message.length < 10) {
+      showCustomAlert("Please enter a message (at least 10 characters).");
+      return false;
+    }
+
+    return true;
+  }
+
+  async function handleContactForm(event) {
+    event.preventDefault();
+
+    const fullName = document.getElementById("fullname").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const subject = document.getElementById("subject").value.trim();
+    const message = document.getElementById("message").value.trim();
+
+    if (!validateContactFields(fullName, email, subject, message)) {
+      return;
+    }
+
+    const submitButton = event.target.querySelector('button[type="submit"]');
+    setLoading(submitButton, true);
 
     try {
-      const res = await fetch(API_BASE + "/api/contact", {
+      const response = await fetch(API_BASE + "/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
+        body: JSON.stringify({
+          full_name: fullName,
+          email: email,
+          subject: subject,
+          message: message
+        })
       });
 
-      const data = await res.json();
+      let result;
 
-      if (!res.ok || data.success === false) {
-        throw new Error(data.error || "Something went wrong. Please try again.");
+      try {
+        result = await response.json();
+      } catch {
+        throw new Error("Invalid response received from the server.");
       }
 
-      showCustomAlert(data.message || "Thank you for your message! We'll get back to you soon.");
-      form.reset();
-    } catch (err) {
-      showCustomAlert(err.message);
+      if (!response.ok || !result.success) {
+        const errorMessage =
+          result.error ||
+          result.message ||
+          "Failed to send your message. Please try again.";
+
+        showCustomAlert(errorMessage);
+        console.error(result);
+        return;
+      }
+
+      event.target.reset();
+      showCustomAlert(result.message || "Thank you for your message! We'll get back to you soon.");
+    } catch (error) {
+      console.error(error);
+
+      showCustomAlert(
+        error.message || "Something went wrong. Please try again."
+      );
     } finally {
-      setLoading(btn, false);
+      setLoading(submitButton, false);
     }
   }
 </script>
