@@ -276,6 +276,56 @@ async function sendVolunteerConfirmationEmail(env, { name, email }) {
 }
 
 
+async function sendTutorNotificationEmail(env, application) {
+  const recipient = env.VOLUNTEER_NOTIFICATION_EMAIL;
+
+  if (!recipient) {
+    throw new Error("Tutor notification recipient email not configured.");
+  }
+
+  return sendResendEmail(env, {
+    to: recipient,
+    replyTo: application.email,
+    subject: "New Tutor Application - Seeds of Success",
+    html: [
+      '<div style="font-family:sans-serif;max-width:600px">',
+      '<h2 style="color:#0d6e4f">New Tutor Application</h2>',
+      '<p style="color:#555;line-height:1.6">A new tutor has submitted an application to Seeds of Success.</p>',
+      '<table style="width:100%;border-collapse:collapse">',
+      '<tr><td style="padding:8px 12px;font-weight:600;color:#0d6e4f;border-bottom:1px solid #e6efeb">Full Name</td><td style="padding:8px 12px;border-bottom:1px solid #e6efeb">' + escapeHtml(application.full_name) + '</td></tr>',
+      '<tr><td style="padding:8px 12px;font-weight:600;color:#0d6e4f;border-bottom:1px solid #e6efeb">Email</td><td style="padding:8px 12px;border-bottom:1px solid #e6efeb">' + escapeHtml(application.email) + '</td></tr>',
+      '<tr><td style="padding:8px 12px;font-weight:600;color:#0d6e4f;border-bottom:1px solid #e6efeb">Phone</td><td style="padding:8px 12px;border-bottom:1px solid #e6efeb">' + escapeHtml(application.phone || "") + '</td></tr>',
+      '<tr><td style="padding:8px 12px;font-weight:600;color:#0d6e4f;border-bottom:1px solid #e6efeb">Skills / Languages</td><td style="padding:8px 12px;border-bottom:1px solid #e6efeb">' + escapeHtml(application.skills || "") + '</td></tr>',
+      '<tr><td style="padding:8px 12px;font-weight:600;color:#0d6e4f;border-bottom:1px solid #e6efeb">Availability</td><td style="padding:8px 12px;border-bottom:1px solid #e6efeb">' + escapeHtml(application.availability || "") + '</td></tr>',
+      '</table>',
+      '<hr style="border:none;border-top:1px solid #e6efeb;margin-top:24px">',
+      '<p style="font-size:12px;color:#888">Sent via the Seeds of Success tutor application form.</p>',
+      '</div>'
+    ].join('')
+  });
+}
+
+
+async function sendTutorConfirmationEmail(env, { name, email }) {
+  return sendResendEmail(env, {
+    to: email,
+    subject: "Tutor Application Received \u2013 Seeds of Success",
+    html: [
+      '<div style="font-family:sans-serif;max-width:600px">',
+      '<p style="color:#333;line-height:1.7">Hi ' + escapeHtml(name) + ',</p>',
+      '<p style="color:#333;line-height:1.7">Thank you for applying as a tutor with Seeds of Success!</p>',
+      '<p style="color:#333;line-height:1.7">We have successfully received your tutor application. Our team will review it and contact you regarding next steps.</p>',
+      '<p style="color:#333;line-height:1.7">We appreciate your interest in supporting Seeds of Success and making a difference.</p>',
+      '<p style="color:#333;line-height:1.7">Best regards,</p>',
+      '<p style="color:#0d6e4f;font-weight:600">Seeds of Success Team</p>',
+      '<hr style="border:none;border-top:1px solid #e6efeb;margin-top:24px">',
+      '<p style="font-size:12px;color:#888">Sent via the Seeds of Success tutor application form.</p>',
+      '</div>'
+    ].join('')
+  });
+}
+
+
 /* =========================================================
    STUDENT MAPPING
 ========================================================= */
@@ -1279,6 +1329,58 @@ export default {
         )
 
         .run();
+
+
+        const tutorApplication = {
+
+          full_name: data.full_name,
+
+          email: data.email,
+
+          phone: data.phone || "",
+
+          skills: data.skills || "",
+
+          availability: data.availability || ""
+
+        };
+
+
+        try {
+
+          await sendTutorNotificationEmail(
+            env,
+            tutorApplication
+          );
+
+        } catch (notificationError) {
+
+          console.error(
+            "Tutor notification email failed:",
+            notificationError
+          );
+
+        }
+
+
+        try {
+
+          await sendTutorConfirmationEmail(
+            env,
+            {
+              name: data.full_name,
+              email: data.email
+            }
+          );
+
+        } catch (confirmationError) {
+
+          console.error(
+            "Tutor confirmation email failed:",
+            confirmationError
+          );
+
+        }
 
 
         return json(
