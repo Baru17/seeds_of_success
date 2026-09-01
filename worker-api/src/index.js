@@ -143,26 +143,26 @@ async function sendResendEmail(
     throw new Error("Resend API key not configured.");
   }
 
- const fromAddress =
-    env.EMAIL_FROM_ADDRESS || "Seeds of Success <noreply@soslearn.org>";
+const fromAddress =
+  env.EMAIL_FROM_ADDRESS || "Seeds of Success <noreply@soslearn.org>";
 
-  const response = await fetch(
-    "https://api.resend.com/emails",
-    {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${apiKey}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        from: `Seeds of Success <${fromAddress}>`,
-        to: Array.isArray(to) ? to : [to],
-        reply_to: replyTo,
-        subject,
-        html
-      })
-    }
-  );
+const response = await fetch(
+  "https://api.resend.com/emails",
+  {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${apiKey}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      from: fromAddress,
+      to: Array.isArray(to) ? to : [to],
+      reply_to: replyTo,
+      subject,
+      html
+    })
+  }
+);
 
   if (!response.ok) {
     const body = await response.text();
