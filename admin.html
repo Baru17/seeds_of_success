@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="icon" type="image/jpeg" href="Images/SeedsOfSuccess_pic.jpeg" />
-  <title>Admin Panel | Seeds of Success</title>
+  <title>Admin Dashboard | Seeds of Success</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
@@ -25,232 +25,211 @@
         <li><a href="ourstudents.html">Our Students</a></li>
         <li><a href="getinvolved.html">Get Involved</a></li>
         <li><a href="admin.html" class="active">Admin</a></li>
-        <li><a href="login.html" class="nav-cta">Logout</a></li>
+        <li><button type="button" class="nav-cta logout-btn" onclick="handleLogout()">Logout</button></li>
       </ul>
     </div>
   </header>
 
   <section class="welcome-strip">
     <div class="container">
-      <h1>Admin Panel</h1>
-      <p>Manage applications, tutors, volunteers, students and reports from one place.</p>
+      <h1>Admin Dashboard</h1>
+      <p>Manage applications, donations, and contact submissions from one place.</p>
     </div>
   </section>
 
-  <div class="admin-alert info" id="adminAlert">Loading dashboard data...</div>
+  <div class="admin-alert info" id="adminAlert">Loading dashboard...</div>
 
   <section class="container">
     <div class="stats-row">
       <div class="stat-tile">
-        <div class="num" id="totalTutorsStat">0</div>
-        <div class="lbl">Total Tutors</div>
+        <div class="num" id="pendingTutorsStat">-</div>
+        <div class="lbl">Pending Tutors</div>
       </div>
       <div class="stat-tile">
-        <div class="num" id="totalStudentsStat">0</div>
-        <div class="lbl">Total Students</div>
+        <div class="num" id="pendingVolunteersStat">-</div>
+        <div class="lbl">Pending Volunteers</div>
       </div>
       <div class="stat-tile">
-        <div class="num" id="pendingApplicationsStat">0</div>
-        <div class="lbl">Pending Applications</div>
+        <div class="num" id="pendingDonationsStat">-</div>
+        <div class="lbl">Pending Donations</div>
       </div>
       <div class="stat-tile">
-        <div class="num" id="completedSessionsStat">0</div>
-        <div class="lbl">Completed Sessions</div>
+        <div class="num" id="verifiedDonationsStat">-</div>
+        <div class="lbl">Verified Donations</div>
       </div>
     </div>
   </section>
 
-  <section class="section">
-    <div class="container">
-      <div class="card">
-        <div class="card-head">
-          <h2>Volunteer Applications</h2>
-          <small>Approve or reject volunteer sign-ups</small>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Role</th>
-                <th>Skills</th>
-                <th>Message</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="volunteerApplicationsBody">
-              <tr><td colspan="7" class="empty-row">Loading volunteer applications...</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+  <section class="container dashboard-cards">
+    <div class="dash-card" onclick="openSection('tutors')" id="dashCardTutors">
+      <div class="dash-card-icon tutors-icon">&#128218;</div>
+      <div class="dash-card-title">Tutors</div>
+      <div class="dash-card-count" id="tutorsCardCount">-</div>
+      <div class="dash-card-sub">applications</div>
+    </div>
+    <div class="dash-card" onclick="openSection('volunteers')" id="dashCardVolunteers">
+      <div class="dash-card-icon volunteers-icon">&#128588;</div>
+      <div class="dash-card-title">Volunteers</div>
+      <div class="dash-card-count" id="volunteersCardCount">-</div>
+      <div class="dash-card-sub">applications</div>
+    </div>
+    <div class="dash-card" onclick="openSection('donations')" id="dashCardDonations">
+      <div class="dash-card-icon donations-icon">&#128176;</div>
+      <div class="dash-card-title">Donors</div>
+      <div class="dash-card-count" id="donationsCardCount">-</div>
+      <div class="dash-card-sub">donations</div>
+    </div>
+    <div class="dash-card" onclick="openSection('contacts')" id="dashCardContacts">
+      <div class="dash-card-icon contacts-icon">&#9993;</div>
+      <div class="dash-card-title">Contact</div>
+      <div class="dash-card-count" id="contactsCardCount">-</div>
+      <div class="dash-card-sub">submissions</div>
     </div>
   </section>
 
-  <section class="section">
-    <div class="container">
-      <div class="card">
-        <div class="card-head">
-          <h2>Tutor Applications</h2>
-          <small>Tutors are added only after admin approval</small>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Phone</th>
-                <th>Skills</th>
-                <th>Availability</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="tutorApplicationsBody">
-              <tr><td colspan="7" class="empty-row">Loading tutor applications...</td></tr>
-            </tbody>
-          </table>
-        </div>
+  <!-- ======================== TUTORS SECTION ======================== -->
+  <section class="container section-view" id="sectionTutors">
+    <div class="card">
+      <div class="card-head">
+        <h2>Tutor Applications</h2>
+        <small>Review and manage tutor applications</small>
+      </div>
+      <div class="toolbar">
+        <input class="inline-field" id="tutorSearch" type="text" placeholder="Search by name, email, or phone..." />
+        <select class="inline-field" id="tutorFilter">
+          <option value="">All Statuses</option>
+          <option value="pending" selected>Pending</option>
+          <option value="approved">Approved</option>
+          <option value="rejected">Rejected</option>
+        </select>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>Skills</th>
+              <th>Availability</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tutorAppsBody">
+            <tr><td colspan="7" class="empty-row">Loading...</td></tr>
+          </tbody>
+        </table>
       </div>
     </div>
+    <button class="btn btn-back" onclick="closeSection()">&larr; Back to Dashboard</button>
   </section>
 
-  <section class="section">
-    <div class="container two-col">
-      <div class="card">
-        <div class="card-head">
-          <h2>Tutors List</h2>
-          <small>Approved tutor accounts</small>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Assigned Students</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody id="tutorTableBody">
-              <tr><td colspan="4" class="empty-row">Loading tutors...</td></tr>
-            </tbody>
-          </table>
-        </div>
+  <!-- ======================== VOLUNTEERS SECTION ======================== -->
+  <section class="container section-view" id="sectionVolunteers">
+    <div class="card">
+      <div class="card-head">
+        <h2>Volunteer Applications</h2>
+        <small>Review and manage volunteer applications</small>
       </div>
-
-      <div class="card">
-        <div class="card-head">
-          <h2>Students List</h2>
-          <small>Assigned tutor & progress</small>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Assigned Tutor</th>
-                <th>Progress</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody id="studentsTableBody">
-              <tr><td colspan="4" class="empty-row">Loading students...</td></tr>
-            </tbody>
-          </table>
-        </div>
+      <div class="toolbar">
+        <input class="inline-field" id="volunteerSearch" type="text" placeholder="Search by name, email, or phone..." />
+        <select class="inline-field" id="volunteerFilter">
+          <option value="">All Statuses</option>
+          <option value="pending" selected>Pending</option>
+          <option value="approved">Approved</option>
+          <option value="rejected">Rejected</option>
+        </select>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Skills</th>
+              <th>Message</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="volunteerAppsBody">
+            <tr><td colspan="7" class="empty-row">Loading...</td></tr>
+          </tbody>
+        </table>
       </div>
     </div>
+    <button class="btn btn-back" onclick="closeSection()">&larr; Back to Dashboard</button>
   </section>
 
-  <section class="section">
-    <div class="container">
-      <div class="card">
-        <div class="card-head">
-          <h2>Volunteer List</h2>
-          <small>Approved volunteer accounts</small>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Status</th>
-                <th>Current Task</th>
-              </tr>
-            </thead>
-            <tbody id="volunteerTableBody">
-              <tr><td colspan="4" class="empty-row">Loading volunteers...</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="task-form">
-          <select class="inline-field" id="taskVolunteer">
-            <option value="">Loading volunteers...</option>
-          </select>
-          <input class="inline-field" id="taskText" type="text" placeholder="Task description" />
-          <button class="btn btn-add" onclick="assignVolunteerTask()">Assign Task</button>
-        </div>
+  <!-- ======================== DONATIONS SECTION ======================== -->
+  <section class="container section-view" id="sectionDonations">
+    <div class="card">
+      <div class="card-head">
+        <h2>Donations</h2>
+        <small>Verify or reject donation submissions</small>
+      </div>
+      <div class="toolbar">
+        <input class="inline-field" id="donationSearch" type="text" placeholder="Search by name, email, or reference..." />
+        <select class="inline-field" id="donationFilter">
+          <option value="">All Statuses</option>
+          <option value="pending" selected>Pending</option>
+          <option value="verified">Verified</option>
+          <option value="rejected">Rejected</option>
+        </select>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Amount</th>
+              <th>Date</th>
+              <th>Reference</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="donationsBody">
+            <tr><td colspan="7" class="empty-row">Loading...</td></tr>
+          </tbody>
+        </table>
       </div>
     </div>
+    <button class="btn btn-back" onclick="closeSection()">&larr; Back to Dashboard</button>
   </section>
 
-  <section class="section">
-    <div class="container">
-      <div class="card">
-        <div class="card-head">
-          <h2>Report Analysis</h2>
-          <small>Program performance at a glance</small>
-        </div>
-
-        <div class="report-grid" style="margin-bottom: 24px;">
-          <div class="report-tile">
-            <h4>Total Sessions Completed</h4>
-            <div class="big" id="reportCompletedSessions">0</div>
-            <div class="delta">Updated from database</div>
-          </div>
-          <div class="report-tile">
-            <h4>Average Student Progress</h4>
-            <div class="big" id="reportAverageProgress">0%</div>
-            <div class="progress-bar"><span id="reportAverageProgressBar" style="width:0%"></span></div>
-          </div>
-          <div class="report-tile">
-            <h4>Average Marks</h4>
-            <div class="big" id="reportAverageMarks">0%</div>
-            <div class="delta">From completed topics</div>
-          </div>
-          <div class="report-tile">
-            <h4>Active Tutor–Student Pairs</h4>
-            <div class="big" id="reportActivePairs">0</div>
-            <div class="delta"><span id="reportUnassignedStudents">0</span> unassigned</div>
-          </div>
-        </div>
-
-        <h3 style="font-family:'Playfair Display',serif; color:#0d6e4f; font-size:18px; margin-bottom:12px;">Student Progress Summary</h3>
-        <div id="studentSummaryBody">
-          <p class="empty-row">Loading student progress...</p>
-        </div>
+  <!-- ======================== CONTACTS SECTION ======================== -->
+  <section class="container section-view" id="sectionContacts">
+    <div class="card">
+      <div class="card-head">
+        <h2>Contact Submissions</h2>
+        <small>View messages from the contact form</small>
+      </div>
+      <div class="toolbar">
+        <input class="inline-field" id="contactSearch" type="text" placeholder="Search by name, email, or subject..." />
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Subject</th>
+              <th>Message</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody id="contactsBody">
+            <tr><td colspan="5" class="empty-row">Loading...</td></tr>
+          </tbody>
+        </table>
       </div>
     </div>
+    <button class="btn btn-back" onclick="closeSection()">&larr; Back to Dashboard</button>
   </section>
-
-  <div class="modal-backdrop" id="studentDetailModal" role="dialog" aria-modal="true" aria-labelledby="studentDetailTitle">
-    <div class="modal-card">
-      <div class="modal-head">
-        <h3 id="studentDetailTitle">Student Progress</h3>
-        <button class="modal-close" id="studentDetailClose" type="button" aria-label="Close student details">&times;</button>
-      </div>
-      <p id="studentDetailOverall" style="color:#0d6e4f; font-weight:600; margin-bottom:14px;">0% Complete</p>
-      <h4 style="font-size:14px; color:#1f2d2a; margin-bottom:6px;">Completed Topics</h4>
-      <ul class="detail-list" id="studentDetailTopics"></ul>
-      <h4 style="font-size:14px; color:#1f2d2a; margin-bottom:6px;">Scores &amp; Marks</h4>
-      <ul class="detail-list" id="studentDetailScores"></ul>
-    </div>
-  </div>
 
   <footer class="site-footer">
     <div class="container">
@@ -277,7 +256,7 @@
           </ul>
         </div>
       </div>
-      <div class="footer-bottom">© 2026 Seeds of Success. All rights reserved. Seeds of Success is a U.S. nonprofit organization recognized as tax-exempt under Section 501(c)(3) of the Internal Revenue Code. EIN 41-3701713.</div>
+      <div class="footer-bottom">&copy; 2026 Seeds of Success. All rights reserved. Seeds of Success is a U.S. nonprofit organization recognized as tax-exempt under Section 501(c)(3) of the Internal Revenue Code. EIN 41-3701713.</div>
     </div>
   </footer>
 
@@ -287,19 +266,12 @@
   </div>
 
   <script>
-    const API_BASE = "https://worker-api.seedsofsuccessngo.workers.dev";
+    const API_BASE = ["localhost", "127.0.0.1", "::1"].includes(window.location.hostname)
+      ? "http://127.0.0.1:8787"
+      : "https://worker-api.seedsofsuccessngo.workers.dev";
 
-    const state = {
-      volunteerApplications: [],
-      tutorApplications: [],
-      tutors: [],
-      volunteers: [],
-      students: [],
-      reports: null,
-    };
-
-    function escapeHTML(value) {
-      return String(value ?? "")
+    function escapeHTML(v) {
+      return String(v ?? "")
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
@@ -308,296 +280,331 @@
     }
 
     function pill(status) {
-      const value = String(status || "pending").toLowerCase();
-      const cls = value === "approved" || value === "active" ? "pill-approved" : value === "rejected" || value === "inactive" ? "pill-rejected" : "pill-pending";
-      return `<span class="pill ${cls}">${escapeHTML(value.charAt(0).toUpperCase() + value.slice(1))}</span>`;
+      const v = String(status || "pending").toLowerCase();
+      let cls = "pill-pending";
+      if (v === "approved" || v === "active" || v === "verified") cls = "pill-approved";
+      else if (v === "rejected" || v === "inactive") cls = "pill-rejected";
+      return '<span class="pill ' + cls + '">' + escapeHTML(v.charAt(0).toUpperCase() + v.slice(1)) + '</span>';
     }
 
-    function showAlert(message, type = "info") {
-      const alert = document.getElementById("adminAlert");
-      alert.textContent = message;
-      alert.className = `admin-alert show ${type}`;
+    function showAlert(message, type) {
+      const el = document.getElementById("adminAlert");
+      el.textContent = message;
+      el.className = "admin-alert show " + (type || "info");
       if (type !== "error") {
-        setTimeout(() => alert.classList.remove("show"), 3500);
+        setTimeout(function() { el.classList.remove("show"); }, 3500);
       }
     }
 
-    async function apiFetch(path, options = {}) {
-      const response = await fetch(`${API_BASE}${path}`, {
-        ...options,
-        headers: {
-          "Content-Type": "application/json",
-          ...(options.headers || {}),
-        },
-      });
-      const result = await response.json().catch(() => ({}));
+    function adminToken() {
+      return localStorage.getItem("adminToken");
+    }
+
+    function redirectToLogin() {
+      localStorage.removeItem("adminToken");
+      localStorage.removeItem("adminName");
+      localStorage.removeItem("adminEmail");
+      window.location.href = "login.html?role=admin";
+    }
+
+    async function apiFetch(path, options) {
+      options = options || {};
+      const token = adminToken();
+      const response = await fetch(API_BASE + path, Object.assign({}, options, {
+        headers: Object.assign({
+          "Content-Type": "application/json"
+        }, token ? { "Authorization": "Bearer " + token } : {}, options.headers || {})
+      }));
+
+      if (response.status === 401) {
+        redirectToLogin();
+        throw new Error("Authentication required. Please log in.");
+      }
+
+      if (response.status === 403) {
+        throw new Error("Access denied.");
+      }
+
+      const result = await response.json().catch(function() { return {}; });
       if (!response.ok || result.success === false) {
         throw new Error(result.error || result.message || "Request failed");
       }
       return result;
     }
 
-    function renderVolunteerApplications() {
-      const body = document.getElementById("volunteerApplicationsBody");
-      if (!state.volunteerApplications.length) {
-        body.innerHTML = `<tr><td colspan="7" class="empty-row">No volunteer applications found.</td></tr>`;
-        return;
+    async function handleLogout() {
+      var token = adminToken();
+      if (token) {
+        try { await apiFetch("/api/admin/logout", { method: "POST" }); } catch (e) { /* ignore */ }
       }
-
-      body.innerHTML = state.volunteerApplications.map(app => `
-        <tr>
-          <td>${escapeHTML(app.full_name)}</td>
-          <td>${escapeHTML(app.email)}</td>
-          <td>${escapeHTML(app.role || "-")}</td>
-          <td>${escapeHTML(app.skills || "-")}</td>
-          <td class="message-cell">${escapeHTML(app.message || "-")}</td>
-          <td>${pill(app.status)}</td>
-          <td class="row-actions">
-            ${app.status === "pending" ? `
-              <button class="btn btn-approve" onclick="updateVolunteerStatus('${app.id}', 'approved')">Approve</button>
-              <button class="btn btn-reject" onclick="updateVolunteerStatus('${app.id}', 'rejected')">Reject</button>
-            ` : `<em style="color:#5a6b66">Reviewed</em>`}
-          </td>
-        </tr>
-      `).join("");
+      localStorage.removeItem("adminToken");
+      localStorage.removeItem("adminName");
+      localStorage.removeItem("adminEmail");
+      window.location.href = "login.html?role=admin";
     }
 
-    function renderTutorApplications() {
-      const body = document.getElementById("tutorApplicationsBody");
-      if (!state.tutorApplications.length) {
-        body.innerHTML = `<tr><td colspan="7" class="empty-row">No tutor applications found.</td></tr>`;
-        return;
-      }
-
-      body.innerHTML = state.tutorApplications.map(app => `
-        <tr>
-          <td>${escapeHTML(app.full_name)}</td>
-          <td>${escapeHTML(app.email)}</td>
-          <td>${escapeHTML(app.phone || "-")}</td>
-          <td>${escapeHTML(app.skills || "-")}</td>
-          <td>${escapeHTML(app.availability || "-")}</td>
-          <td>${pill(app.status)}</td>
-          <td class="row-actions">
-            ${app.status === "pending" ? `
-              <button class="btn btn-approve" onclick="updateTutorStatus('${app.id}', 'approved')">Approve</button>
-              <button class="btn btn-reject" onclick="updateTutorStatus('${app.id}', 'rejected')">Reject</button>
-            ` : `<em style="color:#5a6b66">Reviewed</em>`}
-          </td>
-        </tr>
-      `).join("");
+    function requireAuth() {
+      if (!adminToken()) { redirectToLogin(); return false; }
+      return true;
     }
 
-    function renderTutors() {
-      const body = document.getElementById("tutorTableBody");
-      if (!state.tutors.length) {
-        body.innerHTML = `<tr><td colspan="4" class="empty-row">No approved tutors found.</td></tr>`;
-        return;
-      }
-
-      body.innerHTML = state.tutors.map(tutor => `
-        <tr>
-          <td>${escapeHTML(tutor.full_name)}</td>
-          <td>${escapeHTML(tutor.email || "-")}</td>
-          <td>${Number(tutor.assigned_students || 0)} ${Number(tutor.assigned_students || 0) === 1 ? "student" : "students"}</td>
-          <td>${pill(tutor.status)}</td>
-        </tr>
-      `).join("");
-    }
-
-    function renderStudents() {
-      const body = document.getElementById("studentsTableBody");
-      if (!state.students.length) {
-        body.innerHTML = `<tr><td colspan="4" class="empty-row">No students found.</td></tr>`;
-        return;
-      }
-
-      body.innerHTML = state.students.map(student => `
-        <tr>
-          <td><a href="#" class="student-link" onclick="openStudentDetail('${student.id}'); return false;">${escapeHTML(student.full_name)}</a></td>
-          <td>${student.tutor_name ? escapeHTML(student.tutor_name) : '<em style="color:#a06b00">Unassigned</em>'}</td>
-          <td>${Number(student.progress || 0)}%</td>
-          <td>${pill(student.status)}</td>
-        </tr>
-      `).join("");
-    }
-
-    function renderVolunteers() {
-      const body = document.getElementById("volunteerTableBody");
-      const select = document.getElementById("taskVolunteer");
-
-      if (!state.volunteers.length) {
-        body.innerHTML = `<tr><td colspan="4" class="empty-row">No approved volunteers found.</td></tr>`;
-        select.innerHTML = `<option value="">No volunteers available</option>`;
-        return;
-      }
-
-      body.innerHTML = state.volunteers.map(volunteer => `
-        <tr>
-          <td>${escapeHTML(volunteer.full_name)}</td>
-          <td>${escapeHTML(volunteer.email || "-")}</td>
-          <td>${pill(volunteer.status)}</td>
-          <td>${volunteer.current_task ? escapeHTML(volunteer.current_task) : '<em style="color:#a06b00">No task assigned</em>'}</td>
-        </tr>
-      `).join("");
-
-      select.innerHTML = `<option value="">Select volunteer</option>` + state.volunteers.map(volunteer => `
-        <option value="${escapeHTML(volunteer.id)}">${escapeHTML(volunteer.full_name)}</option>
-      `).join("");
-    }
-
-    function renderReports() {
-      const reports = state.reports;
-      if (!reports) return;
-
-      document.getElementById("reportCompletedSessions").textContent = reports.total_completed_sessions || 0;
-      document.getElementById("reportAverageProgress").textContent = `${reports.average_student_progress || 0}%`;
-      document.getElementById("reportAverageProgressBar").style.width = `${reports.average_student_progress || 0}%`;
-      document.getElementById("reportAverageMarks").textContent = `${reports.average_marks || 0}%`;
-      document.getElementById("reportActivePairs").textContent = reports.active_tutor_student_pairs || 0;
-      document.getElementById("reportUnassignedStudents").textContent = reports.unassigned_students || 0;
-
-      const summary = document.getElementById("studentSummaryBody");
-      if (!reports.students || !reports.students.length) {
-        summary.innerHTML = `<p class="empty-row">No student progress data available.</p>`;
-        return;
-      }
-
-      summary.innerHTML = reports.students.map(student => `
-        <div class="summary-row">
-          <span class="name"><a href="#" class="student-link" onclick="openStudentDetail('${student.id}'); return false;">${escapeHTML(student.full_name)}</a></span>
-          <div class="bar-wrap">
-            <div class="progress-bar"><span style="width:${Number(student.progress || 0)}%"></span></div>
-            <span class="pct">${Number(student.progress || 0)}%</span>
-          </div>
-        </div>
-      `).join("");
-    }
-
-    function renderStats(stats) {
-      document.getElementById("totalTutorsStat").textContent = stats.total_tutors || 0;
-      document.getElementById("totalStudentsStat").textContent = stats.total_students || 0;
-      document.getElementById("pendingApplicationsStat").textContent = stats.pending_applications || 0;
-      document.getElementById("completedSessionsStat").textContent = stats.completed_sessions || 0;
-    }
-
-    async function loadDashboard() {
+    /* =================== DASHBOARD SUMMARY =================== */
+    async function loadSummary() {
       try {
-        showAlert("Loading dashboard data...", "info");
-
-        const [statsRes, volunteerAppsRes, tutorAppsRes, tutorsRes, studentsRes, volunteersRes, reportsRes] = await Promise.all([
-          apiFetch("/api/admin/stats"),
-          apiFetch("/api/admin/volunteer-applications"),
-          apiFetch("/api/admin/tutor-applications"),
-          apiFetch("/api/admin/tutors"),
-          apiFetch("/api/admin/students"),
-          apiFetch("/api/admin/volunteers"),
-          apiFetch("/api/admin/reports"),
-        ]);
-
-        renderStats(statsRes.stats || {});
-        state.volunteerApplications = volunteerAppsRes.applications || [];
-        state.tutorApplications = tutorAppsRes.applications || [];
-        state.tutors = tutorsRes.tutors || [];
-        state.students = studentsRes.students || [];
-        state.volunteers = volunteersRes.volunteers || [];
-        state.reports = reportsRes.reports || null;
-
-        renderVolunteerApplications();
-        renderTutorApplications();
-        renderTutors();
-        renderStudents();
-        renderVolunteers();
-        renderReports();
-
-        showAlert("Dashboard loaded successfully.", "success");
-      } catch (error) {
-        console.error(error);
-        showAlert(error.message || "Failed to load dashboard data.", "error");
+        const res = await apiFetch("/api/admin/dashboard-summary");
+        var s = res.summary || {};
+        document.getElementById("pendingTutorsStat").textContent = s.pending_tutors || 0;
+        document.getElementById("pendingVolunteersStat").textContent = s.pending_volunteers || 0;
+        document.getElementById("pendingDonationsStat").textContent = s.pending_donations || 0;
+        document.getElementById("verifiedDonationsStat").textContent = s.verified_donations || 0;
+        document.getElementById("tutorsCardCount").textContent = s.pending_tutors || 0;
+        document.getElementById("volunteersCardCount").textContent = s.pending_volunteers || 0;
+        document.getElementById("donationsCardCount").textContent = (s.pending_donations || 0) + (s.verified_donations || 0);
+        document.getElementById("contactsCardCount").textContent = s.total_contacts || 0;
+        return s;
+      } catch (e) {
+        console.error("Dashboard summary failed:", e);
+        return {};
       }
     }
 
-    async function updateVolunteerStatus(id, status) {
+    /* =================== SECTIONS =================== */
+    var currentSection = null;
+    var searchTimers = {};
+
+    function openSection(name) {
+      document.querySelector(".dashboard-cards").style.display = "none";
+      document.querySelectorAll(".section-view").forEach(function(el) { el.classList.add("hidden"); });
+      var section = document.getElementById("section" + name.charAt(0).toUpperCase() + name.slice(1));
+      if (section) section.classList.remove("hidden");
+      currentSection = name;
+      loadSectionData(name);
+    }
+
+    function closeSection() {
+      document.querySelectorAll(".section-view").forEach(function(el) { el.classList.add("hidden"); });
+      document.querySelector(".dashboard-cards").style.display = "";
+      currentSection = null;
+      loadSummary();
+    }
+
+    async function loadSectionData(name) {
+      if (name === "tutors") await loadTutors();
+      else if (name === "volunteers") await loadVolunteers();
+      else if (name === "donations") await loadDonations();
+      else if (name === "contacts") await loadContacts();
+    }
+
+    /* =================== TUTORS =================== */
+    async function loadTutors() {
+      var body = document.getElementById("tutorAppsBody");
+      body.innerHTML = '<tr><td colspan="7" class="empty-row">Loading...</td></tr>';
       try {
-        await apiFetch(`/api/admin/volunteer-applications/${encodeURIComponent(id)}/status`, {
+        var search = document.getElementById("tutorSearch").value;
+        var status = document.getElementById("tutorFilter").value;
+        var params = new URLSearchParams();
+        if (search) params.set("search", search);
+        if (status) params.set("status", status);
+        var qs = params.toString();
+        var res = await apiFetch("/api/admin/tutor-applications" + (qs ? "?" + qs : ""));
+        var apps = res.applications || [];
+        if (!apps.length) {
+          body.innerHTML = '<tr><td colspan="7" class="empty-row">No tutor applications found.</td></tr>';
+          return;
+        }
+        body.innerHTML = apps.map(function(a) {
+          return '<tr>'
+            + '<td>' + escapeHTML(a.full_name) + '</td>'
+            + '<td>' + escapeHTML(a.email) + '</td>'
+            + '<td>' + escapeHTML(a.phone || '-') + '</td>'
+            + '<td>' + escapeHTML(a.skills || '-') + '</td>'
+            + '<td>' + escapeHTML(a.availability || '-') + '</td>'
+            + '<td>' + pill(a.status) + '</td>'
+            + '<td class="row-actions">'
+            + (a.status === 'pending'
+              ? '<button class="btn btn-approve" onclick="confirmAction(\'tutor\',\'' + a.id + '\',\'approved\',\'' + escapeHTML(a.full_name).replace(/'/g, "\\'") + '\')">Approve</button> '
+                + '<button class="btn btn-reject" onclick="confirmAction(\'tutor\',\'' + a.id + '\',\'rejected\',\'' + escapeHTML(a.full_name).replace(/'/g, "\\'") + '\')">Reject</button>'
+              : '<em style="color:#5a6b66">Reviewed</em>')
+            + '</td></tr>';
+        }).join("");
+      } catch (e) {
+        body.innerHTML = '<tr><td colspan="7" class="empty-row">Error loading data.</td></tr>';
+        showAlert(e.message || "Failed to load tutors.", "error");
+      }
+    }
+
+    /* =================== VOLUNTEERS =================== */
+    async function loadVolunteers() {
+      var body = document.getElementById("volunteerAppsBody");
+      body.innerHTML = '<tr><td colspan="7" class="empty-row">Loading...</td></tr>';
+      try {
+        var search = document.getElementById("volunteerSearch").value;
+        var status = document.getElementById("volunteerFilter").value;
+        var params = new URLSearchParams();
+        if (search) params.set("search", search);
+        if (status) params.set("status", status);
+        var qs = params.toString();
+        var res = await apiFetch("/api/admin/volunteer-applications" + (qs ? "?" + qs : ""));
+        var apps = res.applications || [];
+        if (!apps.length) {
+          body.innerHTML = '<tr><td colspan="7" class="empty-row">No volunteer applications found.</td></tr>';
+          return;
+        }
+        body.innerHTML = apps.map(function(a) {
+          return '<tr>'
+            + '<td>' + escapeHTML(a.full_name) + '</td>'
+            + '<td>' + escapeHTML(a.email) + '</td>'
+            + '<td>' + escapeHTML(a.role || '-') + '</td>'
+            + '<td>' + escapeHTML(a.skills || '-') + '</td>'
+            + '<td class="message-cell">' + escapeHTML(a.message || '-') + '</td>'
+            + '<td>' + pill(a.status) + '</td>'
+            + '<td class="row-actions">'
+            + (a.status === 'pending'
+              ? '<button class="btn btn-approve" onclick="confirmAction(\'volunteer\',\'' + a.id + '\',\'approved\',\'' + escapeHTML(a.full_name).replace(/'/g, "\\'") + '\')">Approve</button> '
+                + '<button class="btn btn-reject" onclick="confirmAction(\'volunteer\',\'' + a.id + '\',\'rejected\',\'' + escapeHTML(a.full_name).replace(/'/g, "\\'") + '\')">Reject</button>'
+              : '<em style="color:#5a6b66">Reviewed</em>')
+            + '</td></tr>';
+        }).join("");
+      } catch (e) {
+        body.innerHTML = '<tr><td colspan="7" class="empty-row">Error loading data.</td></tr>';
+        showAlert(e.message || "Failed to load volunteers.", "error");
+      }
+    }
+
+    /* =================== DONATIONS =================== */
+    async function loadDonations() {
+      var body = document.getElementById("donationsBody");
+      body.innerHTML = '<tr><td colspan="7" class="empty-row">Loading...</td></tr>';
+      try {
+        var search = document.getElementById("donationSearch").value;
+        var status = document.getElementById("donationFilter").value;
+        var params = new URLSearchParams();
+        if (search) params.set("search", search);
+        if (status) params.set("status", status);
+        var qs = params.toString();
+        var res = await apiFetch("/api/admin/donations" + (qs ? "?" + qs : ""));
+        var items = res.donations || [];
+        if (!items.length) {
+          body.innerHTML = '<tr><td colspan="7" class="empty-row">No donations found.</td></tr>';
+          return;
+        }
+        body.innerHTML = items.map(function(d) {
+          var dollars = ((d.amount_cents || 0) / 100).toFixed(2);
+          var date = d.created_at ? new Date(d.created_at).toLocaleDateString() : '-';
+          return '<tr>'
+            + '<td>' + escapeHTML(d.full_name) + '</td>'
+            + '<td>' + escapeHTML(d.email) + '</td>'
+            + '<td>$' + escapeHTML(dollars) + '</td>'
+            + '<td>' + escapeHTML(date) + '</td>'
+            + '<td>' + escapeHTML(d.transaction_reference || '-') + '</td>'
+            + '<td>' + pill(d.status) + '</td>'
+            + '<td class="row-actions">'
+            + (d.status === 'pending'
+              ? '<button class="btn btn-approve" onclick="confirmAction(\'donation\',\'' + d.id + '\',\'verified\',\'' + escapeHTML(d.full_name).replace(/'/g, "\\'") + '\')">Verify</button> '
+                + '<button class="btn btn-reject" onclick="confirmAction(\'donation\',\'' + d.id + '\',\'rejected\',\'' + escapeHTML(d.full_name).replace(/'/g, "\\'") + '\')">Reject</button>'
+              : '<em style="color:#5a6b66">Reviewed</em>')
+            + '</td></tr>';
+        }).join("");
+      } catch (e) {
+        body.innerHTML = '<tr><td colspan="7" class="empty-row">Error loading data.</td></tr>';
+        showAlert(e.message || "Failed to load donations.", "error");
+      }
+    }
+
+    /* =================== CONTACTS =================== */
+    async function loadContacts() {
+      var body = document.getElementById("contactsBody");
+      body.innerHTML = '<tr><td colspan="5" class="empty-row">Loading...</td></tr>';
+      try {
+        var search = document.getElementById("contactSearch").value;
+        var params = new URLSearchParams();
+        if (search) params.set("search", search);
+        var qs = params.toString();
+        var res = await apiFetch("/api/admin/contacts" + (qs ? "?" + qs : ""));
+        var items = res.contacts || [];
+        if (!items.length) {
+          body.innerHTML = '<tr><td colspan="5" class="empty-row">No contact submissions found.</td></tr>';
+          return;
+        }
+        body.innerHTML = items.map(function(c) {
+          var date = c.created_at ? new Date(c.created_at).toLocaleDateString() : '-';
+          return '<tr>'
+            + '<td>' + escapeHTML(c.full_name) + '</td>'
+            + '<td>' + escapeHTML(c.email) + '</td>'
+            + '<td>' + escapeHTML(c.subject) + '</td>'
+            + '<td class="message-cell">' + escapeHTML(c.message) + '</td>'
+            + '<td>' + escapeHTML(date) + '</td>'
+            + '</tr>';
+        }).join("");
+      } catch (e) {
+        body.innerHTML = '<tr><td colspan="5" class="empty-row">Error loading data.</td></tr>';
+        showAlert(e.message || "Failed to load contacts.", "error");
+      }
+    }
+
+    /* =================== CONFIRM ACTIONS =================== */
+    function confirmAction(type, id, status, name) {
+      var labels = {
+        tutor: "tutor application",
+        volunteer: "volunteer application",
+        donation: "donation"
+      };
+      var actions = {
+        approved: "approve",
+        rejected: "reject",
+        verified: "verify"
+      };
+      var msg = "Are you sure you want to " + actions[status] + " " + name + "'s " + labels[type] + "?";
+      if (confirm(msg)) {
+        updateStatus(type, id, status);
+      }
+    }
+
+    async function updateStatus(type, id, status) {
+      var endpoints = {
+        tutor: "/api/admin/tutor-applications/" + encodeURIComponent(id) + "/status",
+        volunteer: "/api/admin/volunteer-applications/" + encodeURIComponent(id) + "/status",
+        donation: "/api/admin/donations/" + encodeURIComponent(id) + "/status"
+      };
+      try {
+        var res = await apiFetch(endpoints[type], {
           method: "PATCH",
-          body: JSON.stringify({ status }),
+          body: JSON.stringify({ status: status })
         });
-        showAlert(`Volunteer application ${status}. Notification queued.`, "success");
-        await loadDashboard();
-      } catch (error) {
-        console.error(error);
-        showAlert(error.message || "Failed to update volunteer application.", "error");
+        var msg = "Status updated successfully.";
+        if (res.email_warning) msg += " (" + res.email_warning + ")";
+        showAlert(msg, "success");
+        await loadSummary();
+        await loadSectionData(type === "tutor" ? "tutors" : type === "volunteer" ? "volunteers" : type === "donation" ? "donations" : type);
+      } catch (e) {
+        showAlert(e.message || "Failed to update status.", "error");
       }
     }
 
-    async function updateTutorStatus(id, status) {
-      try {
-        await apiFetch(`/api/admin/tutor-applications/${encodeURIComponent(id)}/status`, {
-          method: "PATCH",
-          body: JSON.stringify({ status }),
-        });
-        showAlert(`Tutor application ${status}. Notification queued.`, "success");
-        await loadDashboard();
-      } catch (error) {
-        console.error(error);
-        showAlert(error.message || "Failed to update tutor application.", "error");
+    /* =================== SEARCH HANDLERS =================== */
+    function setupSearch(inputId, filterId, loadFn) {
+      var input = document.getElementById(inputId);
+      var timer = null;
+      input.addEventListener("input", function() {
+        clearTimeout(timer);
+        timer = setTimeout(loadFn, 300);
+      });
+      if (filterId) {
+        document.getElementById(filterId).addEventListener("change", loadFn);
       }
     }
 
-    async function assignVolunteerTask() {
-      const volunteerId = document.getElementById("taskVolunteer").value;
-      const taskTitle = document.getElementById("taskText").value.trim();
-      if (!volunteerId || !taskTitle) {
-        showAlert("Select a volunteer and enter a task.", "error");
-        return;
-      }
-
-      try {
-        await apiFetch("/api/admin/volunteer-tasks", {
-          method: "POST",
-          body: JSON.stringify({ volunteer_id: volunteerId, task_title: taskTitle }),
-        });
-        document.getElementById("taskText").value = "";
-        showAlert("Task assigned successfully.", "success");
-        await loadDashboard();
-      } catch (error) {
-        console.error(error);
-        showAlert(error.message || "Failed to assign task.", "error");
-      }
-    }
-
-    function openStudentDetail(studentId) {
-      const student = state.students.find(item => item.id === studentId) || state.reports?.students?.find(item => item.id === studentId);
-      if (!student) return;
-
-      document.getElementById("studentDetailTitle").textContent = student.full_name;
-      document.getElementById("studentDetailOverall").textContent = `${Number(student.progress || 0)}% Complete`;
-
-      const topics = student.completed_topic_names || [];
-      document.getElementById("studentDetailTopics").innerHTML = topics.length
-        ? topics.map(topic => `<li>${escapeHTML(topic)}</li>`).join("")
-        : `<li>No completed topics yet.</li>`;
-
-      const scores = student.topic_scores || [];
-      document.getElementById("studentDetailScores").innerHTML = `
-        <li>Completed Sessions: <strong>${Number(student.completed_sessions || 0)}</strong></li>
-        <li>Average Progress: <strong>${Number(student.progress || 0)}%</strong></li>
-        <li>Average Marks: <strong>${Number(student.average_marks || 0)} / 100</strong></li>
-        ${scores.length ? `<li>Scores: <strong>${scores.map(Number).join(", ")}</strong></li>` : ""}
-      `;
-
-      document.getElementById("studentDetailModal").classList.add("open");
-    }
-
-    document.getElementById("studentDetailClose").addEventListener("click", () => {
-      document.getElementById("studentDetailModal").classList.remove("open");
+    /* =================== INIT =================== */
+    document.addEventListener("DOMContentLoaded", function() {
+      if (!requireAuth()) return;
+      setupSearch("tutorSearch", "tutorFilter", function() { if (currentSection === "tutors") loadTutors(); });
+      setupSearch("volunteerSearch", "volunteerFilter", function() { if (currentSection === "volunteers") loadVolunteers(); });
+      setupSearch("donationSearch", "donationFilter", function() { if (currentSection === "donations") loadDonations(); });
+      setupSearch("contactSearch", null, function() { if (currentSection === "contacts") loadContacts(); });
+      loadSummary().then(function() {
+        document.getElementById("pageLoader").classList.remove("show");
+      });
     });
-
-    document.getElementById("studentDetailModal").addEventListener("click", event => {
-      if (event.target.id === "studentDetailModal") event.target.classList.remove("open");
-    });
-
-    document.addEventListener("DOMContentLoaded", loadDashboard);
   </script>
 
   <script src="js/common.js"></script>

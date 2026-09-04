@@ -1,7 +1,26 @@
 /* ============================================================
    Seeds of Success — admin.css
-   Dynamic admin dashboard styles
+   Page-specific styles only. Shared styles are in common.css.
    ============================================================ */
+
+/* Logout button (matches nav-cta pill styling) */
+.logout-btn {
+  background: #0d6e4f;
+  color: #ffffff;
+  padding: 10px 22px;
+  border-radius: 30px;
+  font-weight: 600;
+  font-size: 15px;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.25s ease;
+}
+.logout-btn:hover { background: #0a5239; }
+@media (max-width: 960px) {
+  .logout-btn { width: 100%; text-align: center; margin-top: 6px; }
+}
+
 
 .welcome-strip {
   background: linear-gradient(135deg, #0d6e4f, #14906a);
@@ -50,6 +69,97 @@
   margin-top: 4px;
 }
 
+/* ============ DASHBOARD CARDS ============ */
+.dashboard-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  margin-top: 32px;
+  margin-bottom: 36px;
+}
+
+.dash-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 28px 24px;
+  border: 2px solid #e8efec;
+  box-shadow: 0 4px 14px rgba(13,110,79,0.05);
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.25s ease;
+}
+
+.dash-card:hover {
+  border-color: #0d6e4f;
+  box-shadow: 0 8px 28px rgba(13,110,79,0.12);
+  transform: translateY(-2px);
+}
+
+.dash-card-icon {
+  font-size: 36px;
+  margin-bottom: 10px;
+}
+
+.dash-card-title {
+  font-family: "Playfair Display", serif;
+  font-size: 20px;
+  color: #1f2d2a;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.dash-card-count {
+  font-family: "Playfair Display", serif;
+  font-size: 32px;
+  color: #0d6e4f;
+  font-weight: 700;
+}
+
+.dash-card-sub {
+  color: #5a6b66;
+  font-size: 13px;
+  margin-top: 2px;
+}
+
+.tutors-icon { color: #0d6e4f; }
+.volunteers-icon { color: #2563eb; }
+.donations-icon { color: #d97706; }
+.contacts-icon { color: #6366f1; }
+
+/* ============ SECTION VIEWS ============ */
+.section-view { display: block; margin-top: 24px; margin-bottom: 32px; }
+.section-view.hidden { display: none; }
+
+.btn-back {
+  display: inline-block;
+  margin-top: 14px;
+  background: #fff;
+  color: #0d6e4f;
+  border: 1.5px solid #0d6e4f;
+  padding: 10px 22px;
+  border-radius: 30px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.25s ease;
+}
+.btn-back:hover { background: #0d6e4f; color: #fff; }
+
+/* ============ TOOLBAR ============ */
+.toolbar {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.toolbar .inline-field {
+  flex: 1;
+  min-width: 180px;
+}
+
+/* ============ CARDS ============ */
 .card {
   background: #fff;
   border-radius: 14px;
@@ -358,6 +468,7 @@ th {
 
 @media (max-width: 960px) {
   .stats-row { grid-template-columns: repeat(2, 1fr); }
+  .dashboard-cards { grid-template-columns: repeat(2, 1fr); }
   .report-grid { grid-template-columns: 1fr 1fr; }
   .card-head { flex-wrap: wrap; }
 }
@@ -370,6 +481,7 @@ th {
 
 @media (max-width: 600px) {
   .card { padding: 22px 18px; }
+  .dashboard-cards { grid-template-columns: 1fr 1fr; gap: 12px; }
   .report-grid { grid-template-columns: 1fr; }
   .summary-row { flex-wrap: wrap; gap: 8px; }
   .summary-row .bar-wrap { flex: 1 1 100%; }
@@ -378,4 +490,5 @@ th {
   .stat-tile .num { font-size: 26px; }
   .welcome-strip { padding: 40px 0 50px; }
   .stats-row { gap: 12px; }
+  .toolbar { flex-direction: column; }
 }

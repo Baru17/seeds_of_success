@@ -107,6 +107,7 @@
     </label>
     <a href="#" id="forgotPasswordLink">Forgot password?</a>
 </div>
+          <div id="loginError" class="login-error" style="display:none;"></div>
           <button type="submit" class="btn btn-primary">Sign In</button>
         </form>
 
@@ -114,10 +115,6 @@
   New here? <a href="#" id="createAccountLink">Create an account</a>
 </div>
 
-        <div class="demo-note">
-          <strong>Demo:</strong> This is a static preview. Sign-in goes straight to the
-          chosen dashboard without real authentication.
-        </div>
       </div>
     </div>
   </section>
@@ -201,9 +198,70 @@
 
     function handleLogin(e) {
       e.preventDefault();
-      const target = TARGETS[currentRole] || 'tutor-dashboard.html';
-      document.body.classList.add('is-leaving');
+
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+
+      if (currentRole === "admin") {
+        handleAdminLogin(e, email, password);
+        return;
+      }
+
+      const target = TARGETS[currentRole] || "tutor-dashboard.html";
+      document.body.classList.add("is-leaving");
       setTimeout(() => { window.location.href = target; }, 250);
+    }
+
+    function handleAdminLogin(e, email, password) {
+      const submitBtn = e.target.querySelector('button[type="submit"]');
+      const errorBox = document.getElementById("loginError");
+
+      if (errorBox) errorBox.style.display = "none";
+
+      if (submitBtn) {
+        submitBtn.dataset.origText = submitBtn.textContent;
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Signing in...";
+      }
+
+      const apiBase = ["localhost", "127.0.0.1", "::1"].includes(window.location.hostname)
+        ? "http://127.0.0.1:8787"
+        : "https://worker-api.seedsofsuccessngo.workers.dev";
+
+      fetch(apiBase + "/api/admin/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password })
+      })
+        .then(async (response) => {
+          let result;
+          try {
+            result = await response.json();
+          } catch {
+            result = {};
+          }
+
+          if (!response.ok || !result.success || !result.token) {
+            throw new Error(result.error || "Invalid email or password.");
+          }
+
+          localStorage.setItem("adminToken", result.token);
+          localStorage.setItem("adminName", result.admin ? result.admin.full_name : "");
+          localStorage.setItem("adminEmail", result.admin ? result.admin.email : "");
+
+          document.body.classList.add("is-leaving");
+          setTimeout(() => { window.location.href = "admin.html"; }, 250);
+        })
+        .catch((err) => {
+          if (errorBox) {
+            errorBox.textContent = err.message || "Invalid email or password.";
+            errorBox.style.display = "block";
+          }
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = submitBtn.dataset.origText || "Sign In";
+          }
+        });
     }
 
     window.addEventListener('pageshow', e => {

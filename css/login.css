@@ -166,5 +166,16 @@
       .role-grid { grid-template-columns: 1fr; }
     }
 
+    .login-error {
+      background: #fef2f2;
+      color: #b91c1c;
+      border: 1px solid #fecaca;
+      border-radius: 10px;
+      padding: 10px 16px;
+      font-size: 14px;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+
     @keyframes pageFadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes pageFadeOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-6px); } }

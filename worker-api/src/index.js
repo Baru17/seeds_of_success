@@ -17,9 +17,183 @@ async function hashPassword(password) {
     .join("");
 }
 
+const PBKDF2_ITERATIONS = 100000;
+const PBKDF2_KEY_BITS = 256;
+const PBKDF2_SALT_BYTES = 16;
+
+function bufferToBase64(buffer) {
+  let binary = "";
+  const bytes = new Uint8Array(buffer);
+  for (let i = 0; i < bytes.length; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary);
+}
+
+function base64ToBuffer(b64) {
+  const binary = atob(b64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+  return bytes;
+}
+
+async function derivePkdf2Key(password, salt) {
+  const keyMaterial = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(password),
+    "PBKDF2",
+    false,
+    ["deriveBits"]
+  );
+
+  return crypto.subtle.deriveBits(
+    {
+      name: "PBKDF2",
+      hash: "SHA-256",
+      salt,
+      iterations: PBKDF2_ITERATIONS
+    },
+    keyMaterial,
+    PBKDF2_KEY_BITS
+  );
+}
+
+async function hashPasswordPkdf2(password) {
+  const salt = new Uint8Array(PBKDF2_SALT_BYTES);
+  crypto.getRandomValues(salt);
+
+  const hash = await derivePkdf2Key(password, salt);
+
+  return [
+    "pbkdf2",
+    "SHA256",
+    String(PBKDF2_ITERATIONS),
+    bufferToBase64(salt),
+    bufferToBase64(hash)
+  ].join("$");
+}
+
+async function verifyPasswordPkdf2(password, encoded) {
+  if (!encoded || typeof encoded !== "string") {
+    return false;
+  }
+
+  if (!encoded.startsWith("pbkdf2$")) {
+    return false;
+  }
+
+  const parts = encoded.split("$");
+
+  if (parts.length !== 5 || parts[1] !== "SHA256") {
+    return false;
+  }
+
+  const iterations = Number(parts[2]);
+
+  if (!Number.isInteger(iterations) || iterations < 10000) {
+    return false;
+  }
+
+  let salt;
+  let expected;
+
+  try {
+    salt = base64ToBuffer(parts[3]);
+    expected = base64ToBuffer(parts[4]);
+  } catch {
+    return false;
+  }
+
+  const hash = await derivePkdf2Key(password, salt);
+
+  const expectedBytes = new Uint8Array(expected);
+  const actualBytes = new Uint8Array(hash);
+
+  if (expectedBytes.length !== actualBytes.length) {
+    return false;
+  }
+
+  let diff = 0;
+  for (let i = 0; i < actualBytes.length; i++) {
+    diff |= actualBytes[i] ^ expectedBytes[i];
+  }
+
+  return diff === 0;
+}
+
 
 function getDb(env) {
   return env[DB_BINDING];
+}
+
+
+const AUTH_UNAUTHENTICATED = "AUTH_UNAUTHENTICATED";
+const AUTH_FORBIDDEN = "AUTH_FORBIDDEN";
+const SESSION_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
+
+
+async function extractBearerToken(request) {
+  const header = request.headers.get("Authorization") || "";
+  const match = header.match(/^Bearer\s+(.+)$/i);
+  return match ? match[1].trim() : null;
+}
+
+
+async function requireAdminAuth(request, db) {
+  const token = await extractBearerToken(request);
+
+  if (!token) {
+    const error = new Error("Authentication required.");
+    error.code = AUTH_UNAUTHENTICATED;
+    throw error;
+  }
+
+  const session =
+    await db.prepare(`
+      SELECT
+        s.id AS session_id,
+        s.user_id,
+        s.expires_at,
+        u.role,
+        u.status,
+        u.email,
+        u.full_name
+      FROM admin_sessions s
+      JOIN user_accounts u
+        ON u.id = s.user_id
+      WHERE s.token = ?
+      LIMIT 1
+    `)
+    .bind(token)
+    .first();
+
+  if (!session) {
+    const error = new Error("Authentication required.");
+    error.code = AUTH_UNAUTHENTICATED;
+    throw error;
+  }
+
+  if (new Date(session.expires_at).getTime() < Date.now()) {
+    const error = new Error("Authentication required.");
+    error.code = AUTH_UNAUTHENTICATED;
+    throw error;
+  }
+
+  if (session.role !== "admin" || session.status !== "active") {
+    const error = new Error("Access denied.");
+    error.code = AUTH_FORBIDDEN;
+    throw error;
+  }
+
+  return {
+    session_id: session.session_id,
+    id: session.user_id,
+    role: session.role,
+    email: session.email,
+    full_name: session.full_name
+  };
 }
 
 
@@ -133,6 +307,75 @@ function escapeHtml(str) {
 }
 
 
+async function sendDonationVerifiedEmail(env, donation) {
+  const dollars = (donation.amount_cents / 100).toFixed(2);
+  return sendResendEmail(env, {
+    to: donation.email,
+    subject: "Donation Verified — Seeds of Success",
+    html: [
+      '<div style="font-family:sans-serif;max-width:600px">',
+      '<p style="color:#333;line-height:1.7">Hi ' + escapeHtml(donation.full_name) + ',</p>',
+      '<p style="color:#333;line-height:1.7">Thank you for your generous donation of <strong>$' + escapeHtml(dollars) + '</strong> to Seeds of Success!</p>',
+      '<p style="color:#333;line-height:1.7">We have verified your payment and your donation has been recorded. Your support helps us connect Tamil-origin tutors with rural children in Tamil Nadu.</p>',
+      '<p style="color:#333;line-height:1.7">Best regards,</p>',
+      '<p style="color:#0d6e4f;font-weight:600">Seeds of Success Team</p>',
+      '<hr style="border:none;border-top:1px solid #e6efeb;margin-top:24px">',
+      '<p style="font-size:12px;color:#888">Seeds of Success is a U.S. 501(c)(3) nonprofit. EIN 41-3701713.</p>',
+      '</div>'
+    ].join('')
+  });
+}
+
+
+async function sendDonationRejectedEmail(env, donation) {
+  const dollars = (donation.amount_cents / 100).toFixed(2);
+  return sendResendEmail(env, {
+    to: donation.email,
+    subject: "Donation Update — Seeds of Success",
+    html: [
+      '<div style="font-family:sans-serif;max-width:600px">',
+      '<p style="color:#333;line-height:1.7">Hi ' + escapeHtml(donation.full_name) + ',</p>',
+      '<p style="color:#333;line-height:1.7">We are writing regarding your donation of <strong>$' + escapeHtml(dollars) + '</strong> to Seeds of Success.</p>',
+      '<p style="color:#333;line-height:1.7">Unfortunately, we were unable to verify the payment for this donation. If you believe this is an error, or if you would like to try again, please contact us at <a href="mailto:contact@soslearn.org">contact@soslearn.org</a>.</p>',
+      '<p style="color:#333;line-height:1.7">Best regards,</p>',
+      '<p style="color:#0d6e4f;font-weight:600">Seeds of Success Team</p>',
+      '<hr style="border:none;border-top:1px solid #e6efeb;margin-top:24px">',
+      '<p style="font-size:12px;color:#888">Seeds of Success is a U.S. 501(c)(3) nonprofit. EIN 41-3701713.</p>',
+      '</div>'
+    ].join('')
+  });
+}
+
+
+async function sendContactStoredEmail(env, { name, email, subject, message }) {
+  const recipient = env.CONTACT_RECIPIENT_EMAIL;
+
+  if (!recipient) {
+    throw new Error("Contact recipient email not configured.");
+  }
+
+  return sendResendEmail(env, {
+    to: recipient,
+    replyTo: email,
+    subject: "[Contact Form] " + subject,
+    html: [
+      '<div style="font-family:sans-serif;max-width:600px">',
+      '<h2 style="color:#0d6e4f">New Contact Form Submission</h2>',
+      '<table style="width:100%;border-collapse:collapse">',
+      '<tr><td style="padding:8px 12px;font-weight:600;color:#0d6e4f;border-bottom:1px solid #e6efeb">Name</td><td style="padding:8px 12px;border-bottom:1px solid #e6efeb">' + escapeHtml(name) + '</td></tr>',
+      '<tr><td style="padding:8px 12px;font-weight:600;color:#0d6e4f;border-bottom:1px solid #e6efeb">Email</td><td style="padding:8px 12px;border-bottom:1px solid #e6efeb">' + escapeHtml(email) + '</td></tr>',
+      '<tr><td style="padding:8px 12px;font-weight:600;color:#0d6e4f;border-bottom:1px solid #e6efeb">Subject</td><td style="padding:8px 12px;border-bottom:1px solid #e6efeb">' + escapeHtml(subject) + '</td></tr>',
+      '</table>',
+      '<h3 style="color:#0d6e4f;margin-top:24px">Message</h3>',
+      '<p style="background:#f5faf8;padding:16px;border-radius:8px;line-height:1.7;white-space:pre-wrap">' + escapeHtml(message) + '</p>',
+      '<hr style="border:none;border-top:1px solid #e6efeb;margin-top:24px">',
+      '<p style="font-size:12px;color:#888">Sent via the Seeds of Success contact form.</p>',
+      '</div>'
+    ].join('')
+  });
+}
+
+
 async function sendResendEmail(
   env,
   { to, replyTo, subject, html }
@@ -172,35 +415,6 @@ const response = await fetch(
   }
 
   return response.json();
-}
-
-
-async function sendContactEmail(env, { name, email, subject, message }) {
-  const recipient = env.CONTACT_RECIPIENT_EMAIL;
-
-  if (!recipient) {
-    throw new Error("Contact recipient email not configured.");
-  }
-
-  return sendResendEmail(env, {
-    to: recipient,
-    replyTo: email,
-    subject: `[Contact Form] ${subject}`,
-    html: [
-      '<div style="font-family:sans-serif;max-width:600px">',
-      '<h2 style="color:#0d6e4f">New Contact Form Submission</h2>',
-      '<table style="width:100%;border-collapse:collapse">',
-      '<tr><td style="padding:8px 12px;font-weight:600;color:#0d6e4f;border-bottom:1px solid #e6efeb">Name</td><td style="padding:8px 12px;border-bottom:1px solid #e6efeb">' + escapeHtml(name) + '</td></tr>',
-      '<tr><td style="padding:8px 12px;font-weight:600;color:#0d6e4f;border-bottom:1px solid #e6efeb">Email</td><td style="padding:8px 12px;border-bottom:1px solid #e6efeb">' + escapeHtml(email) + '</td></tr>',
-      '<tr><td style="padding:8px 12px;font-weight:600;color:#0d6e4f;border-bottom:1px solid #e6efeb">Subject</td><td style="padding:8px 12px;border-bottom:1px solid #e6efeb">' + escapeHtml(subject) + '</td></tr>',
-      '</table>',
-      '<h3 style="color:#0d6e4f;margin-top:24px">Message</h3>',
-      '<p style="background:#f5faf8;padding:16px;border-radius:8px;line-height:1.7;white-space:pre-wrap">' + escapeHtml(message) + '</p>',
-      '<hr style="border:none;border-top:1px solid #e6efeb;margin-top:24px">',
-      '<p style="font-size:12px;color:#888">Sent via the Seeds of Success contact form.</p>',
-      '</div>'
-    ].join('')
-  });
 }
 
 
@@ -276,6 +490,45 @@ async function sendVolunteerConfirmationEmail(env, { name, email }) {
 }
 
 
+async function sendVolunteerApprovalEmail(env, { full_name, email }) {
+  return sendResendEmail(env, {
+    to: email,
+    subject: "Volunteer Application Approved — Seeds of Success",
+    html: [
+      '<div style="font-family:sans-serif;max-width:600px">',
+      '<p style="color:#333;line-height:1.7">Hi ' + escapeHtml(full_name) + ',</p>',
+      '<p style="color:#333;line-height:1.7">Great news! Your volunteer application to Seeds of Success has been <strong>approved</strong>.</p>',
+      '<p style="color:#333;line-height:1.7">We are thrilled to have you join our team. You can now log in to the volunteer dashboard to get started.</p>',
+      '<p style="color:#333;line-height:1.7">If you have any questions, please don\'t hesitate to reach out to us at <a href="mailto:contact@soslearn.org">contact@soslearn.org</a>.</p>',
+      '<p style="color:#333;line-height:1.7">Best regards,</p>',
+      '<p style="color:#0d6e4f;font-weight:600">Seeds of Success Team</p>',
+      '<hr style="border:none;border-top:1px solid #e6efeb;margin-top:24px">',
+      '<p style="font-size:12px;color:#888">Sent via the Seeds of Success volunteer registration form.</p>',
+      '</div>'
+    ].join('')
+  });
+}
+
+
+async function sendVolunteerRejectionEmail(env, { full_name, email }) {
+  return sendResendEmail(env, {
+    to: email,
+    subject: "Volunteer Application Update — Seeds of Success",
+    html: [
+      '<div style="font-family:sans-serif;max-width:600px">',
+      '<p style="color:#333;line-height:1.7">Hi ' + escapeHtml(full_name) + ',</p>',
+      '<p style="color:#333;line-height:1.7">Thank you for applying to volunteer with Seeds of Success. We appreciate your interest in our mission.</p>',
+      '<p style="color:#333;line-height:1.7">After careful review, we regret to inform you that we are unable to move forward with your application at this time. We encourage you to apply again in the future.</p>',
+      '<p style="color:#333;line-height:1.7">Best regards,</p>',
+      '<p style="color:#0d6e4f;font-weight:600">Seeds of Success Team</p>',
+      '<hr style="border:none;border-top:1px solid #e6efeb;margin-top:24px">',
+      '<p style="font-size:12px;color:#888">Sent via the Seeds of Success volunteer registration form.</p>',
+      '</div>'
+    ].join('')
+  });
+}
+
+
 async function sendTutorNotificationEmail(env, application) {
   const recipient = env.VOLUNTEER_NOTIFICATION_EMAIL;
 
@@ -314,8 +567,47 @@ async function sendTutorConfirmationEmail(env, { name, email }) {
       '<div style="font-family:sans-serif;max-width:600px">',
       '<p style="color:#333;line-height:1.7">Hi ' + escapeHtml(name) + ',</p>',
       '<p style="color:#333;line-height:1.7">Thank you for applying as a tutor with Seeds of Success!</p>',
-      '<p style="color:#333;line-height:1.7">We have successfully received your tutor application. Our team will review it and contact you regarding next steps.</p>',
+      '<p style="color:#333;line-height:1.7">We have successfully received your tutor application. Our team will review your application and contact you regarding next steps.</p>',
       '<p style="color:#333;line-height:1.7">We appreciate your interest in supporting Seeds of Success and making a difference.</p>',
+      '<p style="color:#333;line-height:1.7">Best regards,</p>',
+      '<p style="color:#0d6e4f;font-weight:600">Seeds of Success Team</p>',
+      '<hr style="border:none;border-top:1px solid #e6efeb;margin-top:24px">',
+      '<p style="font-size:12px;color:#888">Sent via the Seeds of Success tutor application form.</p>',
+      '</div>'
+    ].join('')
+  });
+}
+
+
+async function sendTutorApprovalEmail(env, { full_name, email }) {
+  return sendResendEmail(env, {
+    to: email,
+    subject: "Tutor Application Approved — Seeds of Success",
+    html: [
+      '<div style="font-family:sans-serif;max-width:600px">',
+      '<p style="color:#333;line-height:1.7">Hi ' + escapeHtml(full_name) + ',</p>',
+      '<p style="color:#333;line-height:1.7">Great news! Your tutor application to Seeds of Success has been <strong>approved</strong>.</p>',
+      '<p style="color:#333;line-height:1.7">We are excited to have you on our team. You can now log in to the tutor dashboard to get started.</p>',
+      '<p style="color:#333;line-height:1.7">If you have any questions, please don\'t hesitate to reach out to us at <a href="mailto:contact@soslearn.org">contact@soslearn.org</a>.</p>',
+      '<p style="color:#333;line-height:1.7">Best regards,</p>',
+      '<p style="color:#0d6e4f;font-weight:600">Seeds of Success Team</p>',
+      '<hr style="border:none;border-top:1px solid #e6efeb;margin-top:24px">',
+      '<p style="font-size:12px;color:#888">Sent via the Seeds of Success tutor application form.</p>',
+      '</div>'
+    ].join('')
+  });
+}
+
+
+async function sendTutorRejectionEmail(env, { full_name, email }) {
+  return sendResendEmail(env, {
+    to: email,
+    subject: "Tutor Application Update — Seeds of Success",
+    html: [
+      '<div style="font-family:sans-serif;max-width:600px">',
+      '<p style="color:#333;line-height:1.7">Hi ' + escapeHtml(full_name) + ',</p>',
+      '<p style="color:#333;line-height:1.7">Thank you for applying to be a tutor with Seeds of Success. We appreciate your interest in supporting our mission.</p>',
+      '<p style="color:#333;line-height:1.7">After careful review, we regret to inform you that we are unable to move forward with your application at this time. We encourage you to apply again in the future.</p>',
       '<p style="color:#333;line-height:1.7">Best regards,</p>',
       '<p style="color:#0d6e4f;font-weight:600">Seeds of Success Team</p>',
       '<hr style="border:none;border-top:1px solid #e6efeb;margin-top:24px">',
@@ -884,7 +1176,7 @@ export default {
         "GET, POST, PATCH, DELETE, OPTIONS",
 
       "Access-Control-Allow-Headers":
-        "Content-Type"
+        "Content-Type, Authorization"
     };
 
 
@@ -909,6 +1201,236 @@ export default {
 
 
     try {
+
+
+      /* =====================================================
+         ADMIN LOGIN
+      ===================================================== */
+
+      if (
+
+        url.pathname ===
+          "/api/admin/login"
+
+        &&
+
+        request.method === "POST"
+
+      ) {
+
+        const data =
+          await request.json();
+
+        const email =
+          String(data.email || "").trim()
+            .toLowerCase();
+
+        const password =
+          String(data.password || "");
+
+        if (!email || !password) {
+
+          return json(
+
+            {
+
+              success: false,
+
+              error:
+                "Invalid email or password."
+
+            },
+
+            corsHeaders,
+
+            401
+          );
+        }
+
+        const account =
+
+          await db.prepare(`
+            SELECT
+              id,
+              full_name,
+              email,
+              role,
+              status,
+              password_hash
+            FROM user_accounts
+            WHERE email = ?
+            LIMIT 1
+          `)
+
+          .bind(email)
+
+          .first();
+
+        if (
+          !account
+          ||
+          account.role !== "admin"
+          ||
+          account.status !== "active"
+        ) {
+
+          return json(
+
+            {
+
+              success: false,
+
+              error:
+                "Invalid email or password."
+
+            },
+
+            corsHeaders,
+
+            401
+          );
+        }
+
+        const valid =
+
+          await verifyPasswordPkdf2(
+            password,
+            account.password_hash
+          );
+
+        if (!valid) {
+
+          return json(
+
+            {
+
+              success: false,
+
+              error:
+                "Invalid email or password."
+
+            },
+
+            corsHeaders,
+
+            401
+          );
+        }
+
+        const token =
+          crypto.randomUUID();
+
+        const sessionId =
+          crypto.randomUUID();
+
+        const now =
+          new Date().toISOString();
+
+        const expiresAt =
+          new Date(
+            Date.now() + SESSION_TTL_MS
+          ).toISOString();
+
+        await db.prepare(`
+          INSERT INTO admin_sessions (
+            id,
+            user_id,
+            token,
+            created_at,
+            expires_at
+          )
+          VALUES (?, ?, ?, ?, ?)
+        `)
+
+        .bind(
+          sessionId,
+          account.id,
+          token,
+          now,
+          expiresAt
+        )
+
+        .run();
+
+        return json(
+
+          {
+
+            success: true,
+
+            token,
+
+            admin: {
+
+              id: account.id,
+
+              full_name: account.full_name,
+
+              email: account.email
+
+            },
+
+            expires_at: expiresAt
+
+          },
+
+          corsHeaders
+        );
+      }
+
+
+      /* =====================================================
+         ADMIN LOGOUT
+      ===================================================== */
+
+      if (
+
+        url.pathname ===
+          "/api/admin/logout"
+
+        &&
+
+        request.method === "POST"
+
+      ) {
+
+        const admin =
+
+          await requireAdminAuth(
+            request,
+            db
+          );
+
+        const token =
+          await extractBearerToken(request);
+
+        await db.prepare(`
+          DELETE FROM admin_sessions
+          WHERE token = ?
+            AND user_id = ?
+        `)
+
+        .bind(
+          token || "",
+          admin.id
+        )
+
+        .run();
+
+        return json(
+
+          {
+
+            success: true,
+
+            message:
+              "Logged out successfully."
+
+          },
+
+          corsHeaders
+        );
+      }
 
 
       /* =====================================================
@@ -1415,6 +1937,11 @@ export default {
 
       ) {
 
+        await requireAdminAuth(
+          request,
+          db
+        );
+
         const [
 
           tutors,
@@ -1525,6 +2052,35 @@ export default {
 
       ) {
 
+        await requireAdminAuth(
+          request,
+          db
+        );
+
+        const search =
+          url.searchParams.get("search") || "";
+        const filterStatus =
+          url.searchParams.get("status") || "";
+
+        let where = "";
+        const bindings = [];
+
+        if (search) {
+          const like = "%" + search + "%";
+          where = ` WHERE (full_name LIKE ? OR email LIKE ? OR phone LIKE ?) `;
+          bindings.push(like, like, like);
+        }
+
+        if (
+          filterStatus &&
+          ["pending", "approved", "rejected"].includes(filterStatus)
+        ) {
+          where += where
+            ? ` AND status = ? `
+            : ` WHERE status = ? `;
+          bindings.push(filterStatus);
+        }
+
         const result =
 
           await db.prepare(`
@@ -1552,6 +2108,8 @@ export default {
 
             FROM volunteer_applications
 
+            ${where}
+
             ORDER BY
 
               CASE status
@@ -1566,6 +2124,8 @@ export default {
 
               created_at DESC
           `)
+
+          .bind(...bindings)
 
           .all();
 
@@ -1609,6 +2169,11 @@ export default {
         request.method === "PATCH"
 
       ) {
+
+        await requireAdminAuth(
+          request,
+          db
+        );
 
         const applicationId =
 
@@ -1775,15 +2340,77 @@ export default {
         }
 
 
+        let volunteerEmailError = null;
+
+        if (
+          normalizedStatus === "approved"
+        ) {
+
+          try {
+
+            await sendVolunteerApprovalEmail(
+              env,
+              {
+                full_name:
+                  application.full_name,
+                email:
+                  application.email
+              }
+            );
+
+          } catch (emailError) {
+
+            volunteerEmailError =
+              emailError.message;
+            console.error(
+              "Volunteer approval email failed:",
+              emailError
+            );
+          }
+
+        } else if (
+          normalizedStatus === "rejected"
+        ) {
+
+          try {
+
+            await sendVolunteerRejectionEmail(
+              env,
+              {
+                full_name:
+                  application.full_name,
+                email:
+                  application.email
+              }
+            );
+
+          } catch (emailError) {
+
+            volunteerEmailError =
+              emailError.message;
+            console.error(
+              "Volunteer rejection email failed:",
+              emailError
+            );
+          }
+
+        }
+
+
+        const volunteerResponse = {
+          success: true,
+          application
+        };
+
+        if (volunteerEmailError) {
+          volunteerResponse.email_warning =
+            "Status updated but email notification failed: "
+            + volunteerEmailError;
+        }
+
         return json(
 
-          {
-
-            success: true,
-
-            application
-
-          },
+          volunteerResponse,
 
           corsHeaders
         );
@@ -1805,6 +2432,35 @@ export default {
         request.method === "GET"
 
       ) {
+
+        await requireAdminAuth(
+          request,
+          db
+        );
+
+        const search =
+          url.searchParams.get("search") || "";
+        const filterStatus =
+          url.searchParams.get("status") || "";
+
+        let where = "";
+        const bindings = [];
+
+        if (search) {
+          const like = "%" + search + "%";
+          where = ` WHERE (full_name LIKE ? OR email LIKE ? OR phone LIKE ?) `;
+          bindings.push(like, like, like);
+        }
+
+        if (
+          filterStatus &&
+          ["pending", "approved", "rejected"].includes(filterStatus)
+        ) {
+          where += where
+            ? ` AND status = ? `
+            : ` WHERE status = ? `;
+          bindings.push(filterStatus);
+        }
 
         const result =
 
@@ -1833,6 +2489,8 @@ export default {
 
             FROM tutor_applications
 
+            ${where}
+
             ORDER BY
 
               CASE status
@@ -1847,6 +2505,8 @@ export default {
 
               created_at DESC
           `)
+
+          .bind(...bindings)
 
           .all();
 
@@ -1890,6 +2550,11 @@ export default {
         request.method === "PATCH"
 
       ) {
+
+        await requireAdminAuth(
+          request,
+          db
+        );
 
         const applicationId =
 
@@ -2056,15 +2721,77 @@ export default {
         }
 
 
+        let tutorEmailError = null;
+
+        if (
+          normalizedStatus === "approved"
+        ) {
+
+          try {
+
+            await sendTutorApprovalEmail(
+              env,
+              {
+                full_name:
+                  application.full_name,
+                email:
+                  application.email
+              }
+            );
+
+          } catch (emailError) {
+
+            tutorEmailError =
+              emailError.message;
+            console.error(
+              "Tutor approval email failed:",
+              emailError
+            );
+          }
+
+        } else if (
+          normalizedStatus === "rejected"
+        ) {
+
+          try {
+
+            await sendTutorRejectionEmail(
+              env,
+              {
+                full_name:
+                  application.full_name,
+                email:
+                  application.email
+              }
+            );
+
+          } catch (emailError) {
+
+            tutorEmailError =
+              emailError.message;
+            console.error(
+              "Tutor rejection email failed:",
+              emailError
+            );
+          }
+
+        }
+
+
+        const tutorResponse = {
+          success: true,
+          application
+        };
+
+        if (tutorEmailError) {
+          tutorResponse.email_warning =
+            "Status updated but email notification failed: "
+            + tutorEmailError;
+        }
+
         return json(
 
-          {
-
-            success: true,
-
-            application
-
-          },
+          tutorResponse,
 
           corsHeaders
         );
@@ -2086,6 +2813,11 @@ export default {
         request.method === "GET"
 
       ) {
+
+        await requireAdminAuth(
+          request,
+          db
+        );
 
         return json(
 
@@ -2119,6 +2851,11 @@ export default {
 
       ) {
 
+        await requireAdminAuth(
+          request,
+          db
+        );
+
         return json(
 
           {
@@ -2151,6 +2888,11 @@ export default {
 
       ) {
 
+        await requireAdminAuth(
+          request,
+          db
+        );
+
         return json(
 
           {
@@ -2182,6 +2924,11 @@ export default {
         request.method === "POST"
 
       ) {
+
+        await requireAdminAuth(
+          request,
+          db
+        );
 
         const {
 
@@ -2327,6 +3074,11 @@ export default {
 
       ) {
 
+        await requireAdminAuth(
+          request,
+          db
+        );
+
         return json(
 
           {
@@ -2358,6 +3110,11 @@ export default {
         request.method === "POST"
 
       ) {
+
+        await requireAdminAuth(
+          request,
+          db
+        );
 
         const data =
           await request.json();
@@ -2619,19 +3376,56 @@ export default {
           );
         }
 
-        await sendContactEmail(
-          env,
-          {
-            name:
-              data.full_name.trim(),
-            email:
-              data.email.trim(),
-            subject:
-              data.subject.trim(),
-            message:
-              data.message.trim()
-          }
-        );
+        const contactId =
+          crypto.randomUUID();
+
+        const contactNow =
+          new Date().toISOString();
+
+        await db.prepare(`
+          INSERT INTO contacts (
+            id,
+            full_name,
+            email,
+            subject,
+            message,
+            created_at
+          )
+          VALUES (?, ?, ?, ?, ?, ?)
+        `)
+        .bind(
+          contactId,
+          data.full_name.trim(),
+          data.email.trim(),
+          data.subject.trim(),
+          data.message.trim(),
+          contactNow
+        )
+        .run();
+
+        try {
+
+          await sendContactStoredEmail(
+            env,
+            {
+              name:
+                data.full_name.trim(),
+              email:
+                data.email.trim(),
+              subject:
+                data.subject.trim(),
+              message:
+                data.message.trim()
+            }
+          );
+
+        } catch (emailError) {
+
+          console.error(
+            "Contact notification email failed:",
+            emailError
+          );
+        }
 
         try {
 
@@ -2816,20 +3610,546 @@ export default {
 
         .run();
 
+       return json(
+  {
+    success: true,
+    message:
+      "Donation submission recorded successfully.",
+    donation_id: donationId
+  },
+  corsHeaders,
+  201
+);
+      }
+
+
+
+      /* =====================================================
+   DONATION PAYMENT REFERENCE SUBMISSION
+===================================================== */
+
+const donationPaymentReferenceMatch =
+  url.pathname.match(
+    /^\/api\/donations\/([^/]+)\/payment-reference$/
+  );
+
+if (
+  donationPaymentReferenceMatch &&
+  request.method === "POST"
+) {
+  const donationId =
+    decodeURIComponent(
+      donationPaymentReferenceMatch[1]
+    );
+
+  const data = await request.json();
+
+  const transactionReference =
+    String(
+      data.transaction_reference || ""
+    ).trim();
+
+  if (
+    transactionReference.length < 3 ||
+    transactionReference.length > 100
+  ) {
+    return json(
+      {
+        success: false,
+        error:
+          "Transaction reference must be between 3 and 100 characters."
+      },
+      corsHeaders,
+      400
+    );
+  }
+
+  const donation =
+    await db.prepare(`
+      SELECT
+        id,
+        full_name,
+        email,
+        amount_cents,
+        transaction_reference,
+        status
+      FROM donations
+      WHERE id = ?
+      LIMIT 1
+    `)
+    .bind(donationId)
+    .first();
+
+  if (!donation) {
+    return json(
+      {
+        success: false,
+        error: "Donation not found."
+      },
+      corsHeaders,
+      404
+    );
+  }
+
+  if (donation.status === "verified") {
+    return json(
+      {
+        success: false,
+        error:
+          "This donation has already been verified."
+      },
+      corsHeaders,
+      409
+    );
+  }
+
+  if (donation.transaction_reference) {
+    return json(
+      {
+        success: false,
+        error:
+          "Payment reference has already been submitted for this donation."
+      },
+      corsHeaders,
+      409
+    );
+  }
+
+  const existingReference =
+    await db.prepare(`
+      SELECT id
+      FROM donations
+      WHERE transaction_reference = ?
+      LIMIT 1
+    `)
+    .bind(transactionReference)
+    .first();
+
+  if (existingReference) {
+    return json(
+      {
+        success: false,
+        error:
+          "This transaction reference has already been submitted."
+      },
+      corsHeaders,
+      409
+    );
+  }
+
+  const submittedAt =
+    new Date().toISOString();
+
+  await db.prepare(`
+    UPDATE donations
+    SET
+      transaction_reference = ?,
+      payment_submitted_at = ?,
+      status = 'pending'
+    WHERE id = ?
+  `)
+    .bind(
+      transactionReference,
+      submittedAt,
+      donationId
+    )
+    .run();
+
+  return json(
+    {
+      success: true,
+      message:
+        "Payment details submitted for verification."
+    },
+    corsHeaders
+  );
+}
+
+
+      /* =====================================================
+         ADMIN DONATIONS LIST
+      ===================================================== */
+
+      if (
+        url.pathname ===
+          "/api/admin/donations"
+        &&
+        request.method === "GET"
+      ) {
+
+        await requireAdminAuth(request, db);
+
+        const search =
+          url.searchParams.get("search") || "";
+        const filterStatus =
+          url.searchParams.get("status") || "";
+
+        let where = "";
+        const bindings = [];
+
+        if (search) {
+          const like = "%" + search + "%";
+          where = ` WHERE (full_name LIKE ? OR email LIKE ? OR transaction_reference LIKE ?) `;
+          bindings.push(like, like, like);
+        }
+
+        if (
+          filterStatus &&
+          ["pending", "verified", "rejected"].includes(filterStatus)
+        ) {
+          where += where
+            ? ` AND COALESCE(status, 'pending') = ? `
+            : ` WHERE COALESCE(status, 'pending') = ? `;
+          bindings.push(filterStatus);
+        }
+
+        const result = await db.prepare(`
+          SELECT
+            id,
+            full_name,
+            email,
+            amount_cents,
+            transaction_reference,
+            payment_submitted_at,
+            COALESCE(status, 'pending') AS status,
+            verified_at,
+            verified_by,
+            created_at
+          FROM donations
+          ${where}
+          ORDER BY
+            CASE COALESCE(status, 'pending')
+              WHEN 'pending' THEN 0
+              WHEN 'verified' THEN 1
+              ELSE 2
+            END,
+            created_at DESC
+        `)
+        .bind(...bindings)
+        .all();
+
         return json(
-
           {
-
             success: true,
-
-            message:
-              "Donation submission recorded successfully."
-
+            donations: result.results || []
           },
+          corsHeaders
+        );
+      }
 
-          corsHeaders,
 
-          201
+      /* =====================================================
+         ADMIN DONATION STATUS UPDATE
+      ===================================================== */
+
+      const donationStatusMatch =
+        url.pathname.match(
+          /^\/api\/admin\/donations\/([^/]+)\/status$/
+        );
+
+      if (
+        donationStatusMatch
+        &&
+        request.method === "PATCH"
+      ) {
+
+        const admin =
+          await requireAdminAuth(request, db);
+
+        const donationId =
+          decodeURIComponent(donationStatusMatch[1]);
+
+        const { status } =
+          await request.json();
+
+        const value =
+          String(status || "").toLowerCase();
+
+        if (
+          !["verified", "rejected"].includes(value)
+        ) {
+          return json(
+            {
+              success: false,
+              error: "Invalid status. Must be 'verified' or 'rejected'."
+            },
+            corsHeaders,
+            400
+          );
+        }
+
+        const donation =
+          await db.prepare(`
+            SELECT
+              id,
+              full_name,
+              email,
+              amount_cents,
+              COALESCE(status, 'pending') AS status
+            FROM donations
+            WHERE id = ?
+            LIMIT 1
+          `)
+          .bind(donationId)
+          .first();
+
+        if (!donation) {
+          return json(
+            {
+              success: false,
+              error: "Donation not found."
+            },
+            corsHeaders,
+            404
+          );
+        }
+
+        if (donation.status === value) {
+          return json(
+            {
+              success: false,
+              error: "Donation is already " + value + "."
+            },
+            corsHeaders,
+            409
+          );
+        }
+
+        const now =
+          new Date().toISOString();
+
+        if (value === "verified") {
+
+          await db.prepare(`
+            UPDATE donations
+            SET
+              status = ?,
+              verified_at = ?,
+              verified_by = ?
+            WHERE id = ?
+          `)
+          .bind(
+            "verified",
+            now,
+            admin.email || admin.id,
+            donationId
+          )
+          .run();
+
+        } else {
+
+          await db.prepare(`
+            UPDATE donations
+            SET
+              status = ?,
+              verified_at = NULL,
+              verified_by = NULL
+            WHERE id = ?
+          `)
+          .bind(
+            "rejected",
+            donationId
+          )
+          .run();
+        }
+
+        let donationEmailError = null;
+
+        if (value === "verified") {
+
+          try {
+
+            await sendDonationVerifiedEmail(
+              env,
+              {
+                full_name:
+                  donation.full_name,
+                email:
+                  donation.email,
+                amount_cents:
+                  donation.amount_cents
+              }
+            );
+
+          } catch (emailError) {
+
+            donationEmailError =
+              emailError.message;
+            console.error(
+              "Donation verified email failed:",
+              emailError
+            );
+          }
+
+        } else {
+
+          try {
+
+            await sendDonationRejectedEmail(
+              env,
+              {
+                full_name:
+                  donation.full_name,
+                email:
+                  donation.email,
+                amount_cents:
+                  donation.amount_cents
+              }
+            );
+
+          } catch (emailError) {
+
+            donationEmailError =
+              emailError.message;
+            console.error(
+              "Donation rejected email failed:",
+              emailError
+            );
+          }
+        }
+
+        const donationResponse = {
+          success: true,
+          donation: {
+            id: donationId,
+            status: value
+          }
+        };
+
+        if (donationEmailError) {
+          donationResponse.email_warning =
+            "Status updated but email notification failed: "
+            + donationEmailError;
+        }
+
+        return json(
+          donationResponse,
+          corsHeaders
+        );
+      }
+
+
+      /* =====================================================
+         ADMIN CONTACTS LIST
+      ===================================================== */
+
+      if (
+        url.pathname ===
+          "/api/admin/contacts"
+        &&
+        request.method === "GET"
+      ) {
+
+        await requireAdminAuth(request, db);
+
+        const search =
+          url.searchParams.get("search") || "";
+
+        let where = "";
+        const bindings = [];
+
+        if (search) {
+          const like = "%" + search + "%";
+          where = ` WHERE (full_name LIKE ? OR email LIKE ? OR subject LIKE ?) `;
+          bindings.push(like, like, like);
+        }
+
+        const result = await db.prepare(`
+          SELECT
+            id,
+            full_name,
+            email,
+            subject,
+            message,
+            created_at
+          FROM contacts
+          ${where}
+          ORDER BY created_at DESC
+        `)
+        .bind(...bindings)
+        .all();
+
+        return json(
+          {
+            success: true,
+            contacts: result.results || []
+          },
+          corsHeaders
+        );
+      }
+
+
+      /* =====================================================
+         ADMIN DASHBOARD SUMMARY
+      ===================================================== */
+
+      if (
+        url.pathname ===
+          "/api/admin/dashboard-summary"
+        &&
+        request.method === "GET"
+      ) {
+
+        await requireAdminAuth(request, db);
+
+        const [
+
+          pendingTutors,
+          pendingVolunteers,
+          pendingDonations,
+          verifiedDonations,
+          contacts
+
+        ] = await Promise.all([
+
+          db.prepare(`
+            SELECT COUNT(*) AS count
+            FROM tutor_applications
+            WHERE status = 'pending'
+          `).first(),
+
+          db.prepare(`
+            SELECT COUNT(*) AS count
+            FROM volunteer_applications
+            WHERE status = 'pending'
+          `).first(),
+
+          db.prepare(`
+            SELECT COUNT(*) AS count
+            FROM donations
+            WHERE COALESCE(status, 'pending') = 'pending'
+          `).first(),
+
+          db.prepare(`
+            SELECT COUNT(*) AS count
+            FROM donations
+            WHERE status = 'verified'
+          `).first(),
+
+          db.prepare(`
+            SELECT COUNT(*) AS count
+            FROM contacts
+          `).first()
+
+        ]);
+
+        return json(
+          {
+            success: true,
+            summary: {
+              pending_tutors:
+                pendingTutors.count || 0,
+              pending_volunteers:
+                pendingVolunteers.count || 0,
+              pending_donations:
+                pendingDonations.count || 0,
+              verified_donations:
+                verifiedDonations.count || 0,
+              total_contacts:
+                contacts.count || 0
+            }
+          },
+          corsHeaders
         );
       }
 
@@ -2866,6 +4186,50 @@ export default {
         "Worker error:",
         error
       );
+
+
+      if (
+        error.code === AUTH_UNAUTHENTICATED
+      ) {
+
+        return json(
+
+          {
+
+            success: false,
+
+            error:
+              "Authentication required. Please log in."
+
+          },
+
+          corsHeaders,
+
+          401
+        );
+      }
+
+
+      if (
+        error.code === AUTH_FORBIDDEN
+      ) {
+
+        return json(
+
+          {
+
+            success: false,
+
+            error:
+              "Access denied."
+
+          },
+
+          corsHeaders,
+
+          403
+        );
+      }
 
 
       if (
