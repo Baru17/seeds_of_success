@@ -54,6 +54,16 @@
   padding: 22px 20px;
   box-shadow: 0 6px 20px rgba(13,110,79,0.08);
   border: 1px solid #e8efec;
+  animation: statFadeIn 0.5s ease both;
+}
+.stat-tile:nth-child(1) { animation-delay: 0s; }
+.stat-tile:nth-child(2) { animation-delay: 0.08s; }
+.stat-tile:nth-child(3) { animation-delay: 0.16s; }
+.stat-tile:nth-child(4) { animation-delay: 0.24s; }
+
+@keyframes statFadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .stat-tile .num {
@@ -87,6 +97,16 @@
   cursor: pointer;
   text-align: center;
   transition: all 0.25s ease;
+  animation: cardFadeIn 0.45s ease both;
+}
+.dash-card:nth-child(1) { animation-delay: 0.05s; }
+.dash-card:nth-child(2) { animation-delay: 0.12s; }
+.dash-card:nth-child(3) { animation-delay: 0.19s; }
+.dash-card:nth-child(4) { animation-delay: 0.26s; }
+
+@keyframes cardFadeIn {
+  from { opacity: 0; transform: translateY(14px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 .dash-card:hover {
@@ -130,21 +150,63 @@
 .section-view { display: block; margin-top: 24px; margin-bottom: 32px; }
 .section-view.hidden { display: none; }
 
+.section-fade-in {
+  animation: sectionFadeIn 0.35s ease both;
+}
+
+@keyframes sectionFadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 .btn-back {
   display: inline-block;
-  margin-top: 14px;
+  margin-bottom: 16px;
   background: #fff;
   color: #0d6e4f;
   border: 1.5px solid #0d6e4f;
-  padding: 10px 22px;
+  padding: 8px 18px;
   border-radius: 30px;
   font-weight: 600;
-  font-size: 14px;
+  font-size: 13px;
   cursor: pointer;
   font-family: inherit;
   transition: all 0.25s ease;
 }
 .btn-back:hover { background: #0d6e4f; color: #fff; }
+
+/* ============ SECTION MESSAGES ============ */
+.section-msg {
+  display: none;
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.45;
+}
+
+.section-msg.show {
+  display: block;
+  animation: msgSlideIn 0.3s ease both;
+}
+
+.section-msg.success {
+  background: #e6f4ee;
+  color: #0d6e4f;
+  border: 1px solid #cce8dc;
+}
+
+.section-msg.error {
+  background: #fdecea;
+  color: #b3261e;
+  border: 1px solid #f5c2bc;
+}
+
+@keyframes msgSlideIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 
 /* ============ TOOLBAR ============ */
 .toolbar {
@@ -235,6 +297,7 @@ th {
   border-radius: 20px;
   font-size: 12px;
   font-weight: 600;
+  transition: background 0.25s ease, color 0.25s ease;
 }
 
 .pill-pending { background: #fff3dc; color: #a06b00; }
@@ -327,6 +390,113 @@ th {
   margin-top: 14px;
 }
 
+/* ============ CONFIRM MODAL ============ */
+.confirm-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(16,42,35,0);
+  z-index: 200;
+  transition: background 0.25s ease;
+}
+
+.confirm-modal-backdrop.open {
+  display: flex;
+  background: rgba(16,42,35,0.48);
+}
+
+.confirm-modal-card {
+  width: min(460px, 100%);
+  background: #fff;
+  border-radius: 14px;
+  border: 1px solid #e8efec;
+  box-shadow: 0 18px 45px rgba(16,42,35,0.22);
+  padding: 28px;
+  opacity: 0;
+  transform: translateY(10px) scale(0.97);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.confirm-modal-backdrop.open .confirm-modal-card {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.confirm-modal-head {
+  margin-bottom: 14px;
+}
+
+.confirm-modal-head h3 {
+  font-family: "Playfair Display", serif;
+  color: #0d6e4f;
+  font-size: 22px;
+  margin: 0;
+}
+
+.confirm-modal-body {
+  font-size: 15px;
+  color: #1f2d2a;
+  line-height: 1.6;
+  margin: 0 0 24px;
+}
+
+.confirm-modal-body strong {
+  color: #0d6e4f;
+  font-weight: 600;
+}
+
+.confirm-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.confirm-modal-cancel {
+  padding: 9px 20px;
+  border-radius: 30px;
+  border: 1.5px solid #d8e2dd;
+  background: #fff;
+  color: #5a6b66;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.confirm-modal-cancel:hover {
+  border-color: #9aa9a4;
+  color: #1f2d2a;
+}
+
+.confirm-modal-action {
+  padding: 9px 22px;
+  border-radius: 30px;
+  border: none;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.confirm-btn-approve {
+  background: #0d6e4f;
+  color: #fff;
+}
+.confirm-btn-approve:hover { background: #0a5239; }
+
+.confirm-btn-reject {
+  background: #fff;
+  color: #b3261e;
+  border: 1.5px solid #b3261e;
+}
+.confirm-btn-reject:hover { background: #b3261e; color: #fff; }
+
+/* ============ LEGACY MODAL (kept for any existing usage) ============ */
 .modal-backdrop {
   position: fixed;
   inset: 0;
@@ -466,6 +636,7 @@ th {
   text-align: right;
 }
 
+/* ============ RESPONSIVE ============ */
 @media (max-width: 960px) {
   .stats-row { grid-template-columns: repeat(2, 1fr); }
   .dashboard-cards { grid-template-columns: repeat(2, 1fr); }
@@ -491,4 +662,27 @@ th {
   .welcome-strip { padding: 40px 0 50px; }
   .stats-row { gap: 12px; }
   .toolbar { flex-direction: column; }
+}
+
+/* ============ REDUCED MOTION ============ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .stat-tile,
+  .dash-card,
+  .section-fade-in,
+  .section-msg.show,
+  .confirm-modal-card {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .confirm-modal-backdrop.open {
+    background: rgba(16,42,35,0.48);
+  }
 }

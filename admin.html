@@ -89,6 +89,8 @@
 
   <!-- ======================== TUTORS SECTION ======================== -->
   <section class="container section-view" id="sectionTutors">
+    <button class="btn btn-back" onclick="closeSection()">&larr; Back to Dashboard</button>
+    <div class="section-msg" id="tutorSectionMsg"></div>
     <div class="card">
       <div class="card-head">
         <h2>Tutor Applications</h2>
@@ -122,11 +124,12 @@
         </table>
       </div>
     </div>
-    <button class="btn btn-back" onclick="closeSection()">&larr; Back to Dashboard</button>
   </section>
 
   <!-- ======================== VOLUNTEERS SECTION ======================== -->
   <section class="container section-view" id="sectionVolunteers">
+    <button class="btn btn-back" onclick="closeSection()">&larr; Back to Dashboard</button>
+    <div class="section-msg" id="volunteerSectionMsg"></div>
     <div class="card">
       <div class="card-head">
         <h2>Volunteer Applications</h2>
@@ -160,11 +163,12 @@
         </table>
       </div>
     </div>
-    <button class="btn btn-back" onclick="closeSection()">&larr; Back to Dashboard</button>
   </section>
 
   <!-- ======================== DONATIONS SECTION ======================== -->
   <section class="container section-view" id="sectionDonations">
+    <button class="btn btn-back" onclick="closeSection()">&larr; Back to Dashboard</button>
+    <div class="section-msg" id="donationSectionMsg"></div>
     <div class="card">
       <div class="card-head">
         <h2>Donations</h2>
@@ -198,11 +202,12 @@
         </table>
       </div>
     </div>
-    <button class="btn btn-back" onclick="closeSection()">&larr; Back to Dashboard</button>
   </section>
 
   <!-- ======================== CONTACTS SECTION ======================== -->
   <section class="container section-view" id="sectionContacts">
+    <button class="btn btn-back" onclick="closeSection()">&larr; Back to Dashboard</button>
+    <div class="section-msg" id="contactSectionMsg"></div>
     <div class="card">
       <div class="card-head">
         <h2>Contact Submissions</h2>
@@ -228,8 +233,21 @@
         </table>
       </div>
     </div>
-    <button class="btn btn-back" onclick="closeSection()">&larr; Back to Dashboard</button>
   </section>
+
+  <!-- ======================== CONFIRM MODAL ======================== -->
+  <div class="confirm-modal-backdrop" id="confirmModalBackdrop" role="dialog" aria-modal="true" aria-labelledby="confirmModalTitle">
+    <div class="confirm-modal-card">
+      <div class="confirm-modal-head">
+        <h3 id="confirmModalTitle">Confirm Action</h3>
+      </div>
+      <p class="confirm-modal-body" id="confirmModalBody"></p>
+      <div class="confirm-modal-actions">
+        <button type="button" class="confirm-modal-cancel" id="confirmModalCancel">Cancel</button>
+        <button type="button" class="confirm-modal-action" id="confirmModalAction">Confirm</button>
+      </div>
+    </div>
+  </div>
 
   <footer class="site-footer">
     <div class="container">
@@ -287,8 +305,25 @@
       return '<span class="pill ' + cls + '">' + escapeHTML(v.charAt(0).toUpperCase() + v.slice(1)) + '</span>';
     }
 
+    /* =================== SECTION MESSAGES =================== */
+    var sectionMsgTimers = {};
+
+    function showSectionMessage(sectionName, message, type) {
+      var map = { tutors: "tutor", volunteers: "volunteer", donations: "donation", contacts: "contact" };
+      var el = document.getElementById(map[sectionName] + "SectionMsg");
+      if (!el) return;
+      clearTimeout(sectionMsgTimers[sectionName]);
+      el.textContent = message;
+      el.className = "section-msg show " + (type || "info");
+      if (type !== "error") {
+        sectionMsgTimers[sectionName] = setTimeout(function() {
+          el.classList.remove("show");
+        }, 5000);
+      }
+    }
+
     function showAlert(message, type) {
-      const el = document.getElementById("adminAlert");
+      var el = document.getElementById("adminAlert");
       el.textContent = message;
       el.className = "admin-alert show " + (type || "info");
       if (type !== "error") {
@@ -376,13 +411,21 @@
       document.querySelector(".dashboard-cards").style.display = "none";
       document.querySelectorAll(".section-view").forEach(function(el) { el.classList.add("hidden"); });
       var section = document.getElementById("section" + name.charAt(0).toUpperCase() + name.slice(1));
-      if (section) section.classList.remove("hidden");
+      if (section) {
+        section.classList.remove("hidden");
+        section.classList.remove("section-fade-in");
+        void section.offsetWidth;
+        section.classList.add("section-fade-in");
+      }
       currentSection = name;
       loadSectionData(name);
     }
 
     function closeSection() {
-      document.querySelectorAll(".section-view").forEach(function(el) { el.classList.add("hidden"); });
+      document.querySelectorAll(".section-view").forEach(function(el) {
+        el.classList.add("hidden");
+        el.classList.remove("section-fade-in");
+      });
       document.querySelector(".dashboard-cards").style.display = "";
       currentSection = null;
       loadSummary();
@@ -429,7 +472,7 @@
         }).join("");
       } catch (e) {
         body.innerHTML = '<tr><td colspan="7" class="empty-row">Error loading data.</td></tr>';
-        showAlert(e.message || "Failed to load tutors.", "error");
+        showSectionMessage("tutors", e.message || "Failed to load tutors.", "error");
       }
     }
 
@@ -467,7 +510,7 @@
         }).join("");
       } catch (e) {
         body.innerHTML = '<tr><td colspan="7" class="empty-row">Error loading data.</td></tr>';
-        showAlert(e.message || "Failed to load volunteers.", "error");
+        showSectionMessage("volunteers", e.message || "Failed to load volunteers.", "error");
       }
     }
 
@@ -507,7 +550,7 @@
         }).join("");
       } catch (e) {
         body.innerHTML = '<tr><td colspan="7" class="empty-row">Error loading data.</td></tr>';
-        showAlert(e.message || "Failed to load donations.", "error");
+        showSectionMessage("donations", e.message || "Failed to load donations.", "error");
       }
     }
 
@@ -538,27 +581,66 @@
         }).join("");
       } catch (e) {
         body.innerHTML = '<tr><td colspan="5" class="empty-row">Error loading data.</td></tr>';
-        showAlert(e.message || "Failed to load contacts.", "error");
+        showSectionMessage("contacts", e.message || "Failed to load contacts.", "error");
       }
     }
 
-    /* =================== CONFIRM ACTIONS =================== */
+    /* =================== CONFIRM MODAL =================== */
+    var pendingConfirm = null;
+    var confirmModal = null;
+
     function confirmAction(type, id, status, name) {
-      var labels = {
-        tutor: "tutor application",
-        volunteer: "volunteer application",
-        donation: "donation"
-      };
-      var actions = {
-        approved: "approve",
-        rejected: "reject",
-        verified: "verify"
-      };
-      var msg = "Are you sure you want to " + actions[status] + " " + name + "'s " + labels[type] + "?";
-      if (confirm(msg)) {
-        updateStatus(type, id, status);
-      }
+      var labels = { tutor: "tutor application", volunteer: "volunteer application", donation: "donation" };
+      var actions = { approved: "approve", rejected: "reject", verified: "verify" };
+      var actionBtnClasses = { approved: "confirm-btn-approve", rejected: "confirm-btn-reject", verified: "confirm-btn-approve" };
+
+      var body = document.getElementById("confirmModalBody");
+      var actionBtn = document.getElementById("confirmModalAction");
+      var title = document.getElementById("confirmModalTitle");
+
+      title.textContent = "Confirm " + actions[status].charAt(0).toUpperCase() + actions[status].slice(1);
+      body.innerHTML = "Are you sure you want to <strong>" + actions[status] + "</strong> " + escapeHTML(name) + "'s " + labels[type] + "?";
+
+      actionBtn.className = "confirm-modal-action " + (actionBtnClasses[status] || "");
+      actionBtn.textContent = actions[status].charAt(0).toUpperCase() + actions[status].slice(1);
+
+      pendingConfirm = { type: type, id: id, status: status };
+      openConfirmModal();
     }
+
+    function openConfirmModal() {
+      confirmModal = document.getElementById("confirmModalBackdrop");
+      confirmModal.classList.add("open");
+      document.body.style.overflow = "hidden";
+      setTimeout(function() { document.getElementById("confirmModalCancel").focus(); }, 50);
+    }
+
+    function closeConfirmModal() {
+      if (confirmModal) {
+        confirmModal.classList.remove("open");
+        document.body.style.overflow = "";
+      }
+      pendingConfirm = null;
+    }
+
+    document.getElementById("confirmModalCancel").addEventListener("click", closeConfirmModal);
+
+    document.getElementById("confirmModalBackdrop").addEventListener("click", function(e) {
+      if (e.target === confirmModal) closeConfirmModal();
+    });
+
+    document.addEventListener("keydown", function(e) {
+      if (e.key === "Escape" && confirmModal && confirmModal.classList.contains("open")) {
+        closeConfirmModal();
+      }
+    });
+
+    document.getElementById("confirmModalAction").addEventListener("click", function() {
+      if (!pendingConfirm) return;
+      var c = pendingConfirm;
+      closeConfirmModal();
+      updateStatus(c.type, c.id, c.status);
+    });
 
     async function updateStatus(type, id, status) {
       var endpoints = {
@@ -566,6 +648,7 @@
         volunteer: "/api/admin/volunteer-applications/" + encodeURIComponent(id) + "/status",
         donation: "/api/admin/donations/" + encodeURIComponent(id) + "/status"
       };
+      var sectionMap = { tutor: "tutors", volunteer: "volunteers", donation: "donations" };
       try {
         var res = await apiFetch(endpoints[type], {
           method: "PATCH",
@@ -573,11 +656,11 @@
         });
         var msg = "Status updated successfully.";
         if (res.email_warning) msg += " (" + res.email_warning + ")";
-        showAlert(msg, "success");
+        showSectionMessage(sectionMap[type], msg, "success");
         await loadSummary();
-        await loadSectionData(type === "tutor" ? "tutors" : type === "volunteer" ? "volunteers" : type === "donation" ? "donations" : type);
+        await loadSectionData(sectionMap[type]);
       } catch (e) {
-        showAlert(e.message || "Failed to update status.", "error");
+        showSectionMessage(sectionMap[type], e.message || "Failed to update status.", "error");
       }
     }
 
