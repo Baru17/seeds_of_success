@@ -969,58 +969,6 @@ async function getReports(db) {
 
 
 /* =========================================================
-   QUEUE NOTIFICATION
-========================================================= */
-
-async function queueNotification(
-  db,
-  {
-    userId = null,
-    email,
-    message,
-    now
-  }
-) {
-
-  await db.prepare(`
-    INSERT INTO notifications (
-
-      id,
-
-      recipient_user_id,
-
-      recipient_email,
-
-      message,
-
-      status,
-
-      created_at
-
-    )
-
-    VALUES (?, ?, ?, ?, ?, ?)
-
-  `).bind(
-
-    crypto.randomUUID(),
-
-    userId,
-
-    email,
-
-    message,
-
-    "queued",
-
-    now
-
-  ).run();
-}
-
-
-
-/* =========================================================
    CREATE USER AFTER APPROVAL
 ========================================================= */
 
@@ -2278,16 +2226,10 @@ export default {
 
         let userId = null;
 
-        let notificationMessage = "";
-
 
         if (
           normalizedStatus === "approved"
         ) {
-
-          notificationMessage =
-            "Your volunteer application has been approved. Thank you for joining Seeds of Success.";
-
 
           userId =
 
@@ -2303,40 +2245,6 @@ export default {
 
               reviewedAt
             );
-        }
-
-
-        else if (
-          normalizedStatus === "rejected"
-        ) {
-
-          notificationMessage =
-            "Thank you for applying to volunteer with Seeds of Success. At this time, your application was not selected.";
-        }
-
-
-        if (notificationMessage) {
-
-          await queueNotification(
-
-            db,
-
-            {
-
-              userId,
-
-              email:
-                application.email,
-
-              message:
-                notificationMessage,
-
-              now:
-                reviewedAt
-
-            }
-
-          );
         }
 
 
@@ -2479,8 +2387,6 @@ export default {
 
               availability,
 
-              message,
-
               status,
 
               created_at,
@@ -2617,8 +2523,6 @@ export default {
 
               availability,
 
-              message,
-
               password_hash,
 
               status,
@@ -2659,16 +2563,10 @@ export default {
 
         let userId = null;
 
-        let notificationMessage = "";
-
 
         if (
           normalizedStatus === "approved"
         ) {
-
-          notificationMessage =
-            "Your tutor application has been approved. Welcome to Seeds of Success.";
-
 
           userId =
 
@@ -2684,40 +2582,6 @@ export default {
 
               reviewedAt
             );
-        }
-
-
-        else if (
-          normalizedStatus === "rejected"
-        ) {
-
-          notificationMessage =
-            "Thank you for applying as a tutor with Seeds of Success. At this time, your application was not selected.";
-        }
-
-
-        if (notificationMessage) {
-
-          await queueNotification(
-
-            db,
-
-            {
-
-              userId,
-
-              email:
-                application.email,
-
-              message:
-                notificationMessage,
-
-              now:
-                reviewedAt
-
-            }
-
-          );
         }
 
 
@@ -3246,28 +3110,6 @@ export default {
           .bind(taskId)
 
           .first();
-
-
-        await queueNotification(
-
-          db,
-
-          {
-
-            userId:
-              data.volunteer_id,
-
-            email:
-              task?.recipient_email || null,
-
-            message:
-              `New volunteer task assigned: ${data.task_title}`,
-
-            now
-
-          }
-
-        );
 
 
         return json(
