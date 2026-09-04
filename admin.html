@@ -224,10 +224,11 @@
               <th>Subject</th>
               <th>Message</th>
               <th>Date</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody id="contactsBody">
-            <tr><td colspan="5" class="empty-row">Loading...</td></tr>
+            <tr><td colspan="6" class="empty-row">Loading...</td></tr>
           </tbody>
         </table>
       </div>
@@ -553,9 +554,17 @@
     }
 
     /* =================== CONTACTS =================== */
+    function contactReplyMailto(c) {
+      var email = String(c.email || "").trim();
+      var emailOk = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(email);
+      if (!emailOk) return null;
+      var subject = String(c.subject || "").trim().replace(/[\r\n]+/g, " ") || "Contact from Seeds of Success";
+      return "mailto:" + email + "?subject=" + encodeURIComponent("Re: " + subject);
+    }
+
     async function loadContacts() {
       var body = document.getElementById("contactsBody");
-      body.innerHTML = '<tr><td colspan="5" class="empty-row">Loading...</td></tr>';
+      body.innerHTML = '<tr><td colspan="6" class="empty-row">Loading...</td></tr>';
       try {
         var search = document.getElementById("contactSearch").value;
         var params = new URLSearchParams();
@@ -564,21 +573,26 @@
         var res = await apiFetch("/api/admin/contacts" + (qs ? "?" + qs : ""));
         var items = res.contacts || [];
         if (!items.length) {
-          body.innerHTML = '<tr><td colspan="5" class="empty-row">No contact submissions found.</td></tr>';
+          body.innerHTML = '<tr><td colspan="6" class="empty-row">No contact submissions found.</td></tr>';
           return;
         }
         body.innerHTML = items.map(function(c) {
           var date = c.created_at ? new Date(c.created_at).toLocaleDateString() : '-';
+          var replyHref = contactReplyMailto(c);
+          var replyCell = replyHref
+            ? '<td class="row-actions"><a class="btn btn-approve" href="' + escapeHTML(replyHref) + '" aria-label="Reply to ' + escapeHTML(c.full_name) + '">✉ Reply</a></td>'
+            : '<td class="row-actions"><span class="btn btn-approve" style="opacity:0.5;cursor:not-allowed;pointer-events:none" aria-label="Reply unavailable" title="No valid email address">✉ Reply</span></td>';
           return '<tr>'
             + '<td>' + escapeHTML(c.full_name) + '</td>'
             + '<td>' + escapeHTML(c.email) + '</td>'
             + '<td>' + escapeHTML(c.subject) + '</td>'
             + '<td class="message-cell">' + escapeHTML(c.message) + '</td>'
             + '<td>' + escapeHTML(date) + '</td>'
+            + replyCell
             + '</tr>';
         }).join("");
       } catch (e) {
-        body.innerHTML = '<tr><td colspan="5" class="empty-row">Error loading data.</td></tr>';
+        body.innerHTML = '<tr><td colspan="6" class="empty-row">Error loading data.</td></tr>';
         showSectionMessage("contacts", e.message || "Failed to load contacts.", "error");
       }
     }
