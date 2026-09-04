@@ -108,34 +108,6 @@
         Please complete your Zelle payment to finalize your donation.
       </p>
 
-      <!-- Transaction reference form (hidden until donation_id is stored) -->
-      <div id="referenceSection" style="display:none;" class="reference-section">
-        <div class="reference-divider"></div>
-        <h3>Submit Payment Details</h3>
-        <p class="reference-intro">After completing your Zelle payment, enter the transaction or reference ID shown by your banking app so we can verify your donation.</p>
-
-        <form id="referenceForm" onsubmit="submitReference(event)" style="text-align:left;" novalidate>
-          <div class="donate-group">
-            <label for="transactionRef">Zelle Transaction / Reference ID</label>
-            <input type="text" id="transactionRef" name="transaction_reference" placeholder="e.g. ABC123XYZ" autocomplete="off" required />
-            <p class="field-hint">This is the reference number or confirmation ID displayed by your bank after the payment.</p>
-          </div>
-
-          <div id="referenceError" class="reference-error" style="display:none;" role="alert"></div>
-
-          <div class="donate-actions">
-            <button type="submit" class="btn btn-primary" id="referenceSubmitBtn">Submit Payment Details</button>
-          </div>
-        </form>
-      </div>
-
-      <!-- Success message (hidden until reference is submitted) -->
-      <div id="referenceSuccess" class="reference-success" style="display:none;" aria-live="polite">
-        <div class="success-badge success-badge-sm">✓</div>
-        <h3>Payment details submitted successfully</h3>
-        <p>Your donation is now pending verification. The Seeds of Success team will review your payment and confirm it shortly.</p>
-      </div>
-
       <div class="form-buttons">
         <a href="index.html" class="btn btn-primary">Back to Home</a>
       </div>
@@ -238,8 +210,6 @@
     }, 1600);
   });
 
-  let currentDonationId = null;
-
   function setLoading(btn, loading, loadingText) {
     if (loading) {
       btn.dataset.origText = btn.textContent;
@@ -327,14 +297,8 @@
         return;
       }
 
-      currentDonationId = result.donation_id || null;
-
       document.getElementById("formCard").style.display = "none";
       document.getElementById("zelleCard").style.display = "block";
-
-      if (currentDonationId) {
-        document.getElementById("referenceSection").style.display = "block";
-      }
 
       zelleCard.scrollIntoView({ behavior: "smooth", block: "center" });
     } catch (error) {
@@ -344,84 +308,6 @@
       );
     } finally {
       setLoading(btn, false);
-    }
-  }
-
-  async function submitReference(event) {
-    event.preventDefault();
-
-    const refInput = document.getElementById("transactionRef");
-    const refError = document.getElementById("referenceError");
-    const refBtn = document.getElementById("referenceSubmitBtn");
-
-    const transactionRef = refInput.value.trim();
-
-    refError.style.display = "none";
-
-    if (transactionRef.length < 3) {
-      refError.textContent = "Please enter a transaction reference (at least 3 characters).";
-      refError.style.display = "block";
-      return;
-    }
-
-    if (transactionRef.length > 100) {
-      refError.textContent = "Transaction reference must be 100 characters or fewer.";
-      refError.style.display = "block";
-      return;
-    }
-
-    if (!currentDonationId) {
-      showCustomAlert("Donation information is missing. Please go back and submit your donation again.");
-      return;
-    }
-
-    setLoading(refBtn, true, "Submitting...");
-
-    try {
-      const response = await fetch(
-        API_BASE + "/api/donations/" + encodeURIComponent(currentDonationId) + "/payment-reference",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ transaction_reference: transactionRef })
-        }
-      );
-
-      let result;
-
-      try {
-        result = await response.json();
-      } catch {
-        throw new Error("Invalid response received from the server.");
-      }
-
-      if (!response.ok || !result.success) {
-        const errorMessage =
-          result.error ||
-          result.message ||
-          "Failed to submit payment details. Please try again.";
-
-        refError.textContent = errorMessage;
-        refError.style.display = "block";
-        refBtn.disabled = false;
-        refBtn.textContent = refBtn.dataset.origText || "Submit Payment Details";
-        return;
-      }
-
-      document.getElementById("referenceSection").style.display = "none";
-      document.getElementById("referenceSuccess").style.display = "block";
-      document.getElementById("referenceSuccess").scrollIntoView({ behavior: "smooth", block: "center" });
-    } catch (error) {
-      console.error(error);
-      refError.textContent =
-        "Something went wrong. Please check your connection and try again.";
-      refError.style.display = "block";
-      refBtn.disabled = false;
-      refBtn.textContent = refBtn.dataset.origText || "Submit Payment Details";
-    } finally {
-      if (refBtn.disabled) {
-        setLoading(refBtn, false, "Submit Payment Details");
-      }
     }
   }
 </script>

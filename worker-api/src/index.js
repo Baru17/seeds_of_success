@@ -3467,148 +3467,6 @@ export default {
 
 
       /* =====================================================
-   DONATION PAYMENT REFERENCE SUBMISSION
-===================================================== */
-
-const donationPaymentReferenceMatch =
-  url.pathname.match(
-    /^\/api\/donations\/([^/]+)\/payment-reference$/
-  );
-
-if (
-  donationPaymentReferenceMatch &&
-  request.method === "POST"
-) {
-  const donationId =
-    decodeURIComponent(
-      donationPaymentReferenceMatch[1]
-    );
-
-  const data = await request.json();
-
-  const transactionReference =
-    String(
-      data.transaction_reference || ""
-    ).trim();
-
-  if (
-    transactionReference.length < 3 ||
-    transactionReference.length > 100
-  ) {
-    return json(
-      {
-        success: false,
-        error:
-          "Transaction reference must be between 3 and 100 characters."
-      },
-      corsHeaders,
-      400
-    );
-  }
-
-  const donation =
-    await db.prepare(`
-      SELECT
-        id,
-        full_name,
-        email,
-        amount_cents,
-        transaction_reference,
-        status
-      FROM donations
-      WHERE id = ?
-      LIMIT 1
-    `)
-    .bind(donationId)
-    .first();
-
-  if (!donation) {
-    return json(
-      {
-        success: false,
-        error: "Donation not found."
-      },
-      corsHeaders,
-      404
-    );
-  }
-
-  if (donation.status === "verified") {
-    return json(
-      {
-        success: false,
-        error:
-          "This donation has already been verified."
-      },
-      corsHeaders,
-      409
-    );
-  }
-
-  if (donation.transaction_reference) {
-    return json(
-      {
-        success: false,
-        error:
-          "Payment reference has already been submitted for this donation."
-      },
-      corsHeaders,
-      409
-    );
-  }
-
-  const existingReference =
-    await db.prepare(`
-      SELECT id
-      FROM donations
-      WHERE transaction_reference = ?
-      LIMIT 1
-    `)
-    .bind(transactionReference)
-    .first();
-
-  if (existingReference) {
-    return json(
-      {
-        success: false,
-        error:
-          "This transaction reference has already been submitted."
-      },
-      corsHeaders,
-      409
-    );
-  }
-
-  const submittedAt =
-    new Date().toISOString();
-
-  await db.prepare(`
-    UPDATE donations
-    SET
-      transaction_reference = ?,
-      payment_submitted_at = ?,
-      status = 'pending'
-    WHERE id = ?
-  `)
-    .bind(
-      transactionReference,
-      submittedAt,
-      donationId
-    )
-    .run();
-
-  return json(
-    {
-      success: true,
-      message:
-        "Payment details submitted for verification."
-    },
-    corsHeaders
-  );
-}
-
-
-      /* =====================================================
          ADMIN DONATIONS LIST
       ===================================================== */
 
@@ -3631,8 +3489,8 @@ if (
 
         if (search) {
           const like = "%" + search + "%";
-          where = ` WHERE (full_name LIKE ? OR email LIKE ? OR transaction_reference LIKE ?) `;
-          bindings.push(like, like, like);
+          where = ` WHERE (full_name LIKE ? OR email LIKE ?) `;
+          bindings.push(like, like);
         }
 
         if (
@@ -3651,8 +3509,6 @@ if (
             full_name,
             email,
             amount_cents,
-            transaction_reference,
-            payment_submitted_at,
             COALESCE(status, 'pending') AS status,
             verified_at,
             verified_by,

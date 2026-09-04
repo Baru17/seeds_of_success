@@ -175,7 +175,7 @@
         <small>Verify or reject donation submissions</small>
       </div>
       <div class="toolbar">
-        <input class="inline-field" id="donationSearch" type="text" placeholder="Search by name, email, or reference..." />
+        <input class="inline-field" id="donationSearch" type="text" placeholder="Search by name or email..." />
         <select class="inline-field" id="donationFilter">
           <option value="">All Statuses</option>
           <option value="pending" selected>Pending</option>
@@ -191,13 +191,12 @@
               <th>Email</th>
               <th>Amount</th>
               <th>Date</th>
-              <th>Reference</th>
               <th>Status</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody id="donationsBody">
-            <tr><td colspan="7" class="empty-row">Loading...</td></tr>
+            <tr><td colspan="6" class="empty-row">Loading...</td></tr>
           </tbody>
         </table>
       </div>
@@ -517,7 +516,7 @@
     /* =================== DONATIONS =================== */
     async function loadDonations() {
       var body = document.getElementById("donationsBody");
-      body.innerHTML = '<tr><td colspan="7" class="empty-row">Loading...</td></tr>';
+      body.innerHTML = '<tr><td colspan="6" class="empty-row">Loading...</td></tr>';
       try {
         var search = document.getElementById("donationSearch").value;
         var status = document.getElementById("donationFilter").value;
@@ -528,7 +527,7 @@
         var res = await apiFetch("/api/admin/donations" + (qs ? "?" + qs : ""));
         var items = res.donations || [];
         if (!items.length) {
-          body.innerHTML = '<tr><td colspan="7" class="empty-row">No donations found.</td></tr>';
+          body.innerHTML = '<tr><td colspan="6" class="empty-row">No donations found.</td></tr>';
           return;
         }
         body.innerHTML = items.map(function(d) {
@@ -539,7 +538,6 @@
             + '<td>' + escapeHTML(d.email) + '</td>'
             + '<td>$' + escapeHTML(dollars) + '</td>'
             + '<td>' + escapeHTML(date) + '</td>'
-            + '<td>' + escapeHTML(d.transaction_reference || '-') + '</td>'
             + '<td>' + pill(d.status) + '</td>'
             + '<td class="row-actions">'
             + (d.status === 'pending'
@@ -549,7 +547,7 @@
             + '</td></tr>';
         }).join("");
       } catch (e) {
-        body.innerHTML = '<tr><td colspan="7" class="empty-row">Error loading data.</td></tr>';
+        body.innerHTML = '<tr><td colspan="6" class="empty-row">Error loading data.</td></tr>';
         showSectionMessage("donations", e.message || "Failed to load donations.", "error");
       }
     }

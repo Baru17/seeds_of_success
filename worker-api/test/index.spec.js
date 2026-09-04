@@ -1193,27 +1193,18 @@ describe("Seeds of Success worker", () => {
 			expect(response.status).toBe(409);
 		});
 
-		it("does not auto-verify donation when a transaction reference is submitted", async () => {
-			const donation = { id: "d-1", full_name: "Jane", email: "jane@test.com", amount_cents: 5000, status: "pending", transaction_reference: null };
-			const db = mockDb({
-				handlers: [
-					[/FROM donations[\s\S]*WHERE id = \?/, () => donation],
-					[/FROM donations[\s\S]*WHERE transaction_reference = \?/, () => null],
-				],
-			});
+		it("returns the default API response for the obsolete payment-reference endpoint (no longer a route)", async () => {
 			const response = await worker.fetch(
 				new Request("http://example.com/api/donations/d-1/payment-reference", {
 					method: "POST",
 					headers: { "Content-Type": "application/json" },
 					body: JSON.stringify({ transaction_reference: "TXN-12345" }),
 				}),
-				db
+				mockDb()
 			);
-			expect(response.status).toBe(200);
 			const body = await response.json();
 			expect(body.success).toBe(true);
-			expect(body.message).toContain("Payment details submitted");
-			expect(body.status).toBeUndefined();
+			expect(body.message).toBe("Seeds of Success API");
 		});
 
 		it("reports email warning when email fails after successful DB update", async () => {

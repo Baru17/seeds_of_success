@@ -197,63 +197,6 @@
   transform: translateY(-2px);
 }
 
-/* Transaction reference section */
-.reference-section {
-  margin-top: 28px;
-  text-align: center;
-}
-.reference-divider {
-  width: 60px; height: 3px;
-  background: #e8efec;
-  border-radius: 2px;
-  margin: 0 auto 22px;
-}
-.reference-section h3 {
-  font-family: "Playfair Display", serif;
-  font-size: 22px;
-  color: #0d6e4f;
-  margin-bottom: 10px;
-}
-.reference-intro {
-  font-size: 15px;
-  color: #3e4d49;
-  max-width: 460px;
-  margin: 0 auto 20px;
-  line-height: 1.6;
-}
-.reference-error {
-  background: #fef2f2;
-  color: #b91c1c;
-  border: 1px solid #fecaca;
-  border-radius: 10px;
-  padding: 10px 16px;
-  font-size: 14px;
-  margin-bottom: 16px;
-  text-align: center;
-}
-.reference-success {
-  text-align: center;
-  margin: 28px 0 0;
-}
-.reference-success h3 {
-  font-family: "Playfair Display", serif;
-  font-size: 22px;
-  color: #0d6e4f;
-  margin-bottom: 10px;
-}
-.reference-success p {
-  font-size: 15px;
-  color: #3e4d49;
-  max-width: 440px;
-  margin: 0 auto;
-  line-height: 1.6;
-}
-.success-badge-sm {
-  width: 56px; height: 56px;
-  font-size: 28px;
-  margin-bottom: 14px;
-}
-
 /* Responsive */
 @media (max-width: 768px) {
   .donate-card { padding: 36px 24px; }
