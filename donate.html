@@ -40,21 +40,75 @@
   </div>
 </header>
 
-<section class="page-hero">
+<section class="page-hero donate-hero">
   <div class="container page-hero-inner">
-    <h1>Make a Donation</h1>
-    <p>Support our mission and help teach English to children in rural Tamil Nadu.</p>
+    <div class="hero-leaf hero-leaf-one"></div>
+    <div class="hero-leaf hero-leaf-two"></div>
+    <h1>Help a Child Build Confidence in English</h1>
+    <p>Your support provides one-on-one tutoring, learning materials, devices, and internet access for children in rural Tamil Nadu.</p>
+    <p class="nonprofit-note">Seeds of Success is a U.S. 501(c)(3) nonprofit. Donations are tax-deductible to the extent permitted by law. EIN: 41-3701713.</p>
   </div>
 </section>
 
-<section class="form-section donate-section">
-  <div class="container">
-    <div class="form-card donate-card" id="formCard">
-      <h2>Donate to Seeds of Success</h2>
+<section class="donate-landing">
+  <div class="container donation-layout">
+    <article class="panel impact-panel">
+      <h2>Your Gift Creates Real Access</h2>
       <div class="lead"></div>
-      <p>Fill in your details below. Once you submit, you'll see how to complete your gift securely through Zelle.</p>
+      <p class="panel-copy">Rural children in Tamil Nadu have big dreams. Your donation helps remove barriers and gives them the tools to learn English, build confidence, and create brighter futures.</p>
 
-      <form onsubmit="submitDonation(event)" style="text-align:left;" novalidate>
+      <div class="impact-list">
+        <div class="impact-item">
+          <div class="impact-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" role="img" aria-label="Learning materials icon">
+              <path d="M4 7.5A2.5 2.5 0 0 1 6.5 5h11A2.5 2.5 0 0 1 20 7.5v8A2.5 2.5 0 0 1 17.5 18h-11A2.5 2.5 0 0 1 4 15.5v-8Z"></path>
+              <path d="M8 5v13M12 8h5M12 11h5M12 14h5"></path>
+            </svg>
+          </div>
+          <div class="impact-value-block">
+            <div class="impact-value">$25</div>
+            <div class="impact-label">Learning materials</div>
+          </div>
+        </div>
+
+        <div class="impact-item">
+          <div class="impact-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" role="img" aria-label="Internet data support icon">
+              <path d="M3 13.5c2.5-3.7 5.5-5.5 9-5.5s6.5 1.8 9 5.5"></path>
+              <path d="M6.5 16.5c1.8-2.2 3.6-3.3 5.5-3.3s3.7 1.1 5.5 3.3"></path>
+              <path d="M10 19.5c.8-1 1.7-1.5 2-1.5s1.2.5 2 1.5"></path>
+            </svg>
+          </div>
+          <div class="impact-value-block">
+            <div class="impact-value">$50</div>
+            <div class="impact-label">Internet data support</div>
+          </div>
+        </div>
+
+        <div class="impact-item">
+          <div class="impact-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" role="img" aria-label="Device and data support icon">
+              <rect x="4" y="5" width="12" height="10" rx="1.5"></rect>
+              <path d="M8 19h4M10 15v4M16 8h3v8h-3"></path>
+            </svg>
+          </div>
+          <div class="impact-value-block">
+            <div class="impact-value">$300</div>
+            <div class="impact-label">Device and data support for one student</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="impact-divider"></div>
+      <p class="impact-footer">Every gift, of any amount, helps expand access to practical English education.</p>
+    </article>
+
+    <article class="panel donation-panel" id="formCard">
+      <h2>Make Your Donation</h2>
+      <div class="lead"></div>
+      <p class="panel-copy">Fill in your details below. Once you submit, you'll see how to complete your gift securely through Zelle.</p>
+
+      <form onsubmit="submitDonation(event)" novalidate>
         <div class="donate-group">
           <label for="dfullname">Full Name</label>
           <input type="text" id="dfullname" name="full_name" placeholder="Enter your full name" autocomplete="name" required />
@@ -67,6 +121,14 @@
 
         <div class="donate-group">
           <label for="damount">Donation Amount (USD)</label>
+
+          <div class="preset-amounts" aria-label="Preset donation amounts">
+            <button type="button" class="amount-pill" data-amount="25">$25</button>
+            <button type="button" class="amount-pill" data-amount="50">$50</button>
+            <button type="button" class="amount-pill" data-amount="100">$100</button>
+            <button type="button" class="amount-pill" data-amount="300">$300</button>
+          </div>
+
           <div class="amount-input-wrap">
             <span class="amount-prefix">$</span>
             <input type="text" id="damount" name="amount" placeholder="50.00" inputmode="decimal" required aria-describedby="amount-hint" />
@@ -75,63 +137,106 @@
         </div>
 
         <div class="donate-actions">
-          <button type="submit" class="btn btn-primary" id="donateSubmitBtn">Submit Donation</button>
+          <button type="submit" class="btn btn-primary" id="donateSubmitBtn">Continue to Zelle</button>
         </div>
       </form>
-    </div>
 
-    <!-- Success / Zelle card (hidden until a successful API response) -->
-    <div class="form-card donate-card zelle-card" id="zelleCard" style="display:none;" aria-live="polite">
-      <div class="success-badge">✓</div>
-      <h2>Thank you for your donation!</h2>
-      <div class="lead"></div>
+      <div class="security-copy">
+        <p>Your donation is not complete until you send your payment through Zelle.</p>
+        <p>We use your information to match your payment, maintain donation records, and provide an acknowledgment. We do not sell or share your information.</p>
+      </div>
+    </article>
+  </div>
+</section>
 
-      <p class="zelle-intro">
-        Your donation information has been successfully submitted. Your intended donation has been recorded — it is not yet complete.
-      </p>
+<div class="form-card donate-card zelle-card" id="zelleCard" style="display:none;" aria-live="polite">
+  <div class="success-badge">✓</div>
+  <h2>Thank you for your donation!</h2>
+  <div class="lead"></div>
 
-      <p class="zelle-title">You can now complete your donation through Zelle.</p>
+  <p class="zelle-intro">
+    Your donation information has been successfully submitted. Your intended donation has been recorded — it is not yet complete.
+  </p>
 
-      <div class="zelle-email-box">
-        <span class="zelle-email-label">Pay by email:</span>
-        <a class="zelle-email" href="mailto:seedsofsuccess@soslearn.org">seedsofsuccess@soslearn.org</a>
-        <button type="button" class="copy-btn" id="copyEmailBtn" aria-label="Copy Zelle email">Copy</button>
+  <p class="zelle-title">You can now complete your donation through Zelle.</p>
+
+  <div class="zelle-email-box">
+    <span class="zelle-email-label">Pay by email:</span>
+    <a class="zelle-email" href="mailto:seedsofsuccess@soslearn.org">seedsofsuccess@soslearn.org</a>
+    <button type="button" class="copy-btn" id="copyEmailBtn" aria-label="Copy Zelle email">Copy</button>
+  </div>
+
+  <p class="zelle-or">Or scan the QR code below.</p>
+
+  <div class="qr-box">
+    <img src="Images/zelle-qr.png" alt="QR code for sending your donation through Zelle to seedsofsuccess@soslearn.org" />
+  </div>
+
+  <p class="zelle-note">
+    Please complete your Zelle payment to finalize your donation.
+  </p>
+
+  <div class="form-buttons">
+    <a href="index.html" class="btn btn-primary">Back to Home</a>
+  </div>
+</div>
+
+<section class="support-section">
+  <div class="container">
+    <h2 class="support-heading">Where Your Support Goes</h2>
+    <div class="support-grid">
+      <div class="support-card">
+        <div class="support-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <path d="M8 13a3 3 0 1 1 0-6 3 3 0 0 1 0 6Zm8 0a3 3 0 1 1 0-6 3 3 0 0 1 0 6ZM5 18c.8-2 2.4-3 4.3-3s3.5 1 4.2 3M15 18c.5-1.7 2.1-2.8 4-2.8"/>
+          </svg>
+        </div>
+        <h3>One-on-One Tutoring</h3>
+        <p>Personalized support to help children build English skills and confidence.</p>
       </div>
 
-      <p class="zelle-or">Or scan the QR code below.</p>
-
-      <div class="qr-box">
-        <img src="Images/zelle-qr.png" alt="QR code for sending your donation through Zelle to seedsofsuccess@soslearn.org" />
+      <div class="support-card">
+        <div class="support-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <rect x="4" y="6" width="12" height="10" rx="1.5"></rect>
+            <path d="M8 18h4M10 16v2M15 8h3v8h-3"></path>
+          </svg>
+        </div>
+        <h3>Devices &amp; Data</h3>
+        <p>Devices and internet access to keep learning possible in rural communities.</p>
       </div>
 
-      <p class="zelle-note">
-        Please complete your Zelle payment to finalize your donation.
-      </p>
-
-      <div class="form-buttons">
-        <a href="index.html" class="btn btn-primary">Back to Home</a>
+      <div class="support-card">
+        <div class="support-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <path d="M4 7.5A2.5 2.5 0 0 1 6.5 5h11A2.5 2.5 0 0 1 20 7.5v8A2.5 2.5 0 0 1 17.5 18h-11A2.5 2.5 0 0 1 4 15.5v-8Z"></path>
+            <path d="M8 5v13M12 8h5M12 11h5M12 14h5"></path>
+          </svg>
+        </div>
+        <h3>Learning Materials</h3>
+        <p>Age-appropriate materials to make learning practical, engaging, and effective.</p>
       </div>
     </div>
   </div>
 </section>
 
 <section class="cta-band">
-  <div class="container">
+  <div class="container cta-inner">
     <h2>Every gift makes a difference</h2>
-    <p>Your support helps us reach more children with life-changing English lessons.</p>
-    <a href="getinvolved.html" class="btn">Get Involved</a>
+    <p>Join a community of supporters helping children in rural Tamil Nadu access life-changing English education.</p>
+    <a href="getinvolved.html" class="btn btn-primary cta-button">Get Involved</a>
   </div>
 </section>
 
 <footer class="site-footer">
   <div class="container">
     <div class="footer-grid">
-      <div>
+      <div class="footer-brand">
         <h4>Seeds of Success</h4>
         <p>A youth-led, registered nonprofit in Virginia, USA — connecting Tamil-origin tutors abroad with rural children in Tamil Nadu through meaningful 1-on-1 English tutoring partnerships.</p>
       </div>
 
-      <div>
+      <div class="footer-links">
         <h4>Quick Links</h4>
         <ul>
           <li><a href="index.html">Home</a></li>
@@ -141,8 +246,8 @@
         </ul>
       </div>
 
-      <div>
-        <h4>Get In Touch</h4>
+      <div class="footer-contact">
+        <h4>Get in Touch</h4>
         <ul>
           <li><a href="getinvolved.html">Get Involved</a></li>
           <li><a href="volunteer.html">Volunteer</a></li>
@@ -187,6 +292,18 @@
     document.getElementById("customAlert").classList.remove("show");
   }
 
+  const presetButtons = document.querySelectorAll(".amount-pill");
+  const amountInput = document.getElementById("damount");
+
+  presetButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      const value = button.dataset.amount;
+      amountInput.value = value;
+      presetButtons.forEach((item) => item.classList.toggle("active", item === button));
+      amountInput.focus();
+    });
+  });
+
   document.getElementById("copyEmailBtn").addEventListener("click", async (e) => {
     const btn = e.currentTarget;
     try {
@@ -217,7 +334,7 @@
       btn.textContent = loadingText || "Submitting...";
     } else {
       btn.disabled = false;
-      btn.textContent = btn.dataset.origText || "Submit Donation";
+      btn.textContent = btn.dataset.origText || "Continue to Zelle";
     }
   }
 
@@ -297,9 +414,8 @@
         return;
       }
 
-      document.getElementById("formCard").style.display = "none";
-      document.getElementById("zelleCard").style.display = "block";
-
+      formCard.style.display = "none";
+      zelleCard.style.display = "block";
       zelleCard.scrollIntoView({ behavior: "smooth", block: "center" });
     } catch (error) {
       console.error(error);
