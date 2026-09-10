@@ -532,7 +532,7 @@
           return;
         }
         body.innerHTML = items.map(function(d) {
-          var dollars = ((d.amount_cents || 0) / 100).toFixed(2);
+          var dollars = Number(d.amount_dollars || 0).toFixed(2);
           var date = d.created_at ? new Date(d.created_at).toLocaleDateString() : '-';
           return '<tr>'
             + '<td>' + escapeHTML(d.full_name) + '</td>'

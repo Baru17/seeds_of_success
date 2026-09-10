@@ -254,7 +254,7 @@ function validateMessage(message) {
 }
 
 
-function amountToCents(amount) {
+function amountToDollars(amount) {
 
   if (
     amount === undefined ||
@@ -283,16 +283,21 @@ function amountToCents(amount) {
     );
   }
 
-  const rounded =
-    Math.round(dollars * 100);
+  return dollars;
+}
 
-  if (rounded <= 0) {
-    throw new Error(
-      "Donation amount must be greater than zero."
-    );
-  }
 
-  return rounded;
+function isValidDonationName(fullName) {
+  return (
+    fullName.length >= 2 &&
+    fullName.length <= 50 &&
+    /^[\p{L}\p{M}][\p{L}\p{M}' -]*[\p{L}\p{M}]$/u.test(fullName)
+  );
+}
+
+
+function isValidDonationEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
 
@@ -308,7 +313,7 @@ function escapeHtml(str) {
 
 
 async function sendDonationVerifiedEmail(env, donation) {
-  const dollars = (donation.amount_cents / 100).toFixed(2);
+  const dollars = Number(donation.amount_dollars).toFixed(2);
   return sendResendEmail(env, {
     to: donation.email,
     subject: "Donation Verified — Seeds of Success",
@@ -328,7 +333,7 @@ async function sendDonationVerifiedEmail(env, donation) {
 
 
 async function sendDonationRejectedEmail(env, donation) {
-  const dollars = (donation.amount_cents / 100).toFixed(2);
+  const dollars = Number(donation.amount_dollars).toFixed(2);
   return sendResendEmail(env, {
     to: donation.email,
     subject: "Donation Update — Seeds of Success",
@@ -3321,14 +3326,10 @@ export default {
         const email =
           String(data.email || "").trim();
 
-        let amountCents;
+        let amountDollars;
 
         if (
-          !fullName
-          ||
-          fullName.length < 2
-          ||
-          fullName.length > 50
+          !isValidDonationName(fullName)
         ) {
 
           return json(
@@ -3338,7 +3339,7 @@ export default {
               success: false,
 
               error:
-                "Full name must be between 2 and 50 characters."
+                "Please enter a valid full name using letters, spaces, apostrophes, or hyphens."
 
             },
 
@@ -3349,8 +3350,7 @@ export default {
         }
 
         if (
-          !/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/
-            .test(email)
+          !isValidDonationEmail(email)
         ) {
 
           return json(
@@ -3372,8 +3372,8 @@ export default {
 
         try {
 
-          amountCents =
-            amountToCents(data.amount);
+          amountDollars =
+            amountToDollars(data.amount);
 
         } catch (amountError) {
 
@@ -3427,7 +3427,7 @@ export default {
 
             email,
 
-            amount_cents,
+            amount_dollars,
 
             created_at
 
@@ -3444,7 +3444,7 @@ export default {
 
           email,
 
-          amountCents,
+          amountDollars,
 
           new Date().toISOString()
 
@@ -3508,7 +3508,7 @@ export default {
             id,
             full_name,
             email,
-            amount_cents,
+            amount_dollars,
             COALESCE(status, 'pending') AS status,
             verified_at,
             verified_by,
@@ -3582,7 +3582,7 @@ export default {
               id,
               full_name,
               email,
-              amount_cents,
+              amount_dollars,
               COALESCE(status, 'pending') AS status
             FROM donations
             WHERE id = ?
@@ -3664,8 +3664,8 @@ export default {
                   donation.full_name,
                 email:
                   donation.email,
-                amount_cents:
-                  donation.amount_cents
+                amount_dollars:
+                  donation.amount_dollars
               }
             );
 
@@ -3690,8 +3690,8 @@ export default {
                   donation.full_name,
                 email:
                   donation.email,
-                amount_cents:
-                  donation.amount_cents
+                amount_dollars:
+                  donation.amount_dollars
               }
             );
 

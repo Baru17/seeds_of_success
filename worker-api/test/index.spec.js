@@ -362,7 +362,7 @@ describe("Seeds of Success worker", () => {
 			},
 		});
 
-		it("stores donation amount as integer cents on success", async () => {
+		it("stores donation amount directly in dollars on success", async () => {
 			let boundValues = [];
 			const response = await worker.fetch(
 				new Request("http://example.com/api/donations", {
@@ -387,51 +387,49 @@ describe("Seeds of Success worker", () => {
 			expect(boundValues[0]).toMatch(/^[a-f0-9-]{36}$/);
 			expect(boundValues[1]).toBe("Jane Donor");
 			expect(boundValues[2]).toBe("jane@example.com");
-			expect(boundValues[3]).toBe(5000);
+			expect(boundValues[3]).toBe(50);
 			expect(typeof boundValues[3]).toBe("number");
 			expect(boundValues[4]).toMatch(/^\d{4}-\d{2}-\d{2}T/);
 		});
 
-		it("rejects a donation with a missing name", async () => {
-			const response = await worker.fetch(
-				new Request("http://example.com/api/donations", {
-					method: "POST",
-					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify(donationBody({ full_name: "" })),
-				}),
-				mockDb({
-					onRun: () => {
-						throw new Error("should not be called");
-					},
-				})
-			);
-
-			expect(response.status).toBe(400);
-			expect(await response.json()).toEqual({
-				success: false,
-				error: "Full name must be between 2 and 50 characters.",
-			});
+		it("accepts valid Unicode donation names", async () => {
+			for (const full_name of ["John Smith", "Mary-Jane Watson", "O'Connor", "José Silva", "José O'Connor", "தமிழ் பெயர்"]) {
+				const response = await worker.fetch(new Request("http://example.com/api/donations", {
+					method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(donationBody({ full_name })),
+				}), mockDb());
+				expect(response.status).toBe(201);
+			}
 		});
 
-		it("rejects a donation with an invalid email", async () => {
-			const response = await worker.fetch(
-				new Request("http://example.com/api/donations", {
-					method: "POST",
-					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify(donationBody({ email: "not-an-email" })),
-				}),
-				mockDb({
-					onRun: () => {
-						throw new Error("should not be called");
-					},
-				})
-			);
+		it("rejects invalid donation names before insertion", async () => {
+			for (const full_name of ["", "123456", "John123", "123 John", "@#$%", "!!!", "12345"]) {
+				let inserted = false;
+				const response = await worker.fetch(new Request("http://example.com/api/donations", {
+					method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(donationBody({ full_name })),
+				}), mockDb({ onRun: () => { inserted = true; } }));
+				expect(response.status).toBe(400);
+				expect(inserted).toBe(false);
+			}
+		});
 
-			expect(response.status).toBe(400);
-			expect(await response.json()).toEqual({
-				success: false,
-				error: "Please enter a valid email address.",
-			});
+		it("accepts valid donation emails", async () => {
+			for (const email of ["test@example.com", "john.smith@gmail.com"]) {
+				const response = await worker.fetch(new Request("http://example.com/api/donations", {
+					method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(donationBody({ email })),
+				}), mockDb());
+				expect(response.status).toBe(201);
+			}
+		});
+
+		it("rejects invalid donation emails before insertion", async () => {
+			for (const email of ["abc", "abc@", "abc.com@", "@domain.com", "user@", "user@example"]) {
+				let inserted = false;
+				const response = await worker.fetch(new Request("http://example.com/api/donations", {
+					method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(donationBody({ email })),
+				}), mockDb({ onRun: () => { inserted = true; } }));
+				expect(response.status).toBe(400);
+				expect(inserted).toBe(false);
+			}
 		});
 
 		it("rejects a donation with a missing amount", async () => {
@@ -455,8 +453,8 @@ describe("Seeds of Success worker", () => {
 			});
 		});
 
-		it("rejects a zero or negative amount", async () => {
-			for (const amount of ["0", "-5", "0.00"]) {
+		it("rejects zero, negative, and empty amounts", async () => {
+			for (const amount of ["0", "-5", "0.00", ""]) {
 				const response = await worker.fetch(
 					new Request("http://example.com/api/donations", {
 						method: "POST",
@@ -477,8 +475,8 @@ describe("Seeds of Success worker", () => {
 			}
 		});
 
-		it("rejects an invalid amount format", async () => {
-			for (const amount of ["abc", "5.123", "1,000", "Infinity", "1e3"]) {
+		it("rejects non-finite and non-numeric amounts", async () => {
+			for (const amount of ["abc", "5.123", "1,000", "Infinity", "NaN", "1e3"]) {
 				const response = await worker.fetch(
 					new Request("http://example.com/api/donations", {
 						method: "POST",
@@ -524,6 +522,17 @@ describe("Seeds of Success worker", () => {
 			expect(body.message).toBe("Donation submission recorded successfully.");
 			expect(typeof body.donation_id).toBe("string");
 			expect(body.donation_id).toMatch(/^[a-f0-9-]{36}$/);
+		});
+
+		it("stores each preset amount in dollars", async () => {
+			for (const amount of ["25", "50", "100", "300"]) {
+				let boundValues = [];
+				const response = await worker.fetch(new Request("http://example.com/api/donations", {
+					method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(donationBody({ amount })),
+				}), mockDb({ onRun: (values) => { boundValues = values; return { success: true }; } }));
+				expect(response.status).toBe(201);
+				expect(boundValues[3]).toBe(Number(amount));
+			}
 		});
 
 		it("returns a 500 error when the database insert fails", async () => {
@@ -1080,7 +1089,7 @@ describe("Seeds of Success worker", () => {
 
 		it("returns donations for authenticated admin", async () => {
 			const donations = [
-				{ id: "d-1", full_name: "Jane Donor", email: "jane@test.com", amount_cents: 5000, status: "pending", created_at: "2026-01-01T00:00:00Z" },
+				{ id: "d-1", full_name: "Jane Donor", email: "jane@test.com", amount_dollars: 50, status: "pending", created_at: "2026-01-01T00:00:00Z" },
 			];
 			const db = authedDb([
 				[/FROM donations/, () => donations],
@@ -1110,7 +1119,7 @@ describe("Seeds of Success worker", () => {
 		});
 
 		it("verifies a donation", async () => {
-			const donation = { id: "d-1", full_name: "Jane", email: "jane@test.com", amount_cents: 5000, status: "pending" };
+			const donation = { id: "d-1", full_name: "Jane", email: "jane@test.com", amount_dollars: 50, status: "pending" };
 			const db = authedDb([
 				[/FROM donations[\s\S]*WHERE id = \?/, () => donation],
 			]);
@@ -1132,7 +1141,7 @@ describe("Seeds of Success worker", () => {
 		});
 
 		it("rejects a donation", async () => {
-			const donation = { id: "d-2", full_name: "Bob", email: "bob@test.com", amount_cents: 1000, status: "pending" };
+			const donation = { id: "d-2", full_name: "Bob", email: "bob@test.com", amount_dollars: 10, status: "pending" };
 			const db = authedDb([
 				[/FROM donations[\s\S]*WHERE id = \?/, () => donation],
 			]);
@@ -1154,7 +1163,7 @@ describe("Seeds of Success worker", () => {
 		});
 
 		it("rejects an invalid donation status", async () => {
-			const donation = { id: "d-1", full_name: "Jane", email: "jane@test.com", amount_cents: 5000, status: "pending" };
+			const donation = { id: "d-1", full_name: "Jane", email: "jane@test.com", amount_dollars: 50, status: "pending" };
 			const db = authedDb([
 				[/FROM donations[\s\S]*WHERE id = \?/, () => donation],
 			]);
@@ -1175,7 +1184,7 @@ describe("Seeds of Success worker", () => {
 		});
 
 		it("returns 409 when donation is already in the requested status", async () => {
-			const donation = { id: "d-1", full_name: "Jane", email: "jane@test.com", amount_cents: 5000, status: "verified" };
+			const donation = { id: "d-1", full_name: "Jane", email: "jane@test.com", amount_dollars: 50, status: "verified" };
 			const db = authedDb([
 				[/FROM donations[\s\S]*WHERE id = \?/, () => donation],
 			]);
@@ -1210,7 +1219,7 @@ describe("Seeds of Success worker", () => {
 		it("reports email warning when email fails after successful DB update", async () => {
 			vi.spyOn(globalThis, "fetch").mockRejectedValue(new Error("Resend API down"));
 
-			const donation = { id: "d-1", full_name: "Jane", email: "jane@test.com", amount_cents: 5000, status: "pending" };
+			const donation = { id: "d-1", full_name: "Jane", email: "jane@test.com", amount_dollars: 50, status: "pending" };
 			const db = authedDb([
 				[/FROM donations[\s\S]*WHERE id = \?/, () => donation],
 			]);
