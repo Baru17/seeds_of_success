@@ -69,13 +69,24 @@
       gap: 14px;
     }
     .vol-group { margin-bottom: 16px; }
-    .vol-group label {
-      display: block;
-      font-size: 14px;
-      font-weight: 500;
-      color: #1f2d2a;
-      margin-bottom: 6px;
-    }
+.vol-group label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    color: #1f2d2a;
+    margin-bottom: 6px;
+}
+.vol-group label[for="vname"]::after,
+.vol-group label[for="vemail"]::after,
+.vol-group label[for="vphone"]::after,
+.vol-group label[for="vrole"]::after,
+.vol-group label[for="vpassword"]::after,
+.vol-group label[for="vconfirm"]::after,
+.vol-group label[for="vskills"]::after {
+    content: " *";
+    color: #dc3545;
+    font-weight: 700;
+}
     .vol-group input,
     .vol-group select,
     .vol-group textarea {

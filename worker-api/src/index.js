@@ -237,6 +237,8 @@ function isValidPhone(phone) {
 
 function validateMessage(message) {
 
+  if (!message || !message.trim()) return;
+
   const length =
     String(message || "").trim().length;
 
