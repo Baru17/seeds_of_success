@@ -302,6 +302,10 @@ section[id] { scroll-margin-top: 90px; }
 .footer-grid li { font-size: 14px; line-height: 1.9; }
 .footer-grid a:hover { color: #f5a623; }
 .footer-grid ul { list-style: none; }
+.field-required {
+  color: #e74c3c;
+  font-weight: 700;
+}
 .footer-bottom {
   border-top: 1px solid #1f3d35;
   padding-top: 22px;

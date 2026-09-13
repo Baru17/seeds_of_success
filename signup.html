@@ -71,17 +71,17 @@
 
         <form onsubmit="handleSignup(event)">
           <div class="form-group">
-            <label for="fullname">Full Name</label>
+            <label for="fullname">Full Name <span class="field-required">*</span></label>
             <input type="text" id="fullname" placeholder="Priya Krishnan" required />
           </div>
 
           <div class="form-row">
             <div class="form-group">
-              <label for="email">Email</label>
+              <label for="email">Email <span class="field-required">*</span></label>
               <input type="email" id="email" placeholder="you@example.com" required />
             </div>
             <div class="form-group">
-              <label for="phone">Phone</label>
+              <label for="phone">Phone <span class="field-required">*</span></label>
               <input
                 type="tel"
                 id="phone"
@@ -107,7 +107,7 @@
           </div>
 
           <div class="form-group">
-            <label for="password">Password</label>
+            <label for="password">Password <span class="field-required">*</span></label>
             <div class="password-field">
             <input type="password" id="password" placeholder="At least 6 characters" required minlength="6" />
             <button type="button" class="password-toggle" aria-label="Show password" tabindex="-1">
@@ -118,7 +118,7 @@
           </div>
 
           <div class="form-group">
-  <label for="confirmPassword">Confirm Password</label>
+  <label for="confirmPassword">Confirm Password <span class="field-required">*</span></label>
   <div class="password-field">
   <input
     type="password"
