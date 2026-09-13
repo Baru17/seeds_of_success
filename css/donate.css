@@ -244,6 +244,11 @@ body {
   font-weight: 600;
 }
 
+.field-required {
+  color: #e74c3c;
+  font-weight: 700;
+}
+
 .donate-group input {
   width: 100%;
   box-sizing: border-box;
@@ -629,66 +634,6 @@ body {
   padding: 14px 32px !important;
   font-size: 15px !important;
   line-height: normal;
-}
-
-/* =========================================================
-   FOOTER
-   ========================================================= */
-
-.site-footer {
-  background: var(--sos-footer);
-  color: #dfe7e5;
-  padding: 38px 0 18px;
-}
-
-.footer-grid {
-  display: grid;
-  grid-template-columns: 2fr 1fr 1fr;
-  gap: 34px;
-  align-items: start;
-  padding-bottom: 32px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.footer-brand h4,
-.footer-links h4,
-.footer-contact h4 {
-  color: #ffffff;
-  font-size: 0.9rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  margin-bottom: 16px;
-}
-
-.footer-brand p,
-.footer-grid li,
-.footer-grid a {
-  color: #dfe7e5;
-  font-size: 0.96rem;
-  line-height: 1.8;
-}
-
-.footer-grid ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.footer-grid li + li {
-  margin-top: 6px;
-}
-
-.footer-grid a:hover {
-  color: #f4c869;
-}
-
-.footer-bottom {
-  color: #aabdb7;
-  font-size: 0.76rem;
-  line-height: 1.7;
-  text-align: center;
-  padding-top: 18px;
 }
 
 /* =========================================================

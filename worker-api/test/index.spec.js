@@ -535,6 +535,43 @@ describe("Seeds of Success worker", () => {
 			}
 		});
 
+		it("sends a notification email for donation submissions", async () => {
+			const sentEmails = [];
+			vi.spyOn(globalThis, "fetch").mockImplementation(async (_url, init) => {
+				sentEmails.push(JSON.parse(init.body));
+				return new Response(JSON.stringify({ id: "email-1" }), { status: 200 });
+			});
+
+			let boundValues = [];
+			const mockEnv = {
+				...mockDb({
+					onRun: (values) => {
+						boundValues = values;
+						return { success: true };
+					},
+				}),
+				DONATION_RECIPIENT_EMAIL: "donations@soslearn.org",
+				RESEND_API_KEY: "test-key",
+				EMAIL_FROM_ADDRESS: "onboarding@resend.dev",
+			};
+			const response = await worker.fetch(
+				new Request("http://example.com/api/donations", {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify(donationBody()),
+				}),
+				mockEnv
+			);
+
+			expect(response.status).toBe(201);
+			expect(sentEmails).toHaveLength(1);
+			expect(sentEmails[0].to).toEqual(["donations@soslearn.org"]);
+			expect(sentEmails[0].subject).toBe("New Donation Submission — Seeds of Success");
+			expect(sentEmails[0].html).toContain("Jane Donor");
+			expect(sentEmails[0].html).toContain("jane@example.com");
+			vi.mocked(globalThis.fetch).mockRestore();
+		});
+
 		it("returns a 500 error when the database insert fails", async () => {
 			const response = await worker.fetch(
 				new Request("http://example.com/api/donations", {

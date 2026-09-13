@@ -110,17 +110,17 @@
 
       <form onsubmit="submitDonation(event)" novalidate>
         <div class="donate-group">
-          <label for="dfullname">Full Name</label>
+          <label for="dfullname">Full Name <span class="field-required">*</span></label>
           <input type="text" id="dfullname" name="full_name" placeholder="Enter your full name" autocomplete="name" required />
         </div>
 
         <div class="donate-group">
-          <label for="demail">Email Address</label>
+          <label for="demail">Email Address <span class="field-required">*</span></label>
           <input type="email" id="demail" name="email" placeholder="you@example.com" autocomplete="email" required />
         </div>
 
         <div class="donate-group">
-          <label for="damount">Donation Amount (USD)</label>
+          <label for="damount">Donation Amount (USD) <span class="field-required">*</span></label>
 
           <div class="preset-amounts" aria-label="Preset donation amounts">
             <button type="button" class="amount-pill" data-amount="25">$25</button>

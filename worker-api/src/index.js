@@ -354,6 +354,35 @@ async function sendDonationRejectedEmail(env, donation) {
 }
 
 
+async function sendDonationNotificationEmail(env, donation) {
+  const recipient = env.DONATION_RECIPIENT_EMAIL;
+
+  if (!recipient) {
+    throw new Error("Donation notification recipient email not configured.");
+  }
+
+  const dollars = Number(donation.amount_dollars).toFixed(2);
+  return sendResendEmail(env, {
+    to: recipient,
+    replyTo: donation.email,
+    subject: "New Donation Submission — Seeds of Success",
+    html: [
+      '<div style="font-family:sans-serif;max-width:600px">',
+      '<h2 style="color:#0d6e4f">New Donation Submission</h2>',
+      '<p style="color:#555;line-height:1.6">A new donation has been submitted to Seeds of Success.</p>',
+      '<table style="width:100%;border-collapse:collapse">',
+      '<tr><td style="padding:8px 12px;font-weight:600;color:#0d6e4f;border-bottom:1px solid #e6efeb">Full Name</td><td style="padding:8px 12px;border-bottom:1px solid #e6efeb">' + escapeHtml(donation.full_name) + '</td></tr>',
+      '<tr><td style="padding:8px 12px;font-weight:600;color:#0d6e4f;border-bottom:1px solid #e6efeb">Email</td><td style="padding:8px 12px;border-bottom:1px solid #e6efeb">' + escapeHtml(donation.email) + '</td></tr>',
+      '<tr><td style="padding:8px 12px;font-weight:600;color:#0d6e4f;border-bottom:1px solid #e6efeb">Amount</td><td style="padding:8px 12px;border-bottom:1px solid #e6efeb">$' + escapeHtml(dollars) + '</td></tr>',
+      '</table>',
+      '<hr style="border:none;border-top:1px solid #e6efeb;margin-top:24px">',
+      '<p style="font-size:12px;color:#888">Sent via the Seeds of Success donation form.</p>',
+      '</div>'
+    ].join('')
+  });
+}
+
+
 async function sendContactStoredEmail(env, { name, email, subject, message }) {
   const recipient = env.CONTACT_RECIPIENT_EMAIL;
 
@@ -3452,19 +3481,32 @@ export default {
 
         )
 
-        .run();
+.run();
+
+        try {
+          await sendDonationNotificationEmail(
+            env,
+            {
+              full_name: fullName,
+              email,
+              amount_dollars: amountDollars
+            }
+          );
+        } catch (emailError) {
+          console.error("Donation notification email failed:", emailError);
+        }
 
        return json(
-  {
-    success: true,
-    message:
-      "Donation submission recorded successfully.",
-    donation_id: donationId
-  },
-  corsHeaders,
-  201
-);
-      }
+   {
+     success: true,
+     message:
+       "Donation submission recorded successfully.",
+     donation_id: donationId
+   },
+   corsHeaders,
+   201
+ );
+       }
 
 
 
