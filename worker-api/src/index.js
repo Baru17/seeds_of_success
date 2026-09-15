@@ -235,6 +235,32 @@ function isValidPhone(phone) {
 }
 
 
+function isValidEmail(email) {
+  return /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(String(email || '').trim());
+}
+
+function getPasswordStrength(password) {
+  if (!password) return 'none';
+  const hasLower = /[a-z]/.test(password);
+  const hasUpper = /[A-Z]/.test(password);
+  const hasNumber = /[0-9]/.test(password);
+  const hasSpecial = /[^A-Za-z0-9]/.test(password);
+  const metCount = [hasLower, hasUpper, hasNumber, hasSpecial].filter(Boolean).length;
+  if (password.length >= 8 && metCount >= 4) return 'strong';
+  if (password.length >= 8 && metCount >= 3) return 'medium';
+  return 'weak';
+}
+
+function isValidPassword(password) {
+  if (!password || password.length < 8) return false;
+  if (!/[a-z]/.test(password)) return false;
+  if (!/[A-Z]/.test(password)) return false;
+  if (!/[0-9]/.test(password)) return false;
+  if (!/[^A-Za-z0-9]/.test(password)) return false;
+  return password.length <= 50;
+}
+
+
 function validateMessage(message) {
 
   if (!message || !message.trim()) return;
@@ -1555,21 +1581,12 @@ export default {
           data.message
         );
 
+        if (!isValidPassword(data.password)) {
+          return json({ success: false, error: "Password must be at least 8 characters and include uppercase, lowercase, number, and special character." }, corsHeaders, 400);
+        }
 
         const existingVolunteer =
-          await db.prepare(`
-            SELECT id
-
-            FROM volunteer_applications
-
-            WHERE email = ?
-
-            LIMIT 1
-          `)
-
-          .bind(data.email)
-
-          .first();
+          await db.prepare(`SELECT id FROM volunteer_applications WHERE email = ? LIMIT 1`).bind(data.email).first();
 
 
         if (existingVolunteer) {
@@ -1707,9 +1724,43 @@ export default {
 
 
 
+/* =====================================================
+          CHECK EMAIL EXISTENCE
+       ===================================================== */
+
+      if (
+        url.pathname === "/api/check-email"
+        && request.method === "POST"
+      ) {
+        const data = await request.json();
+        const email = String(data.email || '').trim().toLowerCase();
+
+        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+          return json({ exists: false }, corsHeaders, 400);
+        }
+
+        const existing = await db.prepare(`SELECT id FROM user_accounts WHERE email = ? LIMIT 1`).bind(email).first();
+        if (existing) {
+          return json({ exists: true }, corsHeaders, 200);
+        }
+
+        const existingApp = await db.prepare(`SELECT id FROM tutor_applications WHERE email = ? LIMIT 1`).bind(email).first();
+        if (existingApp) {
+          return json({ exists: true }, corsHeaders, 200);
+        }
+
+        const existingVolunteer = await db.prepare(`SELECT id FROM volunteer_applications WHERE email = ? LIMIT 1`).bind(email).first();
+        if (existingVolunteer) {
+          return json({ exists: true }, corsHeaders, 200);
+        }
+
+        return json({ exists: false }, corsHeaders, 200);
+      }
+
+
       /* =====================================================
-         TUTOR SIGNUP
-      ===================================================== */
+          TUTOR SIGNUP
+       ===================================================== */
 
       if (
 
@@ -1725,42 +1776,28 @@ export default {
         const data =
           await request.json();
 
+        const fullName = String(data.full_name || '').trim();
+        const email = String(data.email || '').trim();
+
+        if (!fullName || fullName.length < 2 || fullName.length > 50) {
+          return json({ success: false, error: "Full name must be between 2 and 50 characters." }, corsHeaders, 400);
+        }
+
+        if (!isValidEmail(email)) {
+          return json({ success: false, error: "Please enter a valid email address." }, corsHeaders, 400);
+        }
+
+        if (!isValidPassword(data.password)) {
+          return json({ success: false, error: "Password must be at least 8 characters and include uppercase, lowercase, number, and special character." }, corsHeaders, 400);
+        }
 
         if (!isValidPhone(data.phone)) {
-
-          return json(
-
-            {
-
-              success: false,
-
-              error:
-                "Phone number format is invalid."
-
-            },
-
-            corsHeaders,
-
-            400
-          );
+          return json({ success: false, error: "Phone number format is invalid." }, corsHeaders, 400);
         }
 
 
         const existingTutor =
-
-          await db.prepare(`
-            SELECT id
-
-            FROM tutor_applications
-
-            WHERE email = ?
-
-            LIMIT 1
-          `)
-
-          .bind(data.email)
-
-          .first();
+          await db.prepare(`SELECT id FROM tutor_applications WHERE email = ? LIMIT 1`).bind(data.email).first();
 
 
         if (existingTutor) {

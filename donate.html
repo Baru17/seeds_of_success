@@ -12,6 +12,7 @@
 
   <link rel="stylesheet" href="css/common.css" />
   <link rel="stylesheet" href="css/donate.css" />
+  <link rel="stylesheet" href="css/validation.css" />
 </head>
 
 <body>
@@ -109,32 +110,35 @@
       <p class="panel-copy">Fill in your details below. Once you submit, you'll see how to complete your gift securely through Zelle.</p>
 
       <form onsubmit="submitDonation(event)" novalidate>
-        <div class="donate-group">
-          <label for="dfullname">Full Name <span class="field-required">*</span></label>
-          <input type="text" id="dfullname" name="full_name" placeholder="Enter your full name" autocomplete="name" required />
-        </div>
+<div class="donate-group">
+           <label for="dfullname">Full Name <span class="field-required">*</span></label>
+           <input type="text" id="dfullname" name="full_name" placeholder="Enter your full name" autocomplete="name" required />
+           <div class="validation-message hidden" id="dfullname-msg"></div>
+         </div>
 
-        <div class="donate-group">
-          <label for="demail">Email Address <span class="field-required">*</span></label>
-          <input type="email" id="demail" name="email" placeholder="you@example.com" autocomplete="email" required />
-        </div>
+         <div class="donate-group">
+           <label for="demail">Email Address <span class="field-required">*</span></label>
+           <input type="email" id="demail" name="email" placeholder="you@example.com" autocomplete="email" required />
+           <div class="validation-message hidden" id="demail-msg"></div>
+         </div>
 
-        <div class="donate-group">
-          <label for="damount">Donation Amount (USD) <span class="field-required">*</span></label>
+         <div class="donate-group">
+           <label for="damount">Donation Amount (USD) <span class="field-required">*</span></label>
 
-          <div class="preset-amounts" aria-label="Preset donation amounts">
-            <button type="button" class="amount-pill" data-amount="25">$25</button>
-            <button type="button" class="amount-pill" data-amount="50">$50</button>
-            <button type="button" class="amount-pill" data-amount="100">$100</button>
-            <button type="button" class="amount-pill" data-amount="300">$300</button>
-          </div>
+           <div class="preset-amounts" aria-label="Preset donation amounts">
+             <button type="button" class="amount-pill" data-amount="25">$25</button>
+             <button type="button" class="amount-pill" data-amount="50">$50</button>
+             <button type="button" class="amount-pill" data-amount="100">$100</button>
+             <button type="button" class="amount-pill" data-amount="300">$300</button>
+           </div>
 
-          <div class="amount-input-wrap">
-            <span class="amount-prefix">$</span>
-            <input type="text" id="damount" name="amount" placeholder="50.00" inputmode="decimal" required aria-describedby="amount-hint" />
-          </div>
-          <p class="field-hint" id="amount-hint">Enter any amount in US Dollars, e.g. 50.00 or 75.25</p>
-        </div>
+           <div class="amount-input-wrap">
+             <span class="amount-prefix">$</span>
+             <input type="text" id="damount" name="amount" placeholder="50.00" inputmode="decimal" required aria-describedby="amount-hint" />
+           </div>
+           <p class="field-hint" id="amount-hint">Enter any amount in US Dollars, e.g. 50.00 or 75.25</p>
+           <div class="validation-message hidden" id="damount-msg"></div>
+         </div>
 
         <div class="donate-actions">
           <button type="submit" class="btn btn-primary" id="donateSubmitBtn">Continue to Zelle</button>
@@ -272,159 +276,75 @@
   <div class="loader-spinner"></div>
 </div>
 
+<script src="js/common.js"></script>
+<script src="js/validation.js"></script>
 <script>
-  const API_BASE = [
-    "localhost",
-    "127.0.0.1",
-    "::1"
-  ].includes(window.location.hostname)
-    ? "http://127.0.0.1:8787"
-    : "https://worker-api.seedsofsuccessngo.workers.dev";
-
+  const API_BASE = window.location.protocol === 'file:' || ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname) ? 'http://127.0.0.1:8787' : 'https://worker-api.seedsofsuccessngo.workers.dev';
   const ZELLE_EMAIL = "seedsofsuccess@soslearn.org";
 
-  function showCustomAlert(message) {
-    document.getElementById("customAlertMessage").textContent = message;
-    document.getElementById("customAlert").classList.add("show");
-  }
-
-  function closeCustomAlert() {
-    document.getElementById("customAlert").classList.remove("show");
-  }
+  function showCustomAlert(message) { document.getElementById("customAlertMessage").textContent = message; document.getElementById("customAlert").classList.add("show"); }
+  function closeCustomAlert() { document.getElementById("customAlert").classList.remove("show"); }
 
   const presetButtons = document.querySelectorAll(".amount-pill");
   const amountInput = document.getElementById("damount");
-
   presetButtons.forEach((button) => {
-    button.addEventListener("click", () => {
-      const value = button.dataset.amount;
-      amountInput.value = value;
-      presetButtons.forEach((item) => item.classList.toggle("active", item === button));
-      amountInput.focus();
-    });
+    button.addEventListener("click", () => { const value = button.dataset.amount; amountInput.value = value; presetButtons.forEach((item) => item.classList.toggle("active", item === button)); amountInput.focus(); });
   });
 
   document.getElementById("copyEmailBtn").addEventListener("click", async (e) => {
     const btn = e.currentTarget;
-    try {
-      await navigator.clipboard.writeText(ZELLE_EMAIL);
-    } catch (err) {
-      const textarea = document.createElement("textarea");
-      textarea.value = ZELLE_EMAIL;
-      textarea.style.position = "fixed";
-      textarea.style.opacity = "0";
-      document.body.appendChild(textarea);
-      textarea.select();
-      document.execCommand("copy");
-      document.body.removeChild(textarea);
-    }
-    const original = btn.textContent;
-    btn.textContent = "Copied!";
-    btn.disabled = true;
-    setTimeout(() => {
-      btn.textContent = original;
-      btn.disabled = false;
-    }, 1600);
+    try { await navigator.clipboard.writeText(ZELLE_EMAIL); } catch (err) { const textarea = document.createElement("textarea"); textarea.value = ZELLE_EMAIL; textarea.style.position = "fixed"; textarea.style.opacity = "0"; document.body.appendChild(textarea); textarea.select(); document.execCommand("copy"); document.body.removeChild(textarea); }
+    const original = btn.textContent; btn.textContent = "Copied!"; btn.disabled = true; setTimeout(() => { btn.textContent = original; btn.disabled = false; }, 1600);
   });
 
-  function setLoading(btn, loading, loadingText) {
-    if (loading) {
-      btn.dataset.origText = btn.textContent;
-      btn.disabled = true;
-      btn.textContent = loadingText || "Submitting...";
-    } else {
-      btn.disabled = false;
-      btn.textContent = btn.dataset.origText || "Continue to Zelle";
+  function setLoading(btn, loading, loadingText) { if (loading) { btn.dataset.origText = btn.textContent; btn.disabled = true; btn.textContent = loadingText || "Submitting..."; } else { btn.disabled = false; btn.textContent = btn.dataset.origText || "Continue to Zelle"; } }
+
+  function initFieldValidation(fieldId, validatorFn) {
+    const field = document.getElementById(fieldId);
+    if (!field) return;
+    const msgEl = document.getElementById(fieldId + '-msg');
+    function validate() {
+      const value = field.value;
+      const result = validatorFn(value);
+      if (!value.trim()) { if (msgEl) { msgEl.className = 'validation-message hidden'; msgEl.textContent = ''; } clearFieldState(fieldId); return true; }
+      if (result.valid) { if (msgEl) { msgEl.className = 'validation-message hidden'; msgEl.textContent = ''; } markFieldValid(fieldId); return true; }
+      else { if (msgEl) { msgEl.textContent = result.message; msgEl.className = 'validation-message error'; } markFieldInvalid(fieldId); return false; }
     }
+    field.addEventListener('input', validate);
+    field.addEventListener('blur', validate);
   }
+
+  initFieldValidation('dfullname', function(val) { return Validators.validateDonationName(val); });
+  initFieldValidation('demail', function(val) { return Validators.validateEmail(val); });
+  initFieldValidation('damount', function(val) { return Validators.validateAmount(val); });
 
   async function submitDonation(event) {
     event.preventDefault();
-
     const fullName = document.getElementById("dfullname").value.trim();
     const email = document.getElementById("demail").value.trim();
     const amount = document.getElementById("damount").value.trim();
-
-    const emailRegex =
-      /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+    const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
     const amountRegex = /^\d+(\.\d{1,2})?$/;
-
-    if (fullName.length < 2) {
-      showCustomAlert("Please enter your full name (at least 2 characters).");
-      return;
-    }
-
-    if (fullName.length > 50) {
-      showCustomAlert("Full name must be 50 characters or fewer.");
-      return;
-    }
-
-    if (!emailRegex.test(email)) {
-      showCustomAlert("Please enter a valid email address.");
-      return;
-    }
-
-    if (!amount) {
-      showCustomAlert("Please enter a donation amount.");
-      return;
-    }
-
-    if (!amountRegex.test(amount)) {
-      showCustomAlert("Please enter a valid donation amount (e.g. 50.00 or 75.25).");
-      return;
-    }
-
-    if (Number(amount) <= 0) {
-      showCustomAlert("Donation amount must be greater than zero.");
-      return;
-    }
-
+    if (fullName.length < 2) { showCustomAlert("Please enter your full name (at least 2 characters)."); return; }
+    if (fullName.length > 50) { showCustomAlert("Full name must be 50 characters or fewer."); return; }
+    if (!emailRegex.test(email)) { showCustomAlert("Please enter a valid email address."); return; }
+    if (!amount) { showCustomAlert("Please enter a donation amount."); return; }
+    if (!amountRegex.test(amount)) { showCustomAlert("Please enter a valid donation amount (e.g. 50.00 or 75.25)."); return; }
+    if (Number(amount) <= 0) { showCustomAlert("Donation amount must be greater than zero."); return; }
     const formCard = document.getElementById("formCard");
     const zelleCard = document.getElementById("zelleCard");
     const btn = document.getElementById("donateSubmitBtn");
-
     setLoading(btn, true);
-
     try {
-      const response = await fetch(API_BASE + "/api/donations", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          full_name: fullName,
-          email: email,
-          amount: amount
-        })
-      });
-
+      const response = await fetch(API_BASE + "/api/donations", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ full_name: fullName, email: email, amount: amount }) });
       let result;
-
-      try {
-        result = await response.json();
-      } catch {
-        throw new Error("Invalid response received from the server.");
-      }
-
-      if (!response.ok || !result.success) {
-        const errorMessage =
-          result.error ||
-          result.message ||
-          "Failed to submit your donation. Please try again.";
-        showCustomAlert(errorMessage);
-        console.error(result);
-        return;
-      }
-
+      try { result = await response.json(); } catch { throw new Error("Invalid response received from the server."); }
+      if (!response.ok || !result.success) { const errorMessage = result.error || result.message || "Failed to submit your donation. Please try again."; showCustomAlert(errorMessage); console.error(result); return; }
       formCard.style.display = "none";
       zelleCard.style.display = "block";
       zelleCard.scrollIntoView({ behavior: "smooth", block: "center" });
-    } catch (error) {
-      console.error(error);
-      showCustomAlert(
-        error.message || "Something went wrong. Please try again."
-      );
-    } finally {
-      setLoading(btn, false);
-    }
+    } catch (error) { console.error(error); showCustomAlert(error.message || "Something went wrong. Please try again."); }
+    finally { setLoading(btn, false); }
   }
 </script>
 

@@ -11,6 +11,7 @@
 
   <link rel="stylesheet" href="css/common.css" />
   <link rel="stylesheet" href="css/volunteer.css" />
+  <link rel="stylesheet" href="css/validation.css" />
 
   <!-- International phone input -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@23.8.1/build/css/intlTelInput.css" />
@@ -90,11 +91,13 @@
     maxlength="50"
     pattern="^[A-Za-z]+([ '.-][A-Za-z]+)*$"
     title="Name should contain only letters, spaces, apostrophes, periods or hyphens."
-/>
+  />
+  <div class="validation-message hidden" id="vname-msg"></div>
             </div>
             <div class="vol-group">
               <label for="vemail">Email</label>
               <input type="email" id="vemail" placeholder="you@example.com" required />
+              <div class="validation-message hidden" id="vemail-msg"></div>
             </div>
           </div>
 
@@ -108,6 +111,7 @@
                 autocomplete="tel"
                 required
               />
+              <div class="validation-message hidden" id="vphone-msg"></div>
             </div>
             <div class="vol-group">
               <label for="vrole">Role of Interest</label>
@@ -131,6 +135,9 @@
                   <svg class="icon-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
                 </button>
               </div>
+              <div id="vpassword-strength-container"></div>
+              <div id="vpassword-requirements-container"></div>
+              <div class="validation-message hidden" id="vpassword-msg"></div>
             </div>
             <div class="vol-group">
               <label for="vconfirm">Confirm Password</label>
@@ -141,6 +148,7 @@
                   <svg class="icon-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
                 </button>
               </div>
+              <div class="validation-message hidden" id="vconfirm-msg"></div>
             </div>
           </div>
 
@@ -154,11 +162,13 @@
     maxlength="100"
     placeholder="English, Tamil, Storytelling, etc."
 />
+            <div class="validation-message hidden" id="vskills-msg"></div>
           </div>
 
           <div class="vol-group">
             <label for="vmsg">Why do you want to volunteer?</label>
             <textarea id="vmsg" placeholder="Tell us a little about yourself..." minlength="10" maxlength="1000"></textarea>
+            <div class="validation-message hidden" id="vmsg-msg"></div>
           </div>
 
           <div class="form-buttons">
@@ -252,29 +262,85 @@
   </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@23.8.1/build/js/intlTelInput.min.js"></script>
-
- <script>
+<script src="js/common.js"></script>
+<script src="js/validation.js"></script>
+<script>
   const volunteerPhoneInput = document.querySelector("#vphone");
-
   const volunteerPhone = window.intlTelInput(volunteerPhoneInput, {
     initialCountry: "us",
     separateDialCode: true,
     useFullscreenPopup: false,
-    utilsScript:
-      "https://cdn.jsdelivr.net/npm/intl-tel-input@23.8.1/build/js/utils.js"
+    utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@23.8.1/build/js/utils.js"
   });
 
-  const API_BASE = [
-    "localhost",
-    "127.0.0.1",
-    "::1"
-  ].includes(window.location.hostname)
-    ? "http://127.0.0.1:8787"
-    : "https://worker-api.seedsofsuccessngo.workers.dev";
+  const API_BASE = window.location.protocol === 'file:' || ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname) ? 'http://127.0.0.1:8787' : 'https://worker-api.seedsofsuccessngo.workers.dev';
+
+  function initFieldValidation(fieldId, validatorFn, options) {
+    options = options || {};
+    const field = document.getElementById(fieldId);
+    if (!field) return;
+    const msgEl = document.getElementById(fieldId + '-msg');
+    function validate() {
+      const value = field.value;
+      const result = validatorFn(value);
+      if (!value.trim()) {
+        if (msgEl) { msgEl.className = 'validation-message hidden'; msgEl.textContent = ''; }
+        clearFieldState(fieldId);
+        return true;
+      }
+      if (result.valid) {
+        if (msgEl) { msgEl.className = 'validation-message hidden'; msgEl.textContent = ''; }
+        markFieldValid(fieldId);
+        if (options.onValid) options.onValid(value);
+        return true;
+      } else {
+        if (msgEl) { msgEl.textContent = result.message; msgEl.className = 'validation-message error'; }
+        markFieldInvalid(fieldId);
+        return false;
+      }
+    }
+    field.addEventListener('input', validate);
+    field.addEventListener('blur', validate);
+  }
+
+  function initVolunteerValidation() {
+    initFieldValidation('vname', function(val) { return Validators.validateName(val); });
+    initFieldValidation('vemail', function(val) { return Validators.validateEmail(val); }, {
+      onValid: function(val) {
+        const trimmed = val.trim().toLowerCase();
+        showCheckingState('vemail');
+        debounceEmailCheck('vemail', trimmed, function(email) {
+          fetch(API_BASE + '/api/check-email', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email }) }).then(function(r) { return r.json(); }).then(function(data) {
+            const msgEl = document.getElementById('vemail-msg');
+            if (data.exists) { if (msgEl) { msgEl.textContent = 'Email already exists'; msgEl.className = 'validation-message error'; } markFieldInvalid('vemail'); }
+            else { if (msgEl) { msgEl.className = 'validation-message hidden'; msgEl.textContent = ''; } markFieldValid('vemail'); }
+          }).catch(function() { const msgEl = document.getElementById('vemail-msg'); if (msgEl) msgEl.className = 'validation-message hidden'; });
+        });
+      }
+    });
+    initFieldValidation('vphone', function(val) { return Validators.validatePhone(val); });
+
+    const vpasswordField = document.getElementById('vpassword');
+    const vconfirmField = document.getElementById('vconfirm');
+    vpasswordField.addEventListener('input', function() {
+      const result = Validators.validatePassword(vpasswordField.value);
+      showPasswordStrength('vpassword', result);
+      showPasswordRequirements('vpassword', result);
+      if (vconfirmField.value && vconfirmField.value !== vpasswordField.value) { const msgEl = document.getElementById('vconfirm-msg'); if (msgEl) { msgEl.textContent = 'Passwords do not match'; msgEl.className = 'validation-message error'; } markFieldInvalid('vconfirm'); }
+      else if (vconfirmField.value && vconfirmField.value === vpasswordField.value) { const msgEl = document.getElementById('vconfirm-msg'); if (msgEl) { msgEl.className = 'validation-message hidden'; msgEl.textContent = ''; } markFieldValid('vconfirm'); }
+    });
+    vconfirmField.addEventListener('input', function() {
+      if (vconfirmField.value && vconfirmField.value !== vpasswordField.value) { const msgEl = document.getElementById('vconfirm-msg'); if (msgEl) { msgEl.textContent = 'Passwords do not match'; msgEl.className = 'validation-message error'; } markFieldInvalid('vconfirm'); }
+      else if (vconfirmField.value && vconfirmField.value === vpasswordField.value) { const msgEl = document.getElementById('vconfirm-msg'); if (msgEl) { msgEl.className = 'validation-message hidden'; msgEl.textContent = ''; } markFieldValid('vconfirm'); }
+    });
+
+    initFieldValidation('vskills', function(val) { return { valid: val.trim().length >= 2 && val.trim().length <= 100, message: 'Skills must be 2-100 characters.' }; });
+    initFieldValidation('vmsg', function(val) { return Validators.validateMessage(val); });
+  }
+  initVolunteerValidation();
 
   async function submitVolunteer(event) {
     event.preventDefault();
-
     const fullName = document.getElementById("vname").value.trim();
     const email = document.getElementById("vemail").value.trim();
     const skills = document.getElementById("vskills").value.trim();
@@ -284,183 +350,48 @@
     const role = document.getElementById("vrole").value;
 
     const nameRegex = /^[A-Za-z]+([ '.-][A-Za-z]+)*$/;
-    const emailRegex =
-      /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+    const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
 
-    if (fullName.length < 2) {
-      showCustomAlert("Full name must contain at least 2 characters.");
-      return;
-    }
+    if (fullName.length < 2) { showCustomAlert("Full name must contain at least 2 characters."); return; }
+    if (fullName.length > 50) { showCustomAlert("Full name must be 50 characters or fewer."); return; }
+    if (!nameRegex.test(fullName)) { showCustomAlert("Please enter a valid full name. Numbers and special characters such as @, #, $, and % are not allowed."); return; }
+    if (!emailRegex.test(email)) { showCustomAlert("Please enter a valid email address."); return; }
+    if (!volunteerPhoneInput.value.trim() || !volunteerPhone.isValidNumber()) { showCustomAlert("Please enter a valid phone number for the selected country."); return; }
+    if (!role) { showCustomAlert("Please select a role of interest."); return; }
+    if (password.length < 8) { showCustomAlert("Password must contain at least 8 characters."); return; }
+    if (password.length > 50) { showCustomAlert("Password must be 50 characters or fewer."); return; }
+    if (confirmPassword.length > 50) { showCustomAlert("Confirm password must be 50 characters or fewer."); return; }
+    if (password !== confirmPassword) { showCustomAlert("Passwords do not match."); return; }
+    if (skills.length < 2) { showCustomAlert("Please enter your skills or languages."); return; }
+    if (skills.length > 100) { showCustomAlert("Skills or languages must be 100 characters or fewer."); return; }
+    if (message && (message.length < 10 || message.length > 1000)) { if (message.length < 10) { showCustomAlert("Message must be at least 10 characters."); return; } if (message.length > 1000) { showCustomAlert("Message must be 1000 characters or fewer."); return; } }
 
-    if (fullName.length > 50) {
-      showCustomAlert("Full name must be 50 characters or fewer.");
-      return;
-    }
-
-    if (!nameRegex.test(fullName)) {
-      showCustomAlert(
-        "Please enter a valid full name. Numbers and special characters such as @, #, $, and % are not allowed."
-      );
-      return;
-    }
-
-    if (!emailRegex.test(email)) {
-      showCustomAlert("Please enter a valid email address.");
-      return;
-    }
-
-    if (
-      !volunteerPhoneInput.value.trim() ||
-      !volunteerPhone.isValidNumber()
-    ) {
-      showCustomAlert(
-        "Please enter a valid phone number for the selected country."
-      );
-      return;
-    }
-
-    if (!role) {
-      showCustomAlert("Please select a role of interest.");
-      return;
-    }
-
-    if (password.length < 8) {
-      showCustomAlert("Password must contain at least 8 characters.");
-      return;
-    }
-
-    if (password.length > 50) {
-      showCustomAlert("Password must be 50 characters or fewer.");
-      return;
-    }
-
-    if (confirmPassword.length > 50) {
-      showCustomAlert("Confirm password must be 50 characters or fewer.");
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      showCustomAlert("Passwords do not match.");
-      return;
-    }
-
-    if (skills.length < 2) {
-      showCustomAlert("Please enter your skills or languages.");
-      return;
-    }
-
-    if (skills.length > 100) {
-      showCustomAlert("Skills or languages must be 100 characters or fewer.");
-      return;
-    }
-
-    if (message && (message.length < 10 || message.length > 1000)) {
-      if (message.length < 10) {
-        showCustomAlert("Message must be at least 10 characters.");
-        return;
-      }
-      if (message.length > 1000) {
-        showCustomAlert("Message must be 1000 characters or fewer.");
-        return;
-      }
-    }
-
-    const data = {
-      full_name: fullName,
-      email: email,
-      phone: volunteerPhone.getNumber(),
-      role: role,
-      skills: skills,
-      message: message,
-      password: password
-    };
-
+    const data = { full_name: fullName, email: email, phone: volunteerPhone.getNumber(), role: role, skills: skills, message: message, password: password };
     const submitButton = event.target.querySelector('button[type="submit"]');
     const originalButtonText = submitButton.textContent;
-
     submitButton.disabled = true;
     submitButton.textContent = "Submitting...";
-
     try {
-      const response = await fetch(
-        API_BASE + "/api/application",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify(data)
-        }
-      );
-
+      const response = await fetch(API_BASE + "/api/application", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
       let result;
-
-      try {
-        result = await response.json();
-      } catch {
-        throw new Error("Invalid response received from the server.");
-      }
-
-      if (!response.ok || !result.success) {
-        const errorMessage =
-          result.error ||
-          result.message ||
-          "Failed to submit application. Please try again.";
-
-        showCustomAlert(errorMessage);
-        console.error(result);
-        return;
-      }
-
+      try { result = await response.json(); } catch { throw new Error("Invalid response received from the server."); }
+      if (!response.ok || !result.success) { const errorMessage = result.error || result.message || "Failed to submit application. Please try again."; showCustomAlert(errorMessage); console.error(result); return; }
       document.getElementById("formCard").style.display = "none";
-
       const successCard = document.getElementById("successCard");
       successCard.style.display = "block";
-
-      successCard.scrollIntoView({
-        behavior: "smooth",
-        block: "center"
-      });
-    } catch (error) {
-      console.error(error);
-
-      showCustomAlert(
-        error.message || "Something went wrong. Please try again."
-      );
-    } finally {
-      submitButton.disabled = false;
-      submitButton.textContent = originalButtonText;
-    }
+      successCard.scrollIntoView({ behavior: "smooth", block: "center" });
+    } catch (error) { console.error(error); showCustomAlert(error.message || "Something went wrong. Please try again."); }
+    finally { submitButton.disabled = false; submitButton.textContent = originalButtonText; }
   }
 
-  function showCustomAlert(message) {
-    const customAlert = document.getElementById("customAlert");
-    const customAlertMessage =
-      document.getElementById("customAlertMessage");
-
-    customAlertMessage.textContent = message;
-    customAlert.classList.add("show");
-  }
-
-  function closeCustomAlert() {
-    document.getElementById("customAlert").classList.remove("show");
-  }
+  function showCustomAlert(message) { const customAlert = document.getElementById("customAlert"); const customAlertMessage = document.getElementById("customAlertMessage"); customAlertMessage.textContent = message; customAlert.classList.add("show"); }
+  function closeCustomAlert() { document.getElementById("customAlert").classList.remove("show"); }
 
   const params = new URLSearchParams(window.location.search);
   const selectedRole = params.get("role");
-
   if (selectedRole) {
     const roleDropdown = document.getElementById("vrole");
-
-    if (roleDropdown) {
-      const matchingOption = Array.from(roleDropdown.options).find(
-        option => option.value === selectedRole
-      );
-
-      if (matchingOption) {
-        roleDropdown.value = selectedRole;
-      }
-    }
+    if (roleDropdown) { const matchingOption = Array.from(roleDropdown.options).find(option => option.value === selectedRole); if (matchingOption) { roleDropdown.value = selectedRole; } }
   }
 </script>
 

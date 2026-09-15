@@ -284,9 +284,7 @@
   </div>
 
   <script>
-    const API_BASE = ["localhost", "127.0.0.1", "::1"].includes(window.location.hostname)
-      ? "http://127.0.0.1:8787"
-      : "https://worker-api.seedsofsuccessngo.workers.dev";
+    const API_BASE = window.location.protocol === 'file:' || ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname) ? 'http://127.0.0.1:8787' : 'https://worker-api.seedsofsuccessngo.workers.dev';
 
     function escapeHTML(v) {
       return String(v ?? "")

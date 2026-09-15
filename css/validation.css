@@ -1,0 +1,203 @@
+/* ============================================================
+   Seeds of Success — Validation Styles
+   ============================================================ */
+
+/* Validation message base */
+.validation-message {
+  font-size: 13px;
+  margin-top: 4px;
+  min-height: 18px;
+  line-height: 1.4;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  overflow: hidden;
+}
+
+.validation-message.error {
+  color: #dc3545;
+  animation: slideDown 0.2s ease;
+}
+
+.validation-message.success {
+  color: #0d6e4f;
+  animation: slideDown 0.2s ease;
+}
+
+.validation-message.checking {
+  color: #6c757d;
+  animation: pulse 1s ease infinite;
+}
+
+.validation-message.hidden {
+  opacity: 0;
+  transform: translateY(-4px);
+  height: 0;
+  margin-top: 0;
+  min-height: 0;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* Password strength indicator */
+.password-strength {
+  margin-top: 6px;
+  min-height: 24px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: opacity 0.2s ease;
+}
+
+.password-strength-bar {
+  flex: 1;
+  max-width: 120px;
+  height: 4px;
+  background: #e8efec;
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
+}
+
+.password-strength-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.35s ease, background-color 0.35s ease;
+  width: 0%;
+}
+
+.password-strength-fill.weak {
+  width: 33%;
+  background-color: #dc3545;
+}
+
+.password-strength-fill.medium {
+  width: 66%;
+  background-color: #f5a623;
+}
+
+.password-strength-fill.strong {
+  width: 100%;
+  background-color: #0d6e4f;
+}
+
+.password-strength-label {
+  font-size: 12px;
+  font-weight: 600;
+  min-width: 55px;
+  transition: color 0.3s ease;
+}
+
+.password-strength-label.weak { color: #dc3545; }
+.password-strength-label.medium { color: #f5a623; }
+.password-strength-label.strong { color: #0d6e4f; }
+
+/* Password requirements list */
+.password-requirements {
+  margin-top: 6px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px 12px;
+  list-style: none;
+  padding: 0;
+  margin-left: 0;
+}
+
+.password-requirements li {
+  font-size: 12px;
+  color: #6c757d;
+  transition: color 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.password-requirements li.met {
+  color: #0d6e4f;
+}
+
+.password-requirements li .req-icon {
+  font-size: 11px;
+  flex-shrink: 0;
+}
+
+/* Field validation states */
+.form-group input.invalid,
+.form-group input.valid,
+.vol-group input.invalid,
+.vol-group input.valid,
+.donate-group input.invalid,
+.donate-group input.valid,
+.form-group textarea.invalid,
+.form-group textarea.valid {
+  border-color: #dc3545;
+}
+
+.form-group input.valid,
+.vol-group input.valid,
+.donate-group input.valid,
+.form-group textarea.valid {
+  border-color: #0d6e4f;
+}
+
+.form-group input.invalid,
+.vol-group input.invalid,
+.donate-group input.invalid,
+.form-group textarea.invalid {
+  border-color: #dc3545;
+}
+
+/* Remove default invalid styling */
+.form-group input:invalid:not(.touched),
+.vol-group input:invalid:not(.touched) {
+  border-color: #d8e2dd;
+}
+
+/* Field wrapper for inline messages */
+.field-wrapper {
+  position: relative;
+}
+
+/* Success checkmark indicator */
+.field-valid-indicator {
+  position: absolute;
+  right: 12px;
+  top: 38px;
+  font-size: 14px;
+  color: #0d6e4f;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+
+.field-valid-indicator.show {
+  opacity: 1;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .password-requirements {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .validation-message,
+  .password-strength-fill,
+  .field-valid-indicator {
+    animation: none !important;
+    transition: none !important;
+  }
+}

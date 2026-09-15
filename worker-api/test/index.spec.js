@@ -39,7 +39,7 @@ describe("Seeds of Success worker", () => {
 				role: "Technology Implementer",
 				skills: "Web",
 				message: "I can help.",
-				password: "password123",
+				password: "Password1!",
 			}),
 		});
 		const mockEnv = {
@@ -64,7 +64,7 @@ describe("Seeds of Success worker", () => {
 			message: "Application submitted successfully",
 		});
 		expect(boundValues[7]).toMatch(/^[a-f0-9]{64}$/);
-		expect(boundValues[7]).not.toBe("password123");
+		expect(boundValues[7]).not.toBe("Password1!");
 	});
 
 	it("rejects volunteer applications with an invalid email", async () => {
@@ -78,7 +78,7 @@ describe("Seeds of Success worker", () => {
 				role: "Technology Implementer",
 				skills: "Web",
 				message: "I can help.",
-				password: "password123",
+				password: "Password1!",
 			}),
 		});
 		const mockEnv = { sos_db: { prepare() { throw new Error("should not be called"); } } };
@@ -108,7 +108,7 @@ describe("Seeds of Success worker", () => {
 				role: "Technology Implementer",
 				skills: "Web",
 				message: "I can help.",
-				password: "password123",
+				password: "Password1!",
 			}),
 		});
 		const mockEnv = {
@@ -253,7 +253,7 @@ describe("Seeds of Success worker", () => {
 				role: "Technology Implementer",
 				skills: "Web",
 				message: "I can help.",
-				password: "password123",
+				password: "Password1!",
 			}),
 		});
 		const mockEnv = {
@@ -309,7 +309,7 @@ describe("Seeds of Success worker", () => {
 				role: "Technology Implementer",
 				skills: "Web",
 				message: "I can help.",
-				password: "password123",
+				password: "Password1!",
 			}),
 		});
 		const mockEnv = {
@@ -1397,4 +1397,121 @@ describe("Seeds of Success worker", () => {
 			vi.mocked(globalThis.fetch).mockRestore();
 		});
 	});
+
+	describe("email check endpoint", () => {
+		it("returns exists: false for a new email", async () => {
+			const request = new Request("http://example.com/api/check-email", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ email: "newuser@example.com" }),
+			});
+			const mockEnv = {
+				sos_db: {
+					prepare() {
+						return {
+							bind() {
+								return { first: async () => null };
+							},
+						};
+					},
+				},
+			};
+			const response = await worker.fetch(request, mockEnv);
+			expect(response.status).toBe(200);
+			const body = await response.json();
+			expect(body.exists).toBe(false);
+		});
+
+		it("returns exists: true for an existing email in user_accounts", async () => {
+			const request = new Request("http://example.com/api/check-email", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ email: "existing@example.com" }),
+			});
+			const mockEnv = {
+				sos_db: {
+					prepare() {
+						return {
+							bind() {
+								return { first: async () => ({ id: "user-1" }) };
+							},
+						};
+					},
+				},
+			};
+			const response = await worker.fetch(request, mockEnv);
+			expect(response.status).toBe(200);
+			const body = await response.json();
+			expect(body.exists).toBe(true);
+		});
+	});
+
+	describe("tutor signup validation", () => {
+		it("rejects tutor signup with invalid email", async () => {
+			const request = new Request("http://example.com/api/tutor-signup", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					full_name: "Test Tutor",
+					email: "not-an-email",
+					phone: "555-0100",
+					skills: "Math",
+					availability: "Weekends",
+					password: "Valid1!",
+				}),
+			});
+			const mockEnv = { sos_db: { prepare() { throw new Error("should not be called"); } } };
+			const response = await worker.fetch(request, mockEnv);
+			const body = await response.json();
+			expect(response.status).toBe(400);
+			expect(body.success).toBe(false);
+			expect(body.error).toContain("valid email");
+		});
+
+		it("rejects tutor signup with weak password", async () => {
+			const request = new Request("http://example.com/api/tutor-signup", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					full_name: "Test Tutor",
+					email: "valid@example.com",
+					phone: "555-0100",
+					skills: "Math",
+					availability: "Weekends",
+					password: "short",
+				}),
+			});
+			const mockEnv = { sos_db: { prepare() { throw new Error("should not be called"); } } };
+			const response = await worker.fetch(request, mockEnv);
+			const body = await response.json();
+			expect(response.status).toBe(400);
+			expect(body.success).toBe(false);
+			expect(body.error).toContain("Password");
+		});
+	});
+
+	describe("volunteer application password validation", () => {
+		it("rejects volunteer application with weak password", async () => {
+			const request = new Request("http://example.com/api/application", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					full_name: "Test Volunteer",
+					email: "volunteer@example.com",
+					phone: "555-0100",
+					role: "Technology Implementer",
+					skills: "Web",
+					message: "I can help.",
+					password: "weak",
+				}),
+			});
+			const mockEnv = { sos_db: { prepare() { throw new Error("should not be called"); } } };
+			const response = await worker.fetch(request, mockEnv);
+			const body = await response.json();
+			expect(response.status).toBe(400);
+			expect(body.success).toBe(false);
+			expect(body.error).toContain("Password");
+		});
+	});
 });
+
