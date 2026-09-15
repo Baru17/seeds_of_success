@@ -1,6 +1,6 @@
 /* ============================================================
-   Seeds of Success — Validation Utilities
-   ============================================================ */
+    Seeds of Success — Validation Utilities
+    ============================================================ */
 
 const Validators = {
   NAME_REGEX: /^[A-Za-z]+([ '.-][A-Za-z]+)*$/,
@@ -93,25 +93,28 @@ const Validators = {
   }
 };
 
-function showValidationMessage(fieldId, message, type) {
+function getMsgEl(fieldId) {
   const field = document.getElementById(fieldId);
-  if (!field) return;
+  if (!field) return null;
   const wrapper = field.closest('.form-group, .vol-group, .donate-group');
-  if (!wrapper) return;
-
+  if (!wrapper) return null;
   let msgEl = wrapper.querySelector('.validation-message');
   if (!msgEl) {
     msgEl = document.createElement('div');
     msgEl.className = 'validation-message hidden';
     wrapper.appendChild(msgEl);
   }
+  return msgEl;
+}
 
+function showValidationMessage(fieldId, message, type) {
+  const msgEl = getMsgEl(fieldId);
+  if (!msgEl) return;
   if (!message) {
     msgEl.className = 'validation-message hidden';
     msgEl.textContent = '';
     return;
   }
-
   msgEl.textContent = message;
   msgEl.className = 'validation-message ' + type;
 }
@@ -169,7 +172,7 @@ function showPasswordRequirements(fieldId, result) {
   ];
 
   reqEl.innerHTML = reqs.map(function(r) {
-    return '<li class="' + (r.met ? 'met' : '') + '"><span class="req-icon">' + (r.met ? '✓' : '○') + '</span> ' + r.label + '</li>';
+    return '<li class="' + (r.met ? 'met' : '') + '"><span class="req-icon">' + (r.met ? '\u2713' : '\u25CB') + '</span> ' + r.label + '</li>';
   }).join('');
 }
 
@@ -199,16 +202,20 @@ function clearFieldState(fieldId) {
 
 let emailCheckTimeouts = {};
 let lastEmailChecked = '';
+let emailCheckRequestSeq = {};
 
 function debounceEmailCheck(fieldId, email, callback) {
   const trimmed = email.trim().toLowerCase();
   if (emailCheckTimeouts[fieldId]) {
     clearTimeout(emailCheckTimeouts[fieldId]);
   }
+  const seq = (emailCheckRequestSeq[fieldId] || 0) + 1;
+  emailCheckRequestSeq[fieldId] = seq;
   emailCheckTimeouts[fieldId] = setTimeout(function() {
     if (trimmed !== lastEmailChecked && trimmed.length > 0) {
       lastEmailChecked = trimmed;
-      callback(trimmed);
+      const currentSeq = seq;
+      callback(trimmed, function() { return currentSeq === emailCheckRequestSeq[fieldId]; });
     }
   }, 500);
 }

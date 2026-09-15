@@ -1422,6 +1422,19 @@ describe("Seeds of Success worker", () => {
 			expect(body.exists).toBe(false);
 		});
 
+		it("returns exists: false for an empty email", async () => {
+			const request = new Request("http://example.com/api/check-email", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ email: "" }),
+			});
+			const mockEnv = { sos_db: { prepare() { throw new Error("should not be called"); } } };
+			const response = await worker.fetch(request, mockEnv);
+			expect(response.status).toBe(400);
+			const body = await response.json();
+			expect(body.exists).toBe(false);
+		});
+
 		it("returns exists: true for an existing email in user_accounts", async () => {
 			const request = new Request("http://example.com/api/check-email", {
 				method: "POST",
@@ -1443,6 +1456,89 @@ describe("Seeds of Success worker", () => {
 			expect(response.status).toBe(200);
 			const body = await response.json();
 			expect(body.exists).toBe(true);
+		});
+
+		it("returns exists: true for an existing email in tutor_applications", async () => {
+			const request = new Request("http://example.com/api/check-email", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ email: "tutor@example.com" }),
+			});
+			const mockEnv = {
+				sos_db: {
+					prepare() {
+						return {
+							bind() {
+								return { first: async () => ({ id: "tutor-1" }) };
+							},
+						};
+					},
+				},
+			};
+			const response = await worker.fetch(request, mockEnv);
+			expect(response.status).toBe(200);
+			const body = await response.json();
+			expect(body.exists).toBe(true);
+		});
+
+		it("returns exists: true for an existing email in volunteer_applications", async () => {
+			const request = new Request("http://example.com/api/check-email", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ email: "volunteer@example.com" }),
+			});
+			const mockEnv = {
+				sos_db: {
+					prepare() {
+						return {
+							bind() {
+								return { first: async () => ({ id: "vol-1" }) };
+							},
+						};
+					},
+				},
+			};
+			const response = await worker.fetch(request, mockEnv);
+			expect(response.status).toBe(200);
+			const body = await response.json();
+			expect(body.exists).toBe(true);
+		});
+
+		it("returns exists: true when email exists in all three tables", async () => {
+			const request = new Request("http://example.com/api/check-email", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ email: "all@example.com" }),
+			});
+			const mockEnv = {
+				sos_db: {
+					prepare(sql) {
+						return {
+							bind() {
+								if (sql.includes("user_accounts")) return { first: async () => ({ id: "u1" }) };
+								return { first: async () => null };
+							},
+						};
+					},
+				},
+			};
+			const response = await worker.fetch(request, mockEnv);
+			expect(response.status).toBe(200);
+			const body = await response.json();
+			expect(body.exists).toBe(true);
+		});
+
+		it("returns exists: false for invalid email format", async () => {
+			const request = new Request("http://example.com/api/check-email", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ email: "not-an-email" }),
+			});
+			const mockEnv = { sos_db: { prepare() { throw new Error("should not be called"); } } };
+			const response = await worker.fetch(request, mockEnv);
+			expect(response.status).toBe(400);
+			const body = await response.json();
+			expect(body.exists).toBe(false);
 		});
 	});
 

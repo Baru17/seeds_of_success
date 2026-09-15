@@ -230,7 +230,6 @@
           return true;
         }
         if (result.valid) {
-          if (msgEl) { msgEl.className = 'validation-message hidden'; msgEl.textContent = ''; }
           markFieldValid(fieldId);
           if (options.onValid) options.onValid(value);
           return true;
@@ -251,12 +250,14 @@
         onValid: function(val) {
           const trimmed = val.trim().toLowerCase();
           showCheckingState('email');
-          debounceEmailCheck('email', trimmed, function(email) {
+          debounceEmailCheck('email', trimmed, function(email, isCurrent) {
+            if (!isCurrent()) return;
             fetch(API_BASE + '/api/check-email', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email }) }).then(function(r) { return r.json(); }).then(function(data) {
+              if (!isCurrent()) return;
               const msgEl = document.getElementById('email-msg');
               if (data.exists) { if (msgEl) { msgEl.textContent = 'Email already exists'; msgEl.className = 'validation-message error'; } markFieldInvalid('email'); }
               else { if (msgEl) { msgEl.className = 'validation-message hidden'; msgEl.textContent = ''; } markFieldValid('email'); }
-            }).catch(function() { const msgEl = document.getElementById('email-msg'); if (msgEl) msgEl.className = 'validation-message hidden'; });
+            }).catch(function() { if (!isCurrent()) return; const msgEl = document.getElementById('email-msg'); if (msgEl) msgEl.className = 'validation-message hidden'; });
           });
         }
       });
