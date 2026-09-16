@@ -154,35 +154,63 @@
 </section>
 
 <div class="form-card donate-card zelle-card" id="zelleCard" style="display:none;" aria-live="polite">
-  <div class="success-badge">✓</div>
-  <h2>Thank you for your donation!</h2>
-  <div class="lead"></div>
-
+  <h2>Complete Your Donation</h2>
+  <p class="zelle-subtitle">You're almost there!</p>
   <p class="zelle-intro">
-    Your donation information has been successfully submitted. Your intended donation has been recorded — it is not yet complete.
+    Your donation is not complete yet. To finish your donation,<br />
+    please make your payment through Zelle using the options below.
   </p>
 
-  <p class="zelle-title">You can now complete your donation through Zelle.</p>
-
-  <div class="zelle-email-box">
-    <span class="zelle-email-label">Pay by email:</span>
-    <a class="zelle-email" href="mailto:seedsofsuccess@soslearn.org">seedsofsuccess@soslearn.org</a>
-    <button type="button" class="copy-btn" id="copyEmailBtn" aria-label="Copy Zelle email">Copy</button>
+  <div class="zelle-payment-card">
+    <div class="zelle-card-header">
+      Complete Your Donation via Zelle
+    </div>
+    <div class="zelle-card-body">
+      <div class="zelle-card-left">
+        <div class="qr-box">
+          <img src="Images/zelle-qr.png" alt="QR code for sending your donation through Zelle to seedsofsuccess@soslearn.org" />
+        </div>
+        <p class="zelle-qr-instruction">Scan the QR code with your<br />banking app and select Zelle.</p>
+      </div>
+      <div class="zelle-card-right">
+        <div class="zelle-brand">
+          <img src="Images/Zelle.png" alt="Zelle logo" />
+        </div>
+        <p class="zelle-send-label">Or send your donation to:</p>
+        <div class="zelle-email-box">
+          <span class="zelle-email-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <rect x="3" y="5" width="18" height="14" rx="1.5"></rect>
+              <path d="M4 6.5L12 12.8L20 6.5"></path>
+            </svg>
+          </span>
+          <a class="zelle-email" href="mailto:seedsofsuccess@soslearn.org">seedsofsuccess@soslearn.org</a>
+        </div>
+        <p class="zelle-email-instruction">Use the email address above<br />in your Zelle app to make your payment.</p>
+      </div>
+    </div>
   </div>
 
-  <p class="zelle-or">Or scan the QR code below.</p>
-
-  <div class="qr-box">
-    <img src="Images/zelle-qr.png" alt="QR code for sending your donation through Zelle to seedsofsuccess@soslearn.org" />
+  <div class="zelle-warning">
+    <div class="warning-icon" aria-hidden="true">!</div>
+    <div class="warning-copy">
+      <p>Your donation is complete only after<br />your Zelle payment has been successfully sent.</p>
+    </div>
   </div>
 
-  <p class="zelle-note">
-    Please complete your Zelle payment to finalize your donation.
-  </p>
-
-  <div class="form-buttons">
-    <a href="index.html" class="btn btn-primary">Back to Home</a>
+  <div class="zelle-acknowledgment">
+    <div class="ack-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <rect x="3" y="5" width="18" height="14" rx="1.5"></rect>
+        <path d="M4 6.5L12 12.8L20 6.5"></path>
+      </svg>
+    </div>
+    <div class="ack-copy">
+      <p>Once your payment is received,<br />Seeds of Success will send you a donation<br />acknowledgment/receipt by email.</p>
+    </div>
   </div>
+
+  <p class="zelle-support-message">Your support helps us expand access to<br />practical English education for children<br />in rural Tamil Nadu.</p>
 </div>
 
 <section class="support-section">
@@ -291,12 +319,6 @@
     button.addEventListener("click", () => { const value = button.dataset.amount; amountInput.value = value; presetButtons.forEach((item) => item.classList.toggle("active", item === button)); amountInput.focus(); });
   });
 
-  document.getElementById("copyEmailBtn").addEventListener("click", async (e) => {
-    const btn = e.currentTarget;
-    try { await navigator.clipboard.writeText(ZELLE_EMAIL); } catch (err) { const textarea = document.createElement("textarea"); textarea.value = ZELLE_EMAIL; textarea.style.position = "fixed"; textarea.style.opacity = "0"; document.body.appendChild(textarea); textarea.select(); document.execCommand("copy"); document.body.removeChild(textarea); }
-    const original = btn.textContent; btn.textContent = "Copied!"; btn.disabled = true; setTimeout(() => { btn.textContent = original; btn.disabled = false; }, 1600);
-  });
-
   function setLoading(btn, loading, loadingText) { if (loading) { btn.dataset.origText = btn.textContent; btn.disabled = true; btn.textContent = loadingText || "Submitting..."; } else { btn.disabled = false; btn.textContent = btn.dataset.origText || "Continue to Zelle"; } }
 
   function initFieldValidation(fieldId, validatorFn) {
@@ -342,7 +364,7 @@
       if (!response.ok || !result.success) { const errorMessage = result.error || result.message || "Failed to submit your donation. Please try again."; showCustomAlert(errorMessage); console.error(result); return; }
       formCard.style.display = "none";
       zelleCard.style.display = "block";
-      zelleCard.scrollIntoView({ behavior: "smooth", block: "center" });
+      zelleCard.scrollIntoView({ behavior: "smooth", block: "start" });
     } catch (error) { console.error(error); showCustomAlert(error.message || "Something went wrong. Please try again."); }
     finally { setLoading(btn, false); }
   }
