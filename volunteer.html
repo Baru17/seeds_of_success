@@ -308,15 +308,15 @@
     initFieldValidation('vemail', function(val) { return Validators.validateEmail(val); }, {
       onValid: function(val) {
         const trimmed = val.trim().toLowerCase();
-        showCheckingState('vemail');
         debounceEmailCheck('vemail', trimmed, function(email, isCurrent) {
           if (!isCurrent()) return;
           fetch(API_BASE + '/api/check-email', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email }) }).then(function(r) { return r.json(); }).then(function(data) {
             if (!isCurrent()) return;
             const msgEl = document.getElementById('vemail-msg');
+            hideCheckingState('vemail');
             if (data.exists) { if (msgEl) { msgEl.textContent = 'Email already exists'; msgEl.className = 'validation-message error'; } markFieldInvalid('vemail'); }
             else { if (msgEl) { msgEl.className = 'validation-message hidden'; msgEl.textContent = ''; } markFieldValid('vemail'); }
-          }).catch(function() { if (!isCurrent()) return; const msgEl = document.getElementById('vemail-msg'); if (msgEl) msgEl.className = 'validation-message hidden'; });
+          }).catch(function() { if (!isCurrent()) return; hideCheckingState('vemail'); const msgEl = document.getElementById('vemail-msg'); if (msgEl) msgEl.className = 'validation-message hidden'; });
         });
       }
     });

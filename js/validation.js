@@ -215,6 +215,7 @@ function debounceEmailCheck(fieldId, email, callback) {
     if (trimmed !== lastEmailChecked && trimmed.length > 0) {
       lastEmailChecked = trimmed;
       const currentSeq = seq;
+      showCheckingState(fieldId);
       callback(trimmed, function() { return currentSeq === emailCheckRequestSeq[fieldId]; });
     }
   }, 500);
@@ -222,6 +223,15 @@ function debounceEmailCheck(fieldId, email, callback) {
 
 function showCheckingState(fieldId) {
   showValidationMessage(fieldId, 'Checking...', 'checking');
+}
+
+function hideCheckingState(fieldId) {
+  const msgEl = getMsgEl(fieldId);
+  if (!msgEl) return;
+  if (msgEl.textContent === 'Checking...') {
+    msgEl.className = 'validation-message hidden';
+    msgEl.textContent = '';
+  }
 }
 
 window.Validators = Validators;
@@ -233,3 +243,4 @@ window.markFieldInvalid = markFieldInvalid;
 window.clearFieldState = clearFieldState;
 window.debounceEmailCheck = debounceEmailCheck;
 window.showCheckingState = showCheckingState;
+window.hideCheckingState = hideCheckingState;
