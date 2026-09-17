@@ -39,11 +39,11 @@
 	 * https://developers.cloudflare.com/workers/configuration/secrets/
 	 */
 	"vars": {
-		"CONTACT_RECIPIENT_EMAIL": "contact@soslearn.org",
-		"VOLUNTEER_NOTIFICATION_EMAIL": "volunteer@soslearn.org",
-		"DONATION_RECIPIENT_EMAIL": "donations@soslearn.org",
-		"EMAIL_FROM_ADDRESS": "Seeds of Success <noreply@soslearn.org>"
-	}
+  "CONTACT_RECIPIENT_EMAIL": "bdharan06@gmail.com",
+  "VOLUNTEER_NOTIFICATION_EMAIL": "bdharan06@gmail.com",
+  "DONATION_RECIPIENT_EMAIL": "bdharan06@gmail.com",
+  "EMAIL_FROM_ADDRESS": "Seeds of Success <noreply@soslearn.org>"
+}
 	/**
 	 * Static Assets
 	 * https://developers.cloudflare.com/workers/static-assets/binding/
