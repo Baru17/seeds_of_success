@@ -186,8 +186,8 @@
     const email = document.getElementById("email").value.trim();
     const subject = document.getElementById("subject").value.trim();
     const message = document.getElementById("message").value.trim();
-    if (fullName.length < 2) { showCustomAlert("Please enter your full name (at least 2 characters)."); return; }
-    if (!/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(email)) { showCustomAlert("Please enter a valid email address."); return; }
+if (!Validators.validateName(fullName).valid) { showCustomAlert("Please enter a valid full name (letters only)."); return; }
+     if (!/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(email)) { showCustomAlert("Please enter a valid email address."); return; }
     if (subject.length < 2) { showCustomAlert("Please enter a subject (at least 2 characters)."); return; }
     if (message.length < 10) { showCustomAlert("Please enter a message (at least 10 characters)."); return; }
     const submitButton = event.target.querySelector('button[type="submit"]');
