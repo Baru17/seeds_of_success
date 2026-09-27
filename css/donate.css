@@ -450,6 +450,7 @@ body {
   gap: 0;
   padding: 22px 24px 14px;
   background: #ecf4ee;
+  min-width: 0;
 }
 
 .zelle-card-left,
@@ -459,6 +460,7 @@ body {
   align-items: center;
   justify-content: flex-start;
   text-align: center;
+  min-width: 0;
 }
 
 .zelle-card-left {
@@ -514,8 +516,8 @@ body {
   gap: 12px;
   min-height: 48px;
   width: min(100%, 360px);
+  box-sizing: border-box;
   margin-bottom: 10px;
-  overflow: hidden;
 }
 
 .zelle-email-icon {
@@ -543,10 +545,9 @@ body {
   font-weight: 700;
   font-size: clamp(0.84rem, 1.6vw, 1rem);
   line-height: 1.2;
-  white-space: nowrap;
+  min-width: 0;
+  overflow-wrap: anywhere;
   text-decoration: none;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .zelle-qr-instruction,
@@ -735,6 +736,20 @@ body {
     padding: 16px 16px 12px;
   }
 
+  .qr-box {
+    display: block;
+    max-width: 100%;
+    box-sizing: border-box;
+    width: fit-content;
+    margin-inline: auto;
+  }
+
+  .qr-box img {
+    width: min(190px, 100%);
+    height: auto;
+    aspect-ratio: 1;
+  }
+
   .zelle-card-left {
     padding-right: 0;
     border-right: none;
@@ -746,6 +761,7 @@ body {
     align-items: center;
     margin-top: 0;
     padding-left: 0;
+    padding-right: 0;
     padding-top: 18px;
     text-align: center;
   }
@@ -757,6 +773,27 @@ body {
 
   .zelle-email-instruction {
     text-align: center;
+  }
+
+  .zelle-email-box {
+    width: 100%;
+    max-width: 360px;
+    gap: 6px;
+    padding-inline: 8px;
+  }
+
+  .zelle-email {
+    font-size: 0.68rem;
+    white-space: nowrap;
+    overflow: visible;
+    text-overflow: clip;
+    letter-spacing: -0.02em;
+  }
+
+  .zelle-email-icon,
+  .zelle-email-icon svg {
+    width: 24px;
+    height: 24px;
   }
 
   .zelle-warning,
@@ -798,11 +835,6 @@ body {
     font-size: 1.9rem;
   }
 
-  .qr-box img {
-    width: 190px;
-    height: 190px;
-  }
-
   .zelle-warning p,
   .zelle-warning p {
     font-size: 0.95rem;
@@ -811,6 +843,22 @@ body {
   .zelle-acknowledgment p,
   .zelle-support-message {
     font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 300px) {
+  .zelle-email-box {
+    gap: 0;
+    padding-inline: 4px;
+  }
+
+  .zelle-email-icon {
+    display: none;
+  }
+
+  .zelle-email {
+    font-size: 0.4rem;
+    letter-spacing: -0.03em;
   }
 }
 
