@@ -385,8 +385,9 @@ body {
 
 .zelle-card {
   max-width: 900px;
-  margin: 0 auto 28px;
-  scroll-margin-top: 50px;
+  width: calc(100% - 48px);
+  margin: 48px auto 28px;
+  scroll-margin-top: 90px;
   background: #f8faf7;
   border-radius: 20px;
   border: 1px solid rgba(13, 110, 79, 0.08);
@@ -397,10 +398,10 @@ body {
 .zelle-card h2 {
   color: var(--sos-green);
   font-family: "Playfair Display", serif;
-  font-size: clamp(2.6rem, 4vw, 4rem);
-  line-height: 1.08;
+  font-size: clamp(2rem, 2.8vw, 2.75rem);
+  line-height: 1.15;
   margin: 0 0 6px;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.03em;
 }
 
 .zelle-subtitle {
@@ -722,10 +723,11 @@ body {
 @media (max-width: 720px) {
   .zelle-card {
     padding: 16px 14px 8px;
+    margin-top: 32px;
   }
 
   .zelle-card h2 {
-    font-size: clamp(2.2rem, 7vw, 3.2rem);
+    font-size: clamp(1.85rem, 5.2vw, 2.4rem);
   }
 
   .zelle-card-body {
