@@ -349,6 +349,7 @@ async function sendDonationVerifiedEmail(env, donation) {
       '<div style="font-family:sans-serif;max-width:600px">',
       '<p style="color:#333;line-height:1.7">Hi ' + escapeHtml(donation.full_name) + ',</p>',
       '<p style="color:#333;line-height:1.7">Thank you for your generous donation of <strong>$' + escapeHtml(dollars) + '</strong> to Seeds of Success!</p>',
+      '<p style="color:#333;line-height:1.7">Phone Number: ' + escapeHtml(donation.phone_number || "Not provided") + '</p>',
       '<p style="color:#333;line-height:1.7">We have verified your payment and your donation has been recorded. Your support helps us connect Tamil-origin tutors with rural children in Tamil Nadu.</p>',
       '<p style="color:#333;line-height:1.7">Best regards,</p>',
       '<p style="color:#0d6e4f;font-weight:600">Seeds of Success Team</p>',
@@ -399,6 +400,7 @@ async function sendDonationNotificationEmail(env, donation) {
       '<table style="width:100%;border-collapse:collapse">',
       '<tr><td style="padding:8px 12px;font-weight:600;color:#0d6e4f;border-bottom:1px solid #e6efeb">Full Name</td><td style="padding:8px 12px;border-bottom:1px solid #e6efeb">' + escapeHtml(donation.full_name) + '</td></tr>',
       '<tr><td style="padding:8px 12px;font-weight:600;color:#0d6e4f;border-bottom:1px solid #e6efeb">Email</td><td style="padding:8px 12px;border-bottom:1px solid #e6efeb">' + escapeHtml(donation.email) + '</td></tr>',
+      '<tr><td style="padding:8px 12px;font-weight:600;color:#0d6e4f;border-bottom:1px solid #e6efeb">Phone Number</td><td style="padding:8px 12px;border-bottom:1px solid #e6efeb">' + escapeHtml(donation.phone_number || "Not provided") + '</td></tr>',
       '<tr><td style="padding:8px 12px;font-weight:600;color:#0d6e4f;border-bottom:1px solid #e6efeb">Amount</td><td style="padding:8px 12px;border-bottom:1px solid #e6efeb">$' + escapeHtml(dollars) + '</td></tr>',
       '</table>',
       '<hr style="border:none;border-top:1px solid #e6efeb;margin-top:24px">',
@@ -3533,6 +3535,7 @@ export default {
             {
               full_name: fullName,
               email,
+              phone_number: phoneNumber,
               amount_dollars: amountDollars
             }
           );
@@ -3671,6 +3674,7 @@ export default {
               id,
               full_name,
               email,
+              phone_number,
               amount_dollars,
               COALESCE(status, 'pending') AS status
             FROM donations
@@ -3753,6 +3757,8 @@ export default {
                   donation.full_name,
                 email:
                   donation.email,
+                phone_number:
+                  donation.phone_number,
                 amount_dollars:
                   donation.amount_dollars
               }

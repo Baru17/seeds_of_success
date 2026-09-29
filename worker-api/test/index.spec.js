@@ -408,6 +408,121 @@ describe("Seeds of Success worker", () => {
 			expect(boundValues[3]).toBe("+1 555 123 4567");
 		});
 
+		it("carries an optional phone through insert, emails, and admin donations", async () => {
+			const emailRequests = [];
+			const fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation(async (_url, init) => {
+				emailRequests.push(JSON.parse(init.body));
+				return new Response(JSON.stringify({ id: "email-1" }), { status: 200 });
+			});
+
+			try {
+				for (const phoneNumber of ["+15551234567", null]) {
+					const emailRequestStart = emailRequests.length;
+					const donations = [];
+					let insertSql = "";
+					let adminListSql = "";
+					const adminSession = {
+						session_id: "session-1",
+						user_id: "admin-1",
+						expires_at: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
+						role: "admin",
+						status: "active",
+						email: "admin@example.com",
+						full_name: "Admin User",
+					};
+					const db = {
+						sos_db: {
+							prepare(sql) {
+								let values = [];
+								return {
+									bind(...boundValues) {
+										values = boundValues;
+										return {
+											run: async () => {
+												if (/INSERT INTO donations/i.test(sql)) {
+													insertSql = sql;
+													donations.push({
+														id: values[0],
+														full_name: values[1],
+														email: values[2],
+														phone_number: values[3],
+														amount_dollars: values[4],
+														created_at: values[5],
+														status: "pending",
+													});
+												} else if (/UPDATE donations/i.test(sql)) {
+													const donation = donations.find((item) => item.id === values[3]);
+													if (donation) donation.status = values[0];
+												}
+												return { success: true };
+											},
+											first: async () => {
+												if (/FROM admin_sessions s/i.test(sql)) return adminSession;
+												if (/FROM donations/i.test(sql)) return donations.find((item) => item.id === values[0]) || null;
+												return null;
+											},
+											all: async () => {
+												if (/FROM donations/i.test(sql)) {
+													adminListSql = sql;
+													return { results: donations };
+												}
+												return { results: [] };
+											},
+										};
+									},
+								};
+							},
+						},
+					};
+					const phoneBody = phoneNumber === null ? {} : { phone_number: phoneNumber };
+					const env = {
+						...db,
+						DONATION_RECIPIENT_EMAIL: "donations@example.com",
+						RESEND_API_KEY: "test-key",
+						EMAIL_FROM_ADDRESS: "onboarding@resend.dev",
+					};
+
+					const postResponse = await worker.fetch(
+						new Request("http://example.com/api/donations", {
+							method: "POST",
+							headers: { "Content-Type": "application/json" },
+							body: JSON.stringify(donationBody(phoneBody)),
+						}),
+						env
+					);
+					expect(postResponse.status).toBe(201);
+					const insertedDonation = donations[0];
+					expect(insertSql).toMatch(/phone_number/i);
+					expect(insertedDonation.phone_number).toBe(phoneNumber);
+					expect(emailRequests[emailRequestStart].html).toContain(phoneNumber || "Not provided");
+
+					const adminResponse = await worker.fetch(
+						new Request("http://example.com/api/admin/donations", {
+							headers: { Authorization: "Bearer valid-token" },
+						}),
+						env
+					);
+					expect(adminResponse.status).toBe(200);
+					expect(adminListSql).toMatch(/phone_number/i);
+					expect((await adminResponse.json()).donations[0].phone_number).toBe(phoneNumber);
+
+					const verifyResponse = await worker.fetch(
+						new Request("http://example.com/api/admin/donations/" + insertedDonation.id + "/status", {
+							method: "PATCH",
+							headers: { "Authorization": "Bearer valid-token", "Content-Type": "application/json" },
+							body: JSON.stringify({ status: "verified" }),
+						}),
+						env
+					);
+					expect(verifyResponse.status).toBe(200);
+					expect(emailRequests[emailRequestStart + 1].to).toEqual(["jane@example.com"]);
+					expect(emailRequests[emailRequestStart + 1].html).toContain(phoneNumber || "Not provided");
+				}
+			} finally {
+				fetchSpy.mockRestore();
+			}
+		});
+
 		it("accepts valid Unicode donation names", async () => {
 			for (const full_name of ["John Smith", "Mary-Jane Watson", "O'Connor", "José Silva", "José O'Connor", "தமிழ் பெயர்"]) {
 				const response = await worker.fetch(new Request("http://example.com/api/donations", {
