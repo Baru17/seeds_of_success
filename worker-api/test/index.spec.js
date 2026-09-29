@@ -387,9 +387,25 @@ describe("Seeds of Success worker", () => {
 			expect(boundValues[0]).toMatch(/^[a-f0-9-]{36}$/);
 			expect(boundValues[1]).toBe("Jane Donor");
 			expect(boundValues[2]).toBe("jane@example.com");
-			expect(boundValues[3]).toBe(50);
-			expect(typeof boundValues[3]).toBe("number");
-			expect(boundValues[4]).toMatch(/^\d{4}-\d{2}-\d{2}T/);
+			expect(boundValues[3]).toBeNull();
+			expect(boundValues[4]).toBe(50);
+			expect(typeof boundValues[4]).toBe("number");
+			expect(boundValues[5]).toMatch(/^\d{4}-\d{2}-\d{2}T/);
+		});
+
+		it("stores an optional phone number", async () => {
+			let boundValues = [];
+			const response = await worker.fetch(
+				new Request("http://example.com/api/donations", {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify(donationBody({ phone_number: "+1 555 123 4567" })),
+				}),
+				mockDb({ onRun: (values) => { boundValues = values; return { success: true }; } })
+			);
+
+			expect(response.status).toBe(201);
+			expect(boundValues[3]).toBe("+1 555 123 4567");
 		});
 
 		it("accepts valid Unicode donation names", async () => {
@@ -531,7 +547,7 @@ describe("Seeds of Success worker", () => {
 					method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(donationBody({ amount })),
 				}), mockDb({ onRun: (values) => { boundValues = values; return { success: true }; } }));
 				expect(response.status).toBe(201);
-				expect(boundValues[3]).toBe(Number(amount));
+				expect(boundValues[4]).toBe(Number(amount));
 			}
 		});
 
@@ -1126,7 +1142,8 @@ describe("Seeds of Success worker", () => {
 
 		it("returns donations for authenticated admin", async () => {
 			const donations = [
-				{ id: "d-1", full_name: "Jane Donor", email: "jane@test.com", amount_dollars: 50, status: "pending", created_at: "2026-01-01T00:00:00Z" },
+				{ id: "d-1", full_name: "Jane Donor", email: "jane@test.com", phone_number: "+1 555 123 4567", amount_dollars: 50, status: "pending", created_at: "2026-01-01T00:00:00Z" },
+				{ id: "d-2", full_name: "Older Donor", email: "older@test.com", phone_number: null, amount_dollars: 25, status: "verified", created_at: "2025-12-01T00:00:00Z" },
 			];
 			const db = authedDb([
 				[/FROM donations/, () => donations],

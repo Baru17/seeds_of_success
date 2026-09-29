@@ -189,6 +189,7 @@
             <tr>
               <th>Name</th>
               <th>Email</th>
+              <th>Phone Number</th>
               <th>Amount</th>
               <th>Date</th>
               <th>Status</th>
@@ -196,7 +197,7 @@
             </tr>
           </thead>
           <tbody id="donationsBody">
-            <tr><td colspan="6" class="empty-row">Loading...</td></tr>
+            <tr><td colspan="7" class="empty-row">Loading...</td></tr>
           </tbody>
         </table>
       </div>
@@ -515,7 +516,7 @@
     /* =================== DONATIONS =================== */
     async function loadDonations() {
       var body = document.getElementById("donationsBody");
-      body.innerHTML = '<tr><td colspan="6" class="empty-row">Loading...</td></tr>';
+      body.innerHTML = '<tr><td colspan="7" class="empty-row">Loading...</td></tr>';
       try {
         var search = document.getElementById("donationSearch").value;
         var status = document.getElementById("donationFilter").value;
@@ -526,7 +527,7 @@
         var res = await apiFetch("/api/admin/donations" + (qs ? "?" + qs : ""));
         var items = res.donations || [];
         if (!items.length) {
-          body.innerHTML = '<tr><td colspan="6" class="empty-row">No donations found.</td></tr>';
+          body.innerHTML = '<tr><td colspan="7" class="empty-row">No donations found.</td></tr>';
           return;
         }
         body.innerHTML = items.map(function(d) {
@@ -535,6 +536,7 @@
           return '<tr>'
             + '<td>' + escapeHTML(d.full_name) + '</td>'
             + '<td>' + escapeHTML(d.email) + '</td>'
+            + '<td>' + escapeHTML(d.phone_number || '\u2014') + '</td>'
             + '<td>$' + escapeHTML(dollars) + '</td>'
             + '<td>' + escapeHTML(date) + '</td>'
             + '<td>' + pill(d.status) + '</td>'
@@ -546,7 +548,7 @@
             + '</td></tr>';
         }).join("");
       } catch (e) {
-        body.innerHTML = '<tr><td colspan="6" class="empty-row">Error loading data.</td></tr>';
+        body.innerHTML = '<tr><td colspan="7" class="empty-row">Error loading data.</td></tr>';
         showSectionMessage("donations", e.message || "Failed to load donations.", "error");
       }
     }

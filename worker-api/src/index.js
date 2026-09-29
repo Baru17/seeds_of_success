@@ -3394,6 +3394,9 @@ export default {
         const email =
           String(data.email || "").trim();
 
+        const phoneNumber =
+          String(data.phone_number || "").trim() || null;
+
         let amountDollars;
 
         if (
@@ -3495,13 +3498,15 @@ export default {
 
             email,
 
+            phone_number,
+
             amount_dollars,
 
             created_at
 
           )
 
-          VALUES (?, ?, ?, ?, ?)
+          VALUES (?, ?, ?, ?, ?, ?)
         `)
 
         .bind(
@@ -3511,6 +3516,8 @@ export default {
           fullName,
 
           email,
+
+          phoneNumber,
 
           amountDollars,
 
@@ -3589,6 +3596,7 @@ export default {
             id,
             full_name,
             email,
+            phone_number,
             amount_dollars,
             COALESCE(status, 'pending') AS status,
             verified_at,

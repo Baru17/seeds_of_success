@@ -1,360 +1,630 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" type="image/jpeg" href="Images/SeedsOfSuccess_pic.jpeg" />
-  <title>Our Team | Seeds of Success</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/jpeg" href="Images/SeedsOfSuccess_pic.jpeg" />
+    <title>Our Team | Seeds of Success</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
 
-  <link rel="stylesheet" href="css/common.css" />
-  <link rel="stylesheet" href="css/ourteam.css" /></head>
+    <link rel="stylesheet" href="css/common.css" />
+    <link rel="stylesheet" href="css/ourteam.css" />
+  </head>
 
-<body>
+  <body>
+    <!-- ============== HEADER ============== -->
+    <header class="site-header">
+      <div class="container nav-wrap">
+        <a href="index.html" class="brand">
+          <img
+            src="Images/SeedsOfSuccess_pic.jpeg"
+            alt="Seeds of Success logo"
+            class="brand-mark"
+          />
+          <span>Seeds of Success</span>
+        </a>
+        <button class="hamburger" id="hamburger" aria-label="Open menu">
+          <span></span><span></span><span></span>
+        </button>
+        <ul class="nav-links" id="navLinks">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="ourteam.html" class="active">Our Team</a></li>
+          <li><a href="ourstudents.html">Our Students</a></li>
+          <li><a href="getinvolved.html">Get Involved</a></li>
+          <li><a href="login.html">Login</a></li>
+          <li><a href="donate.html">Donate</a></li>
+          <li><a href="volunteer.html" class="nav-cta">Volunteer</a></li>
+        </ul>
+      </div>
+    </header>
 
-  <!-- ============== HEADER ============== -->
-  <header class="site-header">
-    <div class="container nav-wrap">
-      <a href="index.html" class="brand">
-        <img src="Images/SeedsOfSuccess_pic.jpeg" alt="Seeds of Success logo" class="brand-mark" />
-        <span>Seeds of Success</span>
-      </a>
-      <button class="hamburger" id="hamburger" aria-label="Open menu">
-        <span></span><span></span><span></span>
-      </button>
-      <ul class="nav-links" id="navLinks">
-        <li><a href="index.html">Home</a></li>
-        <li><a href="about.html">About</a></li>
-        <li><a href="ourteam.html" class="active">Our Team</a></li>
-        <li><a href="ourstudents.html">Our Students</a></li>
-        <li><a href="getinvolved.html">Get Involved</a></li>
-        <li><a href="login.html">Login</a></li>
-        <li><a href="donate.html">Donate</a></li>
-        <li><a href="volunteer.html" class="nav-cta">Volunteer</a></li>
-      </ul>
-    </div>
-  </header>
+    <!-- ============== PAGE HERO ============== -->
+    <section class="page-hero">
+      <div class="container page-hero-inner">
+        <h1>Meet The Team</h1>
+        <p>Meet the team behind our mission.</p>
+      </div>
+    </section>
 
-  <!-- ============== PAGE HERO ============== -->
-  <section class="page-hero">
-    <div class="container page-hero-inner">
-      <h1>Meet The Team</h1>
-      <p>Meet the team behind our mission.</p>
-    </div>
-  </section>
-
-  <!-- ============== FOUNDERS ============== -->
-  <section class="section">
-    <div class="container">
-      <!-- <div class="section-title">
+    <!-- ============== FOUNDERS ============== -->
+    <section class="section">
+      <div class="container">
+        <!-- <div class="section-title">
         <h2>Our Founders</h2>
         <p>The visionaries who started this journey to empower rural Tamil Nadu children.</p>
       </div> -->
 
-      <div class="team-grid">
+        <div class="team-grid">
+          <div class="team-card" data-member="mithra">
+            <div class="avatar">
+              <img src="Images/Mithra_Pic.avif" alt="Mithra Venkatesan" />
+            </div>
+            <h3>Mithra Venkatesan</h3>
+            <span class="role">Founder, Program Coordinator, Tutor</span>
 
-        <div class="team-card" data-member="mithra">
-          <div class="avatar"><img src="Images/Mithra_Pic.avif" alt="Mithra Venkatesan"></div>
-          <h3>Mithra Venkatesan</h3>
-          <span class="role">Founder, Program Coordinator, Tutor</span>
+            <div class="member-details" style="display: none">
+              <button
+                type="button"
+                class="member-close"
+                aria-label="Close"
+                title="Close"
+              >
+                ✕
+              </button>
+              <p
+                style="
+                  margin-top: 12px;
+                  font-size: 14px;
+                  line-height: 1.7;
+                  color: #3e4d49;
+                  max-width: 340px;
+                  margin-left: auto;
+                  margin-right: auto;
+                "
+              >
+                Mithra is a junior at South Lakes High School in Herndon,
+                Virginia. She is a gymnast, cheerleader, tennis player, and
+                aspires to pursue a career in medicine. Mithra had the unique
+                privilege of studying for a few years in Tamil Nadu during her
+                formative years, so she is naturally well-versed in the Tamil
+                language and culture.
+              </p>
+              <p
+                style="
+                  margin-top: 10px;
+                  font-size: 14px;
+                  line-height: 1.7;
+                  color: #3e4d49;
+                  max-width: 340px;
+                  margin-left: auto;
+                  margin-right: auto;
+                "
+              >
+                Witnessing firsthand the economic and educational doors that
+                English fluency opened for her peers, especially in rural areas,
+                instilled in her a deep understanding of the need for
+                bilingualism and a sense of responsibility to the
+                underprivileged by starting Seeds of Success.
+              </p>
+            </div>
+          </div>
 
-          <div class="member-details" style="display:none;">
-            <button type="button" class="member-close" aria-label="Close" title="Close">✕</button>
-            <p style="margin-top: 12px; font-size: 14px; line-height: 1.7; color: #3e4d49; max-width: 340px; margin-left: auto; margin-right: auto;">
-              Mithra is a junior at South Lakes High School in Herndon, Virginia. She is a gymnast, cheerleader, tennis player, and aspires to pursue a career in medicine. Mithra had the unique privilege of studying for a few years in Tamil Nadu during her formative years, so she is naturally well-versed in the Tamil language and culture.
-            </p>
-            <p style="margin-top: 10px; font-size: 14px; line-height: 1.7; color: #3e4d49; max-width: 340px; margin-left: auto; margin-right: auto;">
-              Witnessing firsthand the economic and educational doors that English fluency opened for her peers, especially in rural areas, instilled in her a deep understanding of the need for bilingualism and a sense of responsibility to the underprivileged by starting Seeds of Success.
-            </p>
+          <div class="team-card" data-member="nila">
+            <div class="avatar alt-1">
+              <img src="Images/Nila_pic.avif" alt="Nila Loganathan" />
+            </div>
+            <h3>Nila Loganathan</h3>
+            <span class="role">Founder, Program Coordinator, Tutor</span>
+
+            <div class="member-details" style="display: none">
+              <button
+                type="button"
+                class="member-close"
+                aria-label="Close"
+                title="Close"
+              >
+                ✕
+              </button>
+              <p
+                style="
+                  margin-top: 12px;
+                  font-size: 14px;
+                  line-height: 1.7;
+                  color: #3e4d49;
+                  max-width: 340px;
+                  margin-left: auto;
+                  margin-right: auto;
+                "
+              >
+                Nila is a rising sophomore at Freedom High School in Chantilly,
+                Virginia. She is a dedicated gymnast and is notably fluent in
+                Tamil, possessing strong skills in speaking, reading, and
+                writing the language. Nila particularly excels at public
+                speaking in both Tamil and English, a skill she uses to connect
+                with and motivate students.
+              </p>
+              <p
+                style="
+                  margin-top: 10px;
+                  font-size: 14px;
+                  line-height: 1.7;
+                  color: #3e4d49;
+                  max-width: 340px;
+                  margin-left: auto;
+                  margin-right: auto;
+                "
+              >
+                The opportunity to work with and assist underprivileged students
+                is what motivated her to co-start Seeds of Success. Nila
+                recognizes the program's meaningful cause and is confident her
+                involvement will positively impact the kids while maximizing the
+                program's reach.
+              </p>
+            </div>
+          </div>
+
+          <div class="team-card" data-member="kavin">
+            <div class="avatar alt-2">
+              <img src="Images/Kavin_Pic.avif" alt="Kavin Loganathan" />
+            </div>
+            <h3>Kavin Loganathan</h3>
+            <span class="role">Founder, Technology Innovator</span>
+
+            <div class="member-details" style="display: none">
+              <button
+                type="button"
+                class="member-close"
+                aria-label="Close"
+                title="Close"
+              >
+                ✕
+              </button>
+              <p
+                style="
+                  margin-top: 12px;
+                  font-size: 14px;
+                  line-height: 1.7;
+                  color: #3e4d49;
+                  max-width: 340px;
+                  margin-left: auto;
+                  margin-right: auto;
+                "
+              >
+                Kavin is an eighth-grader at J. Michael Lunsford Middle School
+                in Chantilly, Virginia. He is a well-versed debater, an
+                enthusiastic public speaker, and an athlete who plays lacrosse
+                and volleyball. As an avid technologist who enjoys solving
+                complex problems, Kavin has taken on the vital role of providing
+                technological support for Seeds of Success.
+              </p>
+              <p
+                style="
+                  margin-top: 10px;
+                  font-size: 14px;
+                  line-height: 1.7;
+                  color: #3e4d49;
+                  max-width: 340px;
+                  margin-left: auto;
+                  margin-right: auto;
+                "
+              >
+                His responsibilities include building and maintaining the
+                organization's digital solutions. Furthermore, he plays a key
+                part in digitalizing the curriculum and ensuring the technical
+                framework is in place to help the organization scale its
+                operations and reach.
+              </p>
+            </div>
           </div>
         </div>
-
-        <div class="team-card" data-member="nila">
-          <div class="avatar alt-1"><img src="Images/Nila_pic.avif" alt="Nila Loganathan"></div>
-          <h3>Nila Loganathan</h3>
-          <span class="role">Founder, Program Coordinator, Tutor</span>
-
-          <div class="member-details" style="display:none;">
-            <button type="button" class="member-close" aria-label="Close" title="Close">✕</button>
-            <p style="margin-top: 12px; font-size: 14px; line-height: 1.7; color: #3e4d49; max-width: 340px; margin-left: auto; margin-right: auto;">
-              Nila is a rising sophomore at Freedom High School in Chantilly, Virginia. She is a dedicated gymnast and is notably fluent in Tamil, possessing strong skills in speaking, reading, and writing the language. Nila particularly excels at public speaking in both Tamil and English, a skill she uses to connect with and motivate students.
-            </p>
-            <p style="margin-top: 10px; font-size: 14px; line-height: 1.7; color: #3e4d49; max-width: 340px; margin-left: auto; margin-right: auto;">
-              The opportunity to work with and assist underprivileged students is what motivated her to co-start Seeds of Success. Nila recognizes the program's meaningful cause and is confident her involvement will positively impact the kids while maximizing the program's reach.
-            </p>
-          </div>
-        </div>
-
-
-        <div class="team-card" data-member="kavin">
-          <div class="avatar alt-2"><img src="Images/Kavin_Pic.avif" alt="Kavin Loganathan"></div>
-          <h3>Kavin Loganathan</h3>
-          <span class="role">Founder, Technology Innovator</span>
-
-          <div class="member-details" style="display:none;">
-            <button type="button" class="member-close" aria-label="Close" title="Close">✕</button>
-            <p style="margin-top: 12px; font-size: 14px; line-height: 1.7; color: #3e4d49; max-width: 340px; margin-left: auto; margin-right: auto;">
-              Kavin is an eighth-grader at J. Michael Lunsford Middle School in Chantilly, Virginia. He is a well-versed debater, an enthusiastic public speaker, and an athlete who plays lacrosse and volleyball. As an avid technologist who enjoys solving complex problems, Kavin has taken on the vital role of providing technological support for Seeds of Success.
-            </p>
-            <p style="margin-top: 10px; font-size: 14px; line-height: 1.7; color: #3e4d49; max-width: 340px; margin-left: auto; margin-right: auto;">
-              His responsibilities include building and maintaining the organization's digital solutions. Furthermore, he plays a key part in digitalizing the curriculum and ensuring the technical framework is in place to help the organization scale its operations and reach.
-            </p>
-          </div>
-        </div>
-
-
-
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- ============== CURRICULUM TEAM ============== -->
-  <section class="section">
-    <div class="container">
-      <!-- <div class="section-title">
+    <!-- ============== CURRICULUM TEAM ============== -->
+    <section class="section">
+      <div class="container">
+        <!-- <div class="section-title">
         <h2>Curriculum Developers</h2>
         <p>Crafting lessons that build skills, confidence, and curiosity.</p>
       </div> -->
 
-      <div class="team-grid">
+        <div class="team-grid">
+          <div class="team-card">
+            <div class="avatar alt-3">
+              <img src="Images/Prakash.avif" alt="Prakash Swaminathan" />
+            </div>
+            <h3>Prakash Swaminathan</h3>
+            <span class="role">Curriculum Developer, Tutor</span>
+            <p class="location">Edmonton, Canada</p>
+          </div>
 
-        <div class="team-card">
-          <div class="avatar alt-3"><img src="Images/Prakash.avif" alt="Prakash Swaminathan"></div>
-          <h3>Prakash Swaminathan</h3>
-          <span class="role">Curriculum Developer, Tutor</span>
-          <p class="location">Edmonton, Canada</p>
+          <div class="team-card">
+            <div class="avatar alt-4">
+              <img src="Images/SeedsOfSuccess_pic.jpeg" alt="TR" />
+            </div>
+            <h3>Thangamani R.</h3>
+            <span class="role">Curriculum Developer</span>
+            <p class="location">Erode, Tamil Nadu, India</p>
+          </div>
+
+          <div class="team-card">
+            <div class="avatar alt-3">
+              <img src="Images/Ananya_Pic.avif" alt="Ananya Rajasekaran" />
+            </div>
+            <h3>Ananya Rajasekaran</h3>
+            <span class="role">Tutor</span>
+            <p class="location">
+              Thomas Jefferson HS for Science & Tech<br />Aldie, VA, USA
+            </p>
+          </div>
         </div>
-
-        <div class="team-card">
-          <div class="avatar alt-4"><img src="Images/SeedsOfSuccess_pic.jpeg" alt="TR"></div>
-          <h3>Thangamani R.</h3>
-          <span class="role">Curriculum Developer</span>
-          <p class="location">Erode, Tamil Nadu, India</p>
-        </div>
-
-        <div class="team-card">
-          <div class="avatar alt-3"><img src="Images/Ananya_Pic.avif" alt="Ananya Rajasekaran"></div>
-          <h3>Ananya Rajasekaran</h3>
-          <span class="role">Tutor</span>
-          <p class="location">Thomas Jefferson HS for Science & Tech<br>Aldie, VA, USA</p>
-        </div>
-
-
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- ============== TUTORS ============== -->
-  <section class="section">
-    <div class="container">
-      <!-- <div class="section-title">
+    <!-- ============== TUTORS ============== -->
+    <section class="section">
+      <div class="container">
+        <!-- <div class="section-title">
         <h2>Our Tutors</h2>
         <p>Dedicated volunteers giving their time, language and care to children across the world.</p>
       </div> -->
 
-      <div class="team-grid">
+        <div class="team-grid">
+          <div class="team-card" data-member="thara">
+            <div class="avatar">
+              <img
+                src="Images/Abhimanyuu Rajkumar_Pic.jpeg"
+                alt="Thara Venkatesan"
+              />
+            </div>
+            <h3>Abhimanyuu Rajkumar</h3>
+            <span class="role"
+              >Digital Learning & Social Media Coordinator</span
+            >
+            <p class="location">Herndon, Virginia</p>
 
-        <div class="team-card" data-member="thara">
-          <div class="avatar"><img src="Images/Abhimanyuu Rajkumar_Pic.jpeg" alt="Thara Venkatesan"></div>
-          <h3>Abhimanyuu Rajkumar</h3>
-          <span class="role">Tutor</span>
-          <p class="location">Herndon, Virginia</p>
-
-          <div class="member-details" style="display:none;">
-            <button type="button" class="member-close" aria-label="Close" title="Close">✕</button>
-            <p style="margin-top: 12px; font-size: 14px; line-height: 1.7; color: #3e4d49; max-width: 340px; margin-left: auto; margin-right: auto;">
-              Abhimanyuu Rajkumar is a 9th grader at Oakton High School in Vienna, Virginia, and lives in Herndon, Virginia. He is a skilled technology enthusiast, a dedicated student, and a competitive athlete who plays both baseball and basketball. Passionate about making a meaningful difference in the lives of others, he took the initiative to join Seeds of Success as the organization's Social Media Coordinator, where he combines his creativity and technical skills to expand the organization's reach and impact.
-            </p>
-            <p style="margin-top: 10px; font-size: 14px; line-height: 1.7; color: #3e4d49; max-width: 340px; margin-left: auto; margin-right: auto;">
-              As the Social Media Coordinator, he is responsible for creating engaging posters, videos, and other digital content that promote the organization's mission and fundraising efforts. He also ensures that supporters have the information they need to get involved, whether through volunteering, donating, or spreading awareness. Through strategic communication and creative outreach, he helps connect more people with the mission of Seeds of Success and supports the organization's continued growth.
-            </p>
-          </div>
-        </div>
-
-        <div class="team-card" data-member="thara">
-          <div class="avatar"><img src="Images/Thara_Pic.avif" alt="Thara Venkatesan"></div>
-          <h3>Thara Venkatesan</h3>
-          <span class="role">Tutor</span>
-
-          <div class="member-details" style="display:none;">
-            <button type="button" class="member-close" aria-label="Close" title="Close">✕</button>
-            <p style="margin-top: 12px; font-size: 14px; line-height: 1.7; color: #3e4d49; max-width: 340px; margin-left: auto; margin-right: auto;">
-              Thara is a second-year student at the College of William & Mary in Williamsburg, Virginia. She serves as the key mentor to Seeds of Success founders. Drawing on her own leadership experience, she provides guidance and strategic support to the emerging organization.
-            </p>
-            <p style="margin-top: 10px; font-size: 14px; line-height: 1.7; color: #3e4d49; max-width: 340px; margin-left: auto; margin-right: auto;">
-              Having attended Tamil school for 12 years, she is fluent in the language and proficient in speaking, reading, and writing. With a passion for teaching children and a goal to teach English abroad, she is excited to give back to her community of origin and help guide the next generation of program leaders.
-            </p>
-          </div>
-        </div>
-
-         <div class="team-card">
-          <div class="avatar"><img src="Images/Kayal_Pic.avif" alt="Kayal Sadasivam"></div>
-          <h3>Kayal Sadasivam</h3>
-          <span class="role">Tutor</span>
-          <p class="location">University of Pittsburgh<br>Fairfax, VA, USA</p>
-        </div>
-
-        <div class="team-card">
-          <div class="avatar alt-1"><img src="Images/Senthiru_Pic.avif" alt="Senthiru Priya. B"></div>
-          <h3>Senthiru Priya. B</h3>
-          <span class="role">Tutor</span>
-          <p class="location">Ashburn, VA, USA</p>
-        </div>
-
-        <div class="team-card">
-          <div class="avatar alt-2"><img src="Images/Vasanthi_Pic.avif" alt="Vasanthi Sekar"></div>
-          <h3>Vasanthi Sekar</h3>
-          <span class="role">Tutor</span>
-          <p class="location">Aldie, VA, USA</p>
-        </div>
-
-        
-
-        <div class="team-card">
-          <div class="avatar alt-4"><img src="Images/Mahita_Pic.avif" alt="Mahita Selvaraj"></div>
-          <h3>Mahita Selvaraj</h3>
-          <span class="role">Tutor</span>
-          <p class="location">Aldie, VA</p>
-        </div>
-
-        <div class="team-card" data-member="praneetha">
-          <div class="avatar"><img src="Images/Praneetha.png" alt="Praneeths"></div>
-          <h3>Praneetha</h3>
-          <span class="role">Tutor</span>
-          <p class="location">Aldie, VA</p>
-          <div class="member-details" style="display:none;">
-  <button type="button" class="member-close" aria-label="Close" title="Close">✕</button>
-
-  <p style="margin-top: 12px; font-size: 14px; line-height: 1.7; color: #3e4d49; max-width: 340px; margin-left: auto; margin-right: auto;">
-              Praneetha is a rising sophomore at John Champe High School in Aldie, Virginia.
-Outside of school in her own time she involves herself in activies such as swim, and runs our own nail business from home. She has been a fluent tamil speaker since birth, and overtime has improved her writing and reading skills.
-            </p>
-            <p style="margin-top: 10px; font-size: 14px; line-height: 1.7; color: #3e4d49; max-width: 340px; margin-left: auto; margin-right: auto;">
-              With her variety of skills she is very much involved in her community helping in ways she can.
-To extend her aid across the globe she grabbed on the opportunity to participate in Seeds of Sucess.
-Praneetha appreciates and is thrilled to be a part of a community that has such a meaningful impact on eager individuals who want to grow their skills
- </p>
-</div>
-        </div>
-       
-
-         <div class="team-card" data-member="dhanyashree">
-
-          <div class="avatar"><img src="Images/Dhanyashree_Pic.jpeg" alt="Dhanyashree Dineshkumar"></div>
-
-          <h3>Dhanyashree Dineshkumar</h3>
-
-          <span class="role">Tutor</span>
-
-
-
-          <div class="member-details" style="display:none;">
-
-            <button type="button" class="member-close" aria-label="Close" title="Close">✕</button>
-
-            <p style="margin-top: 12px; font-size: 14px; line-height: 1.7; color: #3e4d49; max-width: 340px; margin-left: auto; margin-right: auto;">
-
-              Dhanyashree is an incoming freshman at Skyview High School in Herndon, Virginia. Outside of school, music plays a huge role in her life, where she enjoys singing, playing the guitar, and playing a traditional instrument called the veena. She is also a fluent speaker in both Tamil and English.
-
-            </p>
-
-            <p style="margin-top: 10px; font-size: 14px; line-height: 1.7; color: #3e4d49; max-width: 340px; margin-left: auto; margin-right: auto;">
-
-              Dhanyashree is excited to join Seeds of Success and teach English to kids who are learning the language. She looks forward to helping her students build a key skill that will support them for years to come.
-
-            </p>
-
+            <div class="member-details" style="display: none">
+              <button
+                type="button"
+                class="member-close"
+                aria-label="Close"
+                title="Close"
+              >
+                ✕
+              </button>
+              <p
+                style="
+                  margin-top: 12px;
+                  font-size: 14px;
+                  line-height: 1.7;
+                  color: #3e4d49;
+                  max-width: 340px;
+                  margin-left: auto;
+                  margin-right: auto;
+                "
+              >
+                Abhimanyuu Rajkumar is a 9th grader at Oakton High School in
+                Vienna, Virginia, and lives in Herndon, Virginia. He is a
+                skilled technology enthusiast, a dedicated student, and a
+                competitive athlete who plays both baseball and basketball.
+                Passionate about making a meaningful difference in the lives of
+                others, he took the initiative to join Seeds of Success as the
+                organization's Social Media Coordinator, where he combines his
+                creativity and technical skills to expand the organization's
+                reach and impact.
+              </p>
+              <p
+                style="
+                  margin-top: 10px;
+                  font-size: 14px;
+                  line-height: 1.7;
+                  color: #3e4d49;
+                  max-width: 340px;
+                  margin-left: auto;
+                  margin-right: auto;
+                "
+              >
+                As the Social Media Coordinator, he is responsible for creating
+                engaging posters, videos, and other digital content that promote
+                the organization's mission and fundraising efforts. He also
+                ensures that supporters have the information they need to get
+                involved, whether through volunteering, donating, or spreading
+                awareness. Through strategic communication and creative
+                outreach, he helps connect more people with the mission of Seeds
+                of Success and supports the organization's continued growth.
+              </p>
+            </div>
           </div>
 
-        </div>
+          <div class="team-card" data-member="praneetha">
+            <div class="avatar">
+              <img src="Images/Praneetha.png" alt="Praneeths" />
+            </div>
+            <h3>Praneetha</h3>
+            <span class="role">Tutor</span>
+            <p class="location">Aldie, VA</p>
+            <div class="member-details" style="display: none">
+              <button
+                type="button"
+                class="member-close"
+                aria-label="Close"
+                title="Close"
+              >
+                ✕
+              </button>
 
-        
-      </div>
-    </div>
-  </section>
+              <p
+                style="
+                  margin-top: 12px;
+                  font-size: 14px;
+                  line-height: 1.7;
+                  color: #3e4d49;
+                  max-width: 340px;
+                  margin-left: auto;
+                  margin-right: auto;
+                "
+              >
+                Praneetha is a rising sophomore at John Champe High School in
+                Aldie, Virginia. Outside of school in her own time she involves
+                herself in activies such as swim, and runs our own nail business
+                from home. She has been a fluent tamil speaker since birth, and
+                overtime has improved her writing and reading skills.
+              </p>
+              <p
+                style="
+                  margin-top: 10px;
+                  font-size: 14px;
+                  line-height: 1.7;
+                  color: #3e4d49;
+                  max-width: 340px;
+                  margin-left: auto;
+                  margin-right: auto;
+                "
+              >
+                With her variety of skills she is very much involved in her
+                community helping in ways she can. To extend her aid across the
+                globe she grabbed on the opportunity to participate in Seeds of
+                Sucess. Praneetha appreciates and is thrilled to be a part of a
+                community that has such a meaningful impact on eager individuals
+                who want to grow their skills
+              </p>
+            </div>
+          </div>
 
-  <!-- ============== CTA ============== -->
-  <section class="cta-band">
-    <div class="container">
-      <h2>Become a part of the change</h2>
-      <a href="volunteer.html" class="btn">Sign Up to Volunteer</a>
-    </div>
-  </section>
+          <div class="team-card" data-member="dhanyashree">
+            <div class="avatar">
+              <img
+                src="Images/Dhanyashree_Pic.jpeg"
+                alt="Dhanyashree Dineshkumar"
+              />
+            </div>
 
-  <!-- ============== FOOTER ============== -->
-  <footer class="site-footer">
-    <div class="container">
-      <div class="footer-grid">
-        <div>
-          <h4>Seeds of Success</h4>
-          <p>A youth-led, registered nonprofit in Virginia, USA — connecting Tamil-origin tutors abroad with rural children in Tamil Nadu through meaningful 1-on-1 English tutoring partnerships.</p>
-        </div>
-        <div>
-          <h4>Quick Links</h4>
-          <ul>
-            <li><a href="index.html">Home</a></li>
-            <li><a href="about.html">About</a></li>
-            <li><a href="ourteam.html">Our Team</a></li>
-            <li><a href="ourstudents.html">Our Students</a></li>
-          </ul>
-        </div>
-        <div>
-          <h4>Get In Touch</h4>
-          <ul>
-            <li><a href="getinvolved.html">Get Involved</a></li>
-            <li><a href="volunteer.html">Volunteer</a></li>
-            <li><a href="contact.html">Contact Us</a></li>
-          </ul>
+            <h3>Dhanyashree Dineshkumar</h3>
+
+            <span class="role">Tutor</span>
+
+            <div class="member-details" style="display: none">
+              <button
+                type="button"
+                class="member-close"
+                aria-label="Close"
+                title="Close"
+              >
+                ✕
+              </button>
+
+              <p
+                style="
+                  margin-top: 12px;
+                  font-size: 14px;
+                  line-height: 1.7;
+                  color: #3e4d49;
+                  max-width: 340px;
+                  margin-left: auto;
+                  margin-right: auto;
+                "
+              >
+                Dhanyashree is an incoming freshman at Skyview High School in
+                Herndon, Virginia. Outside of school, music plays a huge role in
+                her life, where she enjoys singing, playing the guitar, and
+                playing a traditional instrument called the veena. She is also a
+                fluent speaker in both Tamil and English.
+              </p>
+
+              <p
+                style="
+                  margin-top: 10px;
+                  font-size: 14px;
+                  line-height: 1.7;
+                  color: #3e4d49;
+                  max-width: 340px;
+                  margin-left: auto;
+                  margin-right: auto;
+                "
+              >
+                Dhanyashree is excited to join Seeds of Success and teach
+                English to kids who are learning the language. She looks forward
+                to helping her students build a key skill that will support them
+                for years to come.
+              </p>
+            </div>
+          </div>
+
+          <div class="team-card" data-member="thara">
+            <div class="avatar">
+              <img src="Images/Thara_Pic.avif" alt="Thara Venkatesan" />
+            </div>
+            <h3>Thara Venkatesan</h3>
+            <span class="role">Tutor</span>
+
+            <div class="member-details" style="display: none">
+              <button
+                type="button"
+                class="member-close"
+                aria-label="Close"
+                title="Close"
+              >
+                ✕
+              </button>
+              <p
+                style="
+                  margin-top: 12px;
+                  font-size: 14px;
+                  line-height: 1.7;
+                  color: #3e4d49;
+                  max-width: 340px;
+                  margin-left: auto;
+                  margin-right: auto;
+                "
+              >
+                Thara is a second-year student at the College of William & Mary
+                in Williamsburg, Virginia. She serves as the key mentor to Seeds
+                of Success founders. Drawing on her own leadership experience,
+                she provides guidance and strategic support to the emerging
+                organization.
+              </p>
+              <p
+                style="
+                  margin-top: 10px;
+                  font-size: 14px;
+                  line-height: 1.7;
+                  color: #3e4d49;
+                  max-width: 340px;
+                  margin-left: auto;
+                  margin-right: auto;
+                "
+              >
+                Having attended Tamil school for 12 years, she is fluent in the
+                language and proficient in speaking, reading, and writing. With
+                a passion for teaching children and a goal to teach English
+                abroad, she is excited to give back to her community of origin
+                and help guide the next generation of program leaders.
+              </p>
+            </div>
+          </div>
+
+          <div class="team-card">
+            <div class="avatar">
+              <img src="Images/Kayal_Pic.avif" alt="Kayal Sadasivam" />
+            </div>
+            <h3>Kayal Sadasivam</h3>
+            <span class="role">Tutor</span>
+            <p class="location">
+              University of Pittsburgh<br />Fairfax, VA, USA
+            </p>
+          </div>
+
+          <div class="team-card">
+            <div class="avatar alt-1">
+              <img src="Images/Senthiru_Pic.avif" alt="Senthiru Priya. B" />
+            </div>
+            <h3>Senthiru Priya. B</h3>
+            <span class="role">Tutor</span>
+            <p class="location">Ashburn, VA, USA</p>
+          </div>
+
+          <div class="team-card">
+            <div class="avatar alt-2">
+              <img src="Images/Vasanthi_Pic.avif" alt="Vasanthi Sekar" />
+            </div>
+            <h3>Vasanthi Sekar</h3>
+            <span class="role">Tutor</span>
+            <p class="location">Aldie, VA, USA</p>
+          </div>
         </div>
       </div>
-      <div class="footer-bottom">
-        © 2026 Seeds of Success. All rights reserved. Seeds of Success is a U.S. nonprofit organization recognized as tax-exempt under Section 501(c)(3) of the Internal Revenue Code. EIN 41-3701713.
+    </section>
+
+    <!-- ============== CTA ============== -->
+    <section class="cta-band">
+      <div class="container">
+        <h2>Become a part of the change</h2>
+        <a href="volunteer.html" class="btn">Sign Up to Volunteer</a>
       </div>
-    </div>
-  </footer>
-<div
-  class="team-popup"
-  id="teamPopup"
-  role="dialog"
-  aria-modal="true"
-  aria-labelledby="teamPopupName"
->
-  <div class="team-popup-box">
-    <button
-      type="button"
-      class="team-popup-close"
-      id="teamPopupClose"
-      aria-label="Close team member details"
-      title="Close"
+    </section>
+
+    <!-- ============== FOOTER ============== -->
+    <footer class="site-footer">
+      <div class="container">
+        <div class="footer-grid">
+          <div>
+            <h4>Seeds of Success</h4>
+            <p>
+              A youth-led, registered nonprofit in Virginia, USA — connecting
+              Tamil-origin tutors abroad with rural children in Tamil Nadu
+              through meaningful 1-on-1 English tutoring partnerships.
+            </p>
+          </div>
+          <div>
+            <h4>Quick Links</h4>
+            <ul>
+              <li><a href="index.html">Home</a></li>
+              <li><a href="about.html">About</a></li>
+              <li><a href="ourteam.html">Our Team</a></li>
+              <li><a href="ourstudents.html">Our Students</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4>Get In Touch</h4>
+            <ul>
+              <li><a href="getinvolved.html">Get Involved</a></li>
+              <li><a href="volunteer.html">Volunteer</a></li>
+              <li><a href="contact.html">Contact Us</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          © 2026 Seeds of Success. All rights reserved. Seeds of Success is a
+          U.S. nonprofit organization recognized as tax-exempt under Section
+          501(c)(3) of the Internal Revenue Code. EIN 41-3701713.
+        </div>
+      </div>
+    </footer>
+    <div
+      class="team-popup"
+      id="teamPopup"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="teamPopupName"
     >
-      ✕
-    </button>
+      <div class="team-popup-box">
+        <button
+          type="button"
+          class="team-popup-close"
+          id="teamPopupClose"
+          aria-label="Close team member details"
+          title="Close"
+        >
+          ✕
+        </button>
 
-    <div id="teamPopupContent"></div>
-  </div>
-</div>
-  <script>
-  const memberCards = document.querySelectorAll(
-    ".team-card[data-member]"
-  );
+        <div id="teamPopupContent"></div>
+      </div>
+    </div>
+    <script>
+      const memberCards = document.querySelectorAll(".team-card[data-member]");
 
-  const popup = document.getElementById("teamPopup");
-  const popupContent = document.getElementById("teamPopupContent");
-  const popupCloseButton = document.getElementById("teamPopupClose");
+      const popup = document.getElementById("teamPopup");
+      const popupContent = document.getElementById("teamPopupContent");
+      const popupCloseButton = document.getElementById("teamPopupClose");
 
-  function openTeamPopup(card) {
-    const avatar = card.querySelector(".avatar");
-    const name = card.querySelector("h3");
-    const role = card.querySelector(".role");
-    const details = card.querySelector(".member-details");
+      function openTeamPopup(card) {
+        const avatar = card.querySelector(".avatar");
+        const name = card.querySelector("h3");
+        const role = card.querySelector(".role");
+        const details = card.querySelector(".member-details");
 
-    if (!avatar || !name || !role || !details) {
-      return;
-    }
+        if (!avatar || !name || !role || !details) {
+          return;
+        }
 
-    popupContent.innerHTML = `
+        popupContent.innerHTML = `
       ${avatar.outerHTML}
 
       <h3 id="teamPopupName">
@@ -368,57 +638,54 @@ Praneetha appreciates and is thrilled to be a part of a community that has such 
       </div>
     `;
 
-    popup.classList.add("show");
-    document.body.classList.add("popup-open");
+        popup.classList.add("show");
+        document.body.classList.add("popup-open");
 
-    popup.scrollTop = 0;
-    popupCloseButton.focus();
-  }
-
-  function closeTeamPopup() {
-    popup.classList.remove("show");
-    document.body.classList.remove("popup-open");
-    popupContent.innerHTML = "";
-  }
-
-  memberCards.forEach((card) => {
-    card.addEventListener("click", () => {
-      openTeamPopup(card);
-    });
-
-    card.addEventListener("keydown", (event) => {
-      if (event.key === "Enter" || event.key === " ") {
-        event.preventDefault();
-        openTeamPopup(card);
+        popup.scrollTop = 0;
+        popupCloseButton.focus();
       }
-    });
 
-    card.setAttribute("tabindex", "0");
-    card.setAttribute("role", "button");
-  });
+      function closeTeamPopup() {
+        popup.classList.remove("show");
+        document.body.classList.remove("popup-open");
+        popupContent.innerHTML = "";
+      }
 
-  popupCloseButton.addEventListener("click", closeTeamPopup);
+      memberCards.forEach((card) => {
+        card.addEventListener("click", () => {
+          openTeamPopup(card);
+        });
 
-  popup.addEventListener("click", (event) => {
-    if (event.target === popup) {
-      closeTeamPopup();
-    }
-  });
+        card.addEventListener("keydown", (event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            openTeamPopup(card);
+          }
+        });
 
-  document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && popup.classList.contains("show")) {
-      closeTeamPopup();
-    }
-  });
-</script>
-<script src="js/common.js"></script>
+        card.setAttribute("tabindex", "0");
+        card.setAttribute("role", "button");
+      });
 
-<div class="page-loader" id="pageLoader">
-    <img src="Images/SeedsOfSuccess_pic.jpeg" alt="">
-    <div class="loader-spinner"></div>
-</div>
+      popupCloseButton.addEventListener("click", closeTeamPopup);
 
+      popup.addEventListener("click", (event) => {
+        if (event.target === popup) {
+          closeTeamPopup();
+        }
+      });
 
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && popup.classList.contains("show")) {
+          closeTeamPopup();
+        }
+      });
+    </script>
+    <script src="js/common.js"></script>
 
-</body>
+    <div class="page-loader" id="pageLoader">
+      <img src="Images/SeedsOfSuccess_pic.jpeg" alt="" />
+      <div class="loader-spinner"></div>
+    </div>
+  </body>
 </html>

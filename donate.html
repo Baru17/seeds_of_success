@@ -13,6 +13,16 @@
   <link rel="stylesheet" href="css/common.css" />
   <link rel="stylesheet" href="css/donate.css" />
   <link rel="stylesheet" href="css/validation.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@23.8.1/build/css/intlTelInput.css" />
+  <style>
+    .iti {
+      width: 100%;
+    }
+
+    .iti input {
+      width: 100%;
+    }
+  </style>
 </head>
 
 <body>
@@ -120,6 +130,12 @@
            <label for="demail">Email Address <span class="field-required">*</span></label>
            <input type="email" id="demail" name="email" placeholder="you@example.com" autocomplete="email" required />
            <div class="validation-message hidden" id="demail-msg"></div>
+         </div>
+
+         <div class="donate-group">
+           <label for="dphone">Phone Number</label>
+           <input type="tel" id="dphone" name="phone_number" placeholder="Phone number" autocomplete="tel" />
+           <div class="validation-message hidden" id="dphone-msg"></div>
          </div>
 
          <div class="donate-group">
@@ -306,6 +322,7 @@
 
 <script src="js/common.js"></script>
 <script src="js/validation.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/intl-tel-input@23.8.1/build/js/intlTelInput.min.js"></script>
 <script>
   const API_BASE = window.location.protocol === 'file:' || ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname) ? 'http://127.0.0.1:8787' : 'https://worker-api.seedsofsuccessngo.workers.dev';
   const ZELLE_EMAIL = "seedsofsuccess@soslearn.org";
@@ -336,20 +353,31 @@
     field.addEventListener('blur', validate);
   }
 
+  const donatePhoneInput = document.getElementById("dphone");
+  const donatePhone = window.intlTelInput(donatePhoneInput, {
+    initialCountry: "us",
+    separateDialCode: true,
+    useFullscreenPopup: false,
+    utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@23.8.1/build/js/utils.js"
+  });
+
   initFieldValidation('dfullname', function(val) { return Validators.validateDonationName(val); });
   initFieldValidation('demail', function(val) { return Validators.validateEmail(val); });
+  initFieldValidation('dphone', function(val) { return Validators.validatePhone(val); });
   initFieldValidation('damount', function(val) { return Validators.validateAmount(val); });
 
   async function submitDonation(event) {
     event.preventDefault();
     const fullName = document.getElementById("dfullname").value.trim();
     const email = document.getElementById("demail").value.trim();
+    const phoneNumber = donatePhoneInput.value.trim() ? donatePhone.getNumber() : null;
     const amount = document.getElementById("damount").value.trim();
     const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
     const amountRegex = /^\d+(\.\d{1,2})?$/;
     if (fullName.length < 2) { showCustomAlert("Please enter your full name (at least 2 characters)."); return; }
     if (fullName.length > 50) { showCustomAlert("Full name must be 50 characters or fewer."); return; }
     if (!emailRegex.test(email)) { showCustomAlert("Please enter a valid email address."); return; }
+    if (donatePhoneInput.value.trim() && !donatePhone.isValidNumber()) { showCustomAlert("Please enter a valid phone number for the selected country."); return; }
     if (!amount) { showCustomAlert("Please enter a donation amount."); return; }
     if (!amountRegex.test(amount)) { showCustomAlert("Please enter a valid donation amount (e.g. 50.00 or 75.25)."); return; }
     if (Number(amount) <= 0) { showCustomAlert("Donation amount must be greater than zero."); return; }
@@ -358,7 +386,7 @@
     const btn = document.getElementById("donateSubmitBtn");
     setLoading(btn, true);
     try {
-      const response = await fetch(API_BASE + "/api/donations", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ full_name: fullName, email: email, amount: amount }) });
+      const response = await fetch(API_BASE + "/api/donations", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ full_name: fullName, email: email, phone_number: phoneNumber, amount: amount }) });
       let result;
       try { result = await response.json(); } catch { throw new Error("Invalid response received from the server."); }
       if (!response.ok || !result.success) { const errorMessage = result.error || result.message || "Failed to submit your donation. Please try again."; showCustomAlert(errorMessage); console.error(result); return; }
