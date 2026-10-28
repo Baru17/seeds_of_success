@@ -429,6 +429,8 @@
         document.getElementById("volunteersCardCount").textContent = s.pending_volunteers || 0;
         document.getElementById("donationsCardCount").textContent = (s.pending_donations || 0) + (s.verified_donations || 0);
         document.getElementById("contactsCardCount").textContent = s.total_contacts || 0;
+        var ourTeamCard = document.getElementById("ourTeamCardCount");
+        if (ourTeamCard) ourTeamCard.textContent = (typeof s.total_our_team !== "undefined" && s.total_our_team !== null) ? s.total_our_team : 0;
         return s;
       } catch (e) {
         console.error("Dashboard summary failed:", e);

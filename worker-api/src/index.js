@@ -3989,7 +3989,8 @@ export default {
           pendingVolunteers,
           pendingDonations,
           verifiedDonations,
-          contacts
+          contacts,
+          ourTeam
 
         ] = await Promise.all([
 
@@ -4020,6 +4021,11 @@ export default {
           db.prepare(`
             SELECT COUNT(*) AS count
             FROM contacts
+          `).first(),
+
+          db.prepare(`
+            SELECT COUNT(*) AS count
+            FROM our_team
           `).first()
 
         ]);
@@ -4037,7 +4043,8 @@ export default {
               verified_donations:
                 verifiedDonations.count || 0,
               total_contacts:
-                contacts.count || 0
+                contacts.count || 0,
+              total_our_team: ourTeam ? ourTeam.count || 0 : 0
             }
           },
           corsHeaders
