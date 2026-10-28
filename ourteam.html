@@ -619,8 +619,6 @@
           .replace(/'/g, "&#039;");
       }
 
-      const memberCards = document.querySelectorAll(".team-card[data-member]");
-
       const popup = document.getElementById("teamPopup");
       const popupContent = document.getElementById("teamPopupContent");
       const popupCloseButton = document.getElementById("teamPopupClose");
@@ -653,7 +651,7 @@
         document.body.classList.add("popup-open");
 
         popup.scrollTop = 0;
-        popupCloseButton.focus();
+        if (popupCloseButton) popupCloseButton.focus();
       }
 
       function closeTeamPopup() {
@@ -662,35 +660,40 @@
         popupContent.innerHTML = "";
       }
 
-      memberCards.forEach((card) => {
+      if (popupCloseButton) {
+        popupCloseButton.addEventListener("click", closeTeamPopup);
+      }
+
+      if (popup) {
+        popup.addEventListener("click", (event) => {
+          if (event.target === popup) {
+            closeTeamPopup();
+          }
+        });
+      }
+
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && popup && popup.classList.contains("show")) {
+          closeTeamPopup();
+        }
+      });
+
+      function attachPopupHandlers(card) {
+        if (!card) return;
+        card.setAttribute("tabindex", "0");
+        card.setAttribute("role", "button");
         card.addEventListener("click", () => {
           openTeamPopup(card);
         });
-
         card.addEventListener("keydown", (event) => {
           if (event.key === "Enter" || event.key === " ") {
             event.preventDefault();
             openTeamPopup(card);
           }
         });
+      }
 
-        card.setAttribute("tabindex", "0");
-        card.setAttribute("role", "button");
-      });
-
-      popupCloseButton.addEventListener("click", closeTeamPopup);
-
-      popup.addEventListener("click", (event) => {
-        if (event.target === popup) {
-          closeTeamPopup();
-        }
-      });
-
-      document.addEventListener("keydown", (event) => {
-        if (event.key === "Escape" && popup.classList.contains("show")) {
-          closeTeamPopup();
-        }
-      });
+      document.querySelectorAll(".team-card[data-member]").forEach(attachPopupHandlers);
 
       async function loadPublishedOurTeam() {
         try {
@@ -699,21 +702,23 @@
           const data = await res.json().catch(function(){ return {}; });
           const members = data.members || [];
           if (!members.length) return;
-          const grid = document.querySelectorAll(".team-grid");
-          if (!grid.length) return;
-          const container = grid[grid.length - 1];
+
+          const hardcodedCards = document.querySelectorAll(".team-card");
+          hardcodedCards.forEach(function(card) { card.style.display = 'none'; });
+
+          const grids = document.querySelectorAll(".team-grid");
+          if (!grids.length) return;
+          const container = grids[grids.length - 1];
+
           members.forEach(function(m) {
             const card = document.createElement("div");
             card.className = "team-card";
-            card.setAttribute("tabindex", "0");
-            card.setAttribute("role", "button");
             let avatarHtml = '<div class="avatar"><img src="' + escapeHtmlOurTeam(m.image_url || "Images/SeedsOfSuccess_pic.jpeg") + '" alt="' + escapeHtmlOurTeam(m.name) + '" /></div>';
             card.innerHTML = avatarHtml
               + '<h3>' + escapeHtmlOurTeam(m.name) + '</h3>'
               + '<span class="role">' + escapeHtmlOurTeam(m.role || '') + '</span>'
               + '<div class="member-details" style="display:none"><button type="button" class="member-close" aria-label="Close" title="Close">✕</button><p style="margin-top:12px;font-size:14px;line-height:1.7;color:#3e4d49;max-width:340px;margin-left:auto;margin-right:auto;">' + escapeHtmlOurTeam(m.bio || '') + '</p></div>';
-            card.addEventListener("click", function(){ openTeamPopup(card); });
-            card.addEventListener("keydown", function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); openTeamPopup(card); }});
+            attachPopupHandlers(card);
             container.appendChild(card);
           });
         } catch (e) {
