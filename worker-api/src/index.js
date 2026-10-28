@@ -2205,8 +2205,14 @@ export default {
           );
 
 
-        const { status } =
-          await request.json();
+        let requestData = {};
+        try {
+          requestData = await request.json();
+        } catch (e) {
+          requestData = {};
+        }
+        const { status } = requestData;
+        const displayAtTeam = requestData.display_at_team === 1 || requestData.display_at_team === '1' ? 1 : 0;
 
 
         const normalizedStatus =
@@ -2380,6 +2386,49 @@ export default {
         }
 
 
+        if (
+          normalizedStatus === "approved"
+        ) {
+          try {
+            const now = reviewedAt || new Date().toISOString();
+            const existing = await db.prepare(
+              `SELECT id, display_at_team FROM our_team WHERE source_application_id = ? AND source_application_type = ?`
+            )
+              .bind(application.id, "volunteer")
+              .first();
+            if (!existing) {
+              const memberId = crypto.randomUUID();
+              await db.prepare(
+                `INSERT INTO our_team (id, source_application_id, source_application_type, name, role, bio, image_url, display_at_team, created_at, updated_at)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+              )
+                .bind(
+                  memberId,
+                  application.id,
+                  "volunteer",
+                  application.full_name,
+                  application.role || application.skills || null,
+                  application.message || null,
+                  null,
+                  displayAtTeam,
+                  now,
+                  now
+                )
+                .run();
+            } else if (displayAtTeam === 1 && existing.display_at_team !== 1) {
+              await db.prepare(`UPDATE our_team SET display_at_team = 1, updated_at = ? WHERE id = ?`)
+                .bind(now, existing.id)
+                .run();
+            } else if (displayAtTeam === 0 && existing.display_at_team !== 0) {
+              await db.prepare(`UPDATE our_team SET display_at_team = 0, updated_at = ? WHERE id = ?`)
+                .bind(now, existing.id)
+                .run();
+            }
+          } catch (e) {
+            console.error("Failed to create/update our_team entry for volunteer:", e);
+          }
+        }
+
         const volunteerResponse = {
           success: true,
           application
@@ -2392,7 +2441,7 @@ export default {
         }
 
         return json(
-
+ 
           volunteerResponse,
 
           corsHeaders
@@ -2544,8 +2593,14 @@ export default {
           );
 
 
-        const { status } =
-          await request.json();
+        let requestData = {};
+        try {
+          requestData = await request.json();
+        } catch (e) {
+          requestData = {};
+        }
+        const { status } = requestData;
+        const displayAtTeam = requestData.display_at_team === 1 || requestData.display_at_team === '1' ? 1 : 0;
 
 
         const normalizedStatus =
@@ -2717,6 +2772,49 @@ export default {
         }
 
 
+        if (
+          normalizedStatus === "approved"
+        ) {
+          try {
+            const now = reviewedAt || new Date().toISOString();
+            const existing = await db.prepare(
+              `SELECT id, display_at_team FROM our_team WHERE source_application_id = ? AND source_application_type = ?`
+            )
+              .bind(application.id, "tutor")
+              .first();
+            if (!existing) {
+              const memberId = crypto.randomUUID();
+              await db.prepare(
+                `INSERT INTO our_team (id, source_application_id, source_application_type, name, role, bio, image_url, display_at_team, created_at, updated_at)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+              )
+                .bind(
+                  memberId,
+                  application.id,
+                  "tutor",
+                  application.full_name,
+                  application.skills || null,
+                  null,
+                  null,
+                  displayAtTeam,
+                  now,
+                  now
+                )
+                .run();
+            } else if (displayAtTeam === 1 && existing.display_at_team !== 1) {
+              await db.prepare(`UPDATE our_team SET display_at_team = 1, updated_at = ? WHERE id = ?`)
+                .bind(now, existing.id)
+                .run();
+            } else if (displayAtTeam === 0 && existing.display_at_team !== 0) {
+              await db.prepare(`UPDATE our_team SET display_at_team = 0, updated_at = ? WHERE id = ?`)
+                .bind(now, existing.id)
+                .run();
+            }
+          } catch (e) {
+            console.error("Failed to create/update our_team entry for tutor:", e);
+          }
+        }
+
         const tutorResponse = {
           success: true,
           application
@@ -2729,7 +2827,7 @@ export default {
         }
 
         return json(
-
+ 
           tutorResponse,
 
           corsHeaders
@@ -3946,6 +4044,146 @@ export default {
         );
       }
 
+
+      /* =====================================================
+         PUBLIC OUR TEAM
+      ===================================================== */
+      if (
+        url.pathname === "/api/our-team"
+        &&
+        request.method === "GET"
+      ) {
+        try {
+          const result = await db.prepare(
+            `SELECT id, name, role, bio, image_url, display_at_team, created_at
+             FROM our_team
+             WHERE display_at_team = 1
+             ORDER BY created_at ASC, id ASC`
+          ).all();
+          const members = (result.results || []).map(function(m) {
+            return {
+              id: m.id,
+              name: m.name,
+              role: m.role,
+              bio: m.bio,
+              image_url: m.image_url,
+              display_at_team: m.display_at_team,
+              created_at: m.created_at
+            };
+          });
+          return json(
+            {
+              success: true,
+              members: members
+            },
+            corsHeaders
+          );
+        } catch (e) {
+          return json(
+            {
+              success: true,
+              members: []
+            },
+            corsHeaders
+          );
+        }
+      }
+
+      /* =====================================================
+         ADMIN OUR TEAM CRUD
+      ===================================================== */
+      if (
+        url.pathname === "/api/admin/our-team"
+        &&
+        request.method === "GET"
+      ) {
+        await requireAdminAuth(request, db);
+        const search = url.searchParams.get("search") || "";
+        let where = "";
+        const bindings = [];
+        if (search) {
+          const like = "%" + search + "%";
+          where = ` WHERE (name LIKE ? OR role LIKE ? OR bio LIKE ?) `;
+          bindings.push(like, like, like);
+        }
+        const result = await db.prepare(
+          `SELECT id, source_application_id, source_application_type, name, role, bio, image_url, display_at_team, created_at, updated_at
+           FROM our_team
+           ${where}
+           ORDER BY created_at ASC, id ASC`
+        )
+          .bind(...bindings)
+          .all();
+        return json(
+          {
+            success: true,
+            members: result.results || []
+          },
+          corsHeaders
+        );
+      }
+
+      if (
+        url.pathname === "/api/admin/our-team"
+        &&
+        request.method === "POST"
+      ) {
+        await requireAdminAuth(request, db);
+        const data = await request.json();
+        const name = String(data.name || "").trim();
+        if (!name) {
+          return json({ success: false, error: "Name is required." }, corsHeaders, 400);
+        }
+        const id = crypto.randomUUID();
+        const now = new Date().toISOString();
+        await db.prepare(
+          `INSERT INTO our_team (id, source_application_id, source_application_type, name, role, bio, image_url, display_at_team, created_at, updated_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+        )
+          .bind(
+            id,
+            data.source_application_id || null,
+            data.source_application_type || null,
+            name,
+            data.role || null,
+            data.bio || null,
+            data.image_url || null,
+            data.display_at_team == 1 ? 1 : 0,
+            now,
+            now
+          )
+          .run();
+        return json({ success: true, id }, corsHeaders);
+      }
+
+      const ourTeamIdMatch = url.pathname.match(/^\/api\/admin\/our-team\/([^/]+)$/);
+      if (ourTeamIdMatch && request.method === "PATCH") {
+        await requireAdminAuth(request, db);
+        const memberId = decodeURIComponent(ourTeamIdMatch[1]);
+        const data = await request.json();
+        const now = new Date().toISOString();
+        const updates = [];
+        const bindings = [];
+        if (data.name !== undefined) { updates.push("name = ?"); bindings.push(String(data.name || "").trim()); }
+        if (data.role !== undefined) { updates.push("role = ?"); bindings.push(data.role || null); }
+        if (data.bio !== undefined) { updates.push("bio = ?"); bindings.push(data.bio || null); }
+        if (data.image_url !== undefined) { updates.push("image_url = ?"); bindings.push(data.image_url || null); }
+        if (data.display_at_team !== undefined) { updates.push("display_at_team = ?"); bindings.push(data.display_at_team == 1 ? 1 : 0); }
+        if (updates.length === 0) {
+          return json({ success: true }, corsHeaders);
+        }
+        updates.push("updated_at = ?");
+        bindings.push(now);
+        bindings.push(memberId);
+        await db.prepare(`UPDATE our_team SET ${updates.join(", ")} WHERE id = ?`).bind(...bindings).run();
+        return json({ success: true }, corsHeaders);
+      }
+      if (ourTeamIdMatch && request.method === "DELETE") {
+        await requireAdminAuth(request, db);
+        const memberId = decodeURIComponent(ourTeamIdMatch[1]);
+        await db.prepare(`DELETE FROM our_team WHERE id = ?`).bind(memberId).run();
+        return json({ success: true }, corsHeaders);
+      }
 
       /* =====================================================
          DEFAULT API RESPONSE

@@ -608,6 +608,17 @@
       </div>
     </div>
     <script>
+      const API_BASE_OURTEAM = window.location.protocol === 'file:' || ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname) ? 'http://127.0.0.1:8787' : 'https://worker-api.seedsofsuccessngo.workers.dev';
+
+      function escapeHtmlOurTeam(v) {
+        return String(v ?? "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      }
+
       const memberCards = document.querySelectorAll(".team-card[data-member]");
 
       const popup = document.getElementById("teamPopup");
@@ -680,6 +691,41 @@
           closeTeamPopup();
         }
       });
+
+      async function loadPublishedOurTeam() {
+        try {
+          const res = await fetch(API_BASE_OURTEAM + "/api/our-team");
+          if (!res.ok) return;
+          const data = await res.json().catch(function(){ return {}; });
+          const members = data.members || [];
+          if (!members.length) return;
+          const grid = document.querySelectorAll(".team-grid");
+          if (!grid.length) return;
+          const container = grid[grid.length - 1];
+          members.forEach(function(m) {
+            const card = document.createElement("div");
+            card.className = "team-card";
+            card.setAttribute("tabindex", "0");
+            card.setAttribute("role", "button");
+            let avatarHtml = '<div class="avatar"><img src="' + escapeHtmlOurTeam(m.image_url || "Images/SeedsOfSuccess_pic.jpeg") + '" alt="' + escapeHtmlOurTeam(m.name) + '" /></div>';
+            card.innerHTML = avatarHtml
+              + '<h3>' + escapeHtmlOurTeam(m.name) + '</h3>'
+              + '<span class="role">' + escapeHtmlOurTeam(m.role || '') + '</span>'
+              + '<div class="member-details" style="display:none"><button type="button" class="member-close" aria-label="Close" title="Close">✕</button><p style="margin-top:12px;font-size:14px;line-height:1.7;color:#3e4d49;max-width:340px;margin-left:auto;margin-right:auto;">' + escapeHtmlOurTeam(m.bio || '') + '</p></div>';
+            card.addEventListener("click", function(){ openTeamPopup(card); });
+            card.addEventListener("keydown", function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); openTeamPopup(card); }});
+            container.appendChild(card);
+          });
+        } catch (e) {
+          // ignore
+        }
+      }
+
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", loadPublishedOurTeam);
+      } else {
+        loadPublishedOurTeam();
+      }
     </script>
     <script src="js/common.js"></script>
 

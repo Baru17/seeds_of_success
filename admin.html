@@ -85,6 +85,12 @@
       <div class="dash-card-count" id="contactsCardCount">-</div>
       <div class="dash-card-sub">submissions</div>
     </div>
+    <div class="dash-card" onclick="openSection('ourteam')" id="dashCardOurTeam">
+      <div class="dash-card-icon" style="background:#e8f5e9;color:#2e7d32;">&#128101;</div>
+      <div class="dash-card-title">Our Team</div>
+      <div class="dash-card-count" id="ourTeamCardCount">-</div>
+      <div class="dash-card-sub">members</div>
+    </div>
   </section>
 
   <!-- ======================== TUTORS SECTION ======================== -->
@@ -229,6 +235,38 @@
             </tr>
           </thead>
           <tbody id="contactsBody">
+            <tr><td colspan="6" class="empty-row">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================== OUR TEAM SECTION ======================== -->
+  <section class="container section-view hidden" id="sectionOurTeam">
+    <button class="btn btn-back" onclick="closeSection()">&larr; Back to Dashboard</button>
+    <div class="section-msg" id="ourTeamSectionMsg"></div>
+    <div class="card">
+      <div class="card-head">
+        <h2>Our Team</h2>
+        <small>Manage published team members</small>
+      </div>
+      <div class="toolbar">
+        <input class="inline-field" id="ourTeamSearch" type="text" placeholder="Search by name or role..." />
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Role</th>
+              <th>Image</th>
+              <th>Source</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="ourTeamBody">
             <tr><td colspan="6" class="empty-row">Loading...</td></tr>
           </tbody>
         </table>
@@ -611,7 +649,11 @@
       var title = document.getElementById("confirmModalTitle");
 
       title.textContent = "Confirm " + actions[status].charAt(0).toUpperCase() + actions[status].slice(1);
-      body.innerHTML = "Are you sure you want to <strong>" + actions[status] + "</strong> " + escapeHTML(name) + "'s " + labels[type] + "?";
+      if ((type === 'tutor' || type === 'volunteer') && status === 'approved') {
+        body.innerHTML = "Are you sure you want to <strong>" + actions[status] + "</strong> " + escapeHTML(name) + "'s " + labels[type] + "?<br><br><strong>Display at Our Team?</strong><br><label style=\"display:inline-flex;align-items:center;gap:6px;margin-right:12px;\"><input type=\"radio\" name=\"displayAtTeam\" value=\"0\" checked> No</label><label style=\"display:inline-flex;align-items:center;gap:6px;\"><input type=\"radio\" name=\"displayAtTeam\" value=\"1\"> Yes</label>";
+      } else {
+        body.innerHTML = "Are you sure you want to <strong>" + actions[status] + "</strong> " + escapeHTML(name) + "'s " + labels[type] + "?";
+      }
 
       actionBtn.className = "confirm-modal-action " + (actionBtnClasses[status] || "");
       actionBtn.textContent = actions[status].charAt(0).toUpperCase() + actions[status].slice(1);
@@ -662,15 +704,28 @@
       };
       var sectionMap = { tutor: "tutors", volunteer: "volunteers", donation: "donations" };
       try {
+        var body = { status: status };
+        if ((type === 'tutor' || type === 'volunteer') && status === 'approved') {
+          var radios = document.getElementsByName('displayAtTeam');
+          for (var i = 0; i < radios.length; i++) {
+            if (radios[i].checked) {
+              body.display_at_team = radios[i].value === '1' ? 1 : 0;
+              break;
+            }
+          }
+        }
         var res = await apiFetch(endpoints[type], {
           method: "PATCH",
-          body: JSON.stringify({ status: status })
+          body: JSON.stringify(body)
         });
         var msg = "Status updated successfully.";
         if (res.email_warning) msg += " (" + res.email_warning + ")";
         showSectionMessage(sectionMap[type], msg, "success");
         await loadSummary();
         await loadSectionData(sectionMap[type]);
+        if (type === 'tutor' || type === 'volunteer') {
+          try { await loadOurTeam(); } catch (e) {}
+        }
       } catch (e) {
         showSectionMessage(sectionMap[type], e.message || "Failed to update status.", "error");
       }
@@ -679,13 +734,106 @@
     /* =================== SEARCH HANDLERS =================== */
     function setupSearch(inputId, filterId, loadFn) {
       var input = document.getElementById(inputId);
+      if (!input) return;
       var timer = null;
       input.addEventListener("input", function() {
         clearTimeout(timer);
         timer = setTimeout(loadFn, 300);
       });
       if (filterId) {
-        document.getElementById(filterId).addEventListener("change", loadFn);
+        var filterEl = document.getElementById(filterId);
+        if (filterEl) {
+          filterEl.addEventListener("change", loadFn);
+        }
+      }
+    }
+
+    /* =================== OUR TEAM =================== */
+    async function loadOurTeam() {
+      var body = document.getElementById("ourTeamBody");
+      body.innerHTML = '<tr><td colspan="6" class="empty-row">Loading...</td></tr>';
+      try {
+        var search = document.getElementById("ourTeamSearch") ? document.getElementById("ourTeamSearch").value : "";
+        var params = new URLSearchParams();
+        if (search) params.set("search", search);
+        var qs = params.toString();
+        var res = await apiFetch("/api/admin/our-team" + (qs ? "?" + qs : ""));
+        var members = res.members || res.our_team || [];
+        var countEl = document.getElementById("ourTeamCardCount");
+        if (countEl) countEl.textContent = members.length;
+        if (!members.length) {
+          body.innerHTML = '<tr><td colspan="6" class="empty-row">No team members found.</td></tr>';
+          return;
+        }
+        body.innerHTML = members.map(function(m) {
+          var source = m.source_application_type ? (m.source_application_type + (m.source_application_id ? " (#" + m.source_application_id.slice(0,6) + ")" : "")) : "Manual";
+          var status = m.display_at_team == 1 ? "Shown" : "Hidden";
+          return '<tr>'
+            + '<td>' + escapeHTML(m.name || '-') + '</td>'
+            + '<td>' + escapeHTML(m.role || '-') + '</td>'
+            + '<td>' + (m.image_url ? '<img src="' + escapeHTML(m.image_url) + '" alt="" style="width:40px;height:40px;border-radius:50%;object-fit:cover;">' : '-') + '</td>'
+            + '<td>' + escapeHTML(source) + '</td>'
+            + '<td>' + pill(status === "Shown" ? "approved" : "pending") + ' ' + escapeHTML(status) + '</td>'
+            + '<td class="row-actions">'
+            + '<button class="btn btn-approve" onclick="editOurTeamMember(\'' + escapeHTML(m.id).replace(/'/g, "\\'") + '\')">Edit</button> '
+            + (m.display_at_team == 1
+              ? '<button class="btn btn-reject" onclick="toggleOurTeamVisibility(\'' + escapeHTML(m.id).replace(/'/g, "\\'") + '\', 0)">Hide</button> '
+              : '<button class="btn btn-approve" onclick="toggleOurTeamVisibility(\'' + escapeHTML(m.id).replace(/'/g, "\\'") + '\', 1)">Show</button> ')
+            + '<button class="btn btn-reject" onclick="deleteOurTeamMember(\'' + escapeHTML(m.id).replace(/'/g, "\\'") + '\', \'' + escapeHTML(m.name || '').replace(/'/g, "\\'") + '\')">Delete</button>'
+            + '</td></tr>';
+        }).join("");
+      } catch (e) {
+        body.innerHTML = '<tr><td colspan="6" class="empty-row">Error loading data.</td></tr>';
+        showSectionMessage("ourteam", e.message || "Failed to load team members.", "error");
+      }
+    }
+
+    async function toggleOurTeamVisibility(id, display) {
+      try {
+        await apiFetch("/api/admin/our-team/" + encodeURIComponent(id), {
+          method: "PATCH",
+          body: JSON.stringify({ display_at_team: display })
+        });
+        showSectionMessage("ourteam", display ? "Member shown on Our Team page." : "Member hidden from Our Team page.", "success");
+        await loadOurTeam();
+        await loadSummary();
+      } catch (e) {
+        showSectionMessage("ourteam", e.message || "Failed to update visibility.", "error");
+      }
+    }
+
+    async function editOurTeamMember(id) {
+      var name = prompt("Name:");
+      if (name === null) return;
+      var role = prompt("Role/Title:");
+      if (role === null) return;
+      var bio = prompt("Bio/Description:");
+      if (bio === null) return;
+      var image_url = prompt("Image URL (optional):");
+      if (image_url === null) return;
+      try {
+        await apiFetch("/api/admin/our-team/" + encodeURIComponent(id), {
+          method: "PATCH",
+          body: JSON.stringify({ name: name, role: role, bio: bio, image_url: image_url })
+        });
+        showSectionMessage("ourteam", "Team member updated.", "success");
+        await loadOurTeam();
+      } catch (e) {
+        showSectionMessage("ourteam", e.message || "Failed to update member.", "error");
+      }
+    }
+
+    async function deleteOurTeamMember(id, name) {
+      if (!confirm("Remove " + name + " from Our Team? This cannot be undone.")) return;
+      try {
+        await apiFetch("/api/admin/our-team/" + encodeURIComponent(id), {
+          method: "DELETE"
+        });
+        showSectionMessage("ourteam", "Team member removed.", "success");
+        await loadOurTeam();
+        await loadSummary();
+      } catch (e) {
+        showSectionMessage("ourteam", e.message || "Failed to delete member.", "error");
       }
     }
 
@@ -696,6 +844,7 @@
       setupSearch("volunteerSearch", "volunteerFilter", function() { if (currentSection === "volunteers") loadVolunteers(); });
       setupSearch("donationSearch", "donationFilter", function() { if (currentSection === "donations") loadDonations(); });
       setupSearch("contactSearch", null, function() { if (currentSection === "contacts") loadContacts(); });
+      setupSearch("ourTeamSearch", null, function() { if (currentSection === "ourteam") loadOurTeam(); });
       loadSummary().then(function() {
         document.getElementById("pageLoader").classList.remove("show");
       });
