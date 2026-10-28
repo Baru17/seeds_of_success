@@ -447,7 +447,8 @@
       var statsRow = document.querySelector(".stats-row");
       if (statsRow) statsRow.style.display = "none";
       document.querySelectorAll(".section-view").forEach(function(el) { el.classList.add("hidden"); });
-      var section = document.getElementById("section" + name.charAt(0).toUpperCase() + name.slice(1));
+      var sectionId = "section" + name.charAt(0).toUpperCase() + name.slice(1);
+      var section = document.getElementById(sectionId);
       if (section) {
         section.classList.remove("hidden");
         section.classList.remove("section-fade-in");
@@ -455,7 +456,11 @@
         section.classList.add("section-fade-in");
       }
       currentSection = name;
-      loadSectionData(name);
+      if (name === "ourteam") {
+        loadOurTeam();
+      } else {
+        loadSectionData(name);
+      }
     }
 
     function closeSection() {
@@ -754,9 +759,11 @@
     /* =================== OUR TEAM =================== */
     async function loadOurTeam() {
       var body = document.getElementById("ourTeamBody");
+      if (!body) return;
       body.innerHTML = '<tr><td colspan="6" class="empty-row">Loading...</td></tr>';
       try {
-        var search = document.getElementById("ourTeamSearch") ? document.getElementById("ourTeamSearch").value : "";
+        var searchInput = document.getElementById("ourTeamSearch");
+        var search = searchInput ? searchInput.value : "";
         var params = new URLSearchParams();
         if (search) params.set("search", search);
         var qs = params.toString();
@@ -769,8 +776,10 @@
           return;
         }
         body.innerHTML = members.map(function(m) {
-          var source = m.source_application_type ? (m.source_application_type + (m.source_application_id ? " (#" + m.source_application_id.slice(0,6) + ")" : "")) : "Manual";
+          var source = m.source_application_type ? (m.source_application_type + (m.source_application_id ? " (#" + String(m.source_application_id).slice(0,6) + ")" : "")) : "Manual";
           var status = m.display_at_team == 1 ? "Shown" : "Hidden";
+          var mid = String(m.id).replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+          var mname = String(m.name || '').replace(/\\/g, "\\\\").replace(/'/g, "\\'");
           return '<tr>'
             + '<td>' + escapeHTML(m.name || '-') + '</td>'
             + '<td>' + escapeHTML(m.role || '-') + '</td>'
@@ -778,11 +787,11 @@
             + '<td>' + escapeHTML(source) + '</td>'
             + '<td>' + pill(status === "Shown" ? "approved" : "pending") + ' ' + escapeHTML(status) + '</td>'
             + '<td class="row-actions">'
-            + '<button class="btn btn-approve" onclick="editOurTeamMember(\'' + escapeHTML(m.id).replace(/'/g, "\\'") + '\')">Edit</button> '
+            + '<button class="btn btn-approve" onclick="editOurTeamMember(\'' + mid + '\')">Edit</button> '
             + (m.display_at_team == 1
-              ? '<button class="btn btn-reject" onclick="toggleOurTeamVisibility(\'' + escapeHTML(m.id).replace(/'/g, "\\'") + '\', 0)">Hide</button> '
-              : '<button class="btn btn-approve" onclick="toggleOurTeamVisibility(\'' + escapeHTML(m.id).replace(/'/g, "\\'") + '\', 1)">Show</button> ')
-            + '<button class="btn btn-reject" onclick="deleteOurTeamMember(\'' + escapeHTML(m.id).replace(/'/g, "\\'") + '\', \'' + escapeHTML(m.name || '').replace(/'/g, "\\'") + '\')">Delete</button>'
+              ? '<button class="btn btn-reject" onclick="toggleOurTeamVisibility(\'' + mid + '\', 0)">Hide</button> '
+              : '<button class="btn btn-approve" onclick="toggleOurTeamVisibility(\'' + mid + '\', 1)">Show</button> ')
+            + '<button class="btn btn-reject" onclick="deleteOurTeamMember(\'' + mid + '\', \'' + mname + '\')">Delete</button>'
             + '</td></tr>';
         }).join("");
       } catch (e) {
