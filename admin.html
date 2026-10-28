@@ -285,6 +285,53 @@
     </div>
   </div>
 
+  <dialog class="team-edit-dialog" id="ourTeamEditDialog" aria-labelledby="ourTeamEditTitle" aria-describedby="ourTeamEditDescription">
+    <form class="team-edit-form" id="ourTeamEditForm">
+      <div class="team-edit-head">
+        <div>
+          <p class="team-edit-eyebrow">Our Team</p>
+          <h2 id="ourTeamEditTitle">Edit team member</h2>
+        </div>
+        <button type="button" class="team-edit-close" id="ourTeamEditClose" aria-label="Close edit dialog">&times;</button>
+      </div>
+      <p class="team-edit-description" id="ourTeamEditDescription">Update this member's profile and public visibility.</p>
+      <div class="team-edit-fields">
+        <label class="team-edit-field" for="ourTeamEditName">
+          <span>Name <span aria-hidden="true">*</span></span>
+          <input class="inline-field" id="ourTeamEditName" name="name" type="text" required autocomplete="name" />
+        </label>
+        <label class="team-edit-field" for="ourTeamEditRole">
+          <span>Role / title</span>
+          <input class="inline-field" id="ourTeamEditRole" name="role" type="text" />
+        </label>
+        <label class="team-edit-field team-edit-field-wide" for="ourTeamEditBio">
+          <span>Biography</span>
+          <textarea class="inline-field" id="ourTeamEditBio" name="bio" rows="4"></textarea>
+        </label>
+        <label class="team-edit-field team-edit-field-wide" for="ourTeamEditImage">
+          <span>Image URL</span>
+          <input class="inline-field" id="ourTeamEditImage" name="image_url" type="text" />
+        </label>
+        <label class="team-edit-field team-edit-field-wide" for="ourTeamEditVisibility">
+          <span>Public visibility</span>
+          <select class="inline-field" id="ourTeamEditVisibility" name="display_at_team">
+            <option value="1">Shown on Our Team page</option>
+            <option value="0">Hidden from Our Team page</option>
+          </select>
+        </label>
+      </div>
+      <div class="team-edit-source">
+        <span>Source / provenance</span>
+        <output id="ourTeamEditSource">Manual</output>
+      </div>
+      <p class="team-edit-error" id="ourTeamEditError" role="alert" hidden></p>
+      <div class="team-edit-actions">
+        <button type="button" class="confirm-modal-cancel" id="ourTeamEditCancel">Cancel</button>
+        <button type="submit" class="confirm-modal-action confirm-btn-approve" id="ourTeamEditSave">Save changes</button>
+      </div>
+    </form>
+  </dialog>
+
   <footer class="site-footer">
     <div class="container">
       <div class="footer-grid">
@@ -321,6 +368,9 @@
 
   <script>
     const API_BASE = window.location.protocol === 'file:' || ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname) ? 'http://127.0.0.1:8787' : 'https://worker-api.seedsofsuccessngo.workers.dev';
+    var ourTeamMembersById = Object.create(null);
+    var editingOurTeamMemberId = null;
+    var ourTeamEditReturnFocus = null;
 
     function escapeHTML(v) {
       return String(v ?? "")
@@ -810,6 +860,7 @@
     async function loadOurTeam() {
       var body = document.getElementById("ourTeamBody");
       if (!body) return;
+      ourTeamMembersById = Object.create(null);
       body.innerHTML = '<tr><td colspan="7" class="empty-row">Loading...</td></tr>';
       try {
         var searchInput = document.getElementById("ourTeamSearch");
@@ -822,6 +873,10 @@
           throw new Error("The Our Team response did not contain a member list.");
         }
         var members = res.members;
+        ourTeamMembersById = Object.create(null);
+        members.forEach(function(member) {
+          ourTeamMembersById[String(member.id)] = member;
+        });
         if (!members.length) {
           body.innerHTML = '<tr><td colspan="7" class="empty-row">No team members found.</td></tr>';
           return;
@@ -839,7 +894,7 @@
             + '<td>' + escapeHTML(source) + '</td>'
             + '<td>' + pill(status === "Shown" ? "approved" : "pending") + ' ' + escapeHTML(status) + '</td>'
             + '<td class="row-actions">'
-            + '<button class="btn btn-approve" onclick="editOurTeamMember(\'' + mid + '\')">Edit</button> '
+            + '<button class="btn btn-approve" data-edit-member="' + escapeHTML(m.id) + '" onclick="editOurTeamMember(\'' + mid + '\')">Edit</button> '
             + (m.display_at_team == 1
               ? '<button class="btn btn-reject" onclick="toggleOurTeamVisibility(\'' + mid + '\', 0)">Hide</button> '
               : '<button class="btn btn-approve" onclick="toggleOurTeamVisibility(\'' + mid + '\', 1)">Show</button> ')
@@ -868,26 +923,98 @@
       }
     }
 
-    async function editOurTeamMember(id) {
-      var name = prompt("Name:");
-      if (name === null) return;
-      var role = prompt("Role/Title:");
-      if (role === null) return;
-      var bio = prompt("Bio/Description:");
-      if (bio === null) return;
-      var image_url = prompt("Image URL (optional):");
-      if (image_url === null) return;
-      try {
-        await apiFetch("/api/admin/our-team/" + encodeURIComponent(id), {
-          method: "PATCH",
-          body: JSON.stringify({ name: name, role: role, bio: bio, image_url: image_url })
-        });
-        showSectionMessage("ourteam", "Team member updated.", "success");
-        await loadOurTeam();
-      } catch (e) {
-        console.error("Our Team member update failed:", e);
-        showSectionMessage("ourteam", e.message || "Failed to update member.", "error");
+    function editOurTeamMember(id) {
+      var member = ourTeamMembersById[String(id)];
+      if (!member) {
+        showSectionMessage("ourteam", "The selected member is no longer available. Reload the list and try again.", "error");
+        return;
       }
+
+      editingOurTeamMemberId = String(member.id);
+      ourTeamEditReturnFocus = document.activeElement;
+      document.getElementById("ourTeamEditName").value = member.name || "";
+      document.getElementById("ourTeamEditRole").value = member.role || "";
+      document.getElementById("ourTeamEditBio").value = member.bio || "";
+      document.getElementById("ourTeamEditImage").value = member.image_url || "";
+      document.getElementById("ourTeamEditVisibility").value = member.display_at_team == 1 ? "1" : "0";
+      document.getElementById("ourTeamEditName").setCustomValidity("");
+      document.getElementById("ourTeamEditError").hidden = true;
+      document.getElementById("ourTeamEditError").textContent = "";
+      var provenance = member.source_application_type
+        ? member.source_application_type + (member.source_application_id ? " (#" + String(member.source_application_id).slice(0, 6) + ")" : "")
+        : "Manual";
+      document.getElementById("ourTeamEditSource").textContent = provenance;
+      document.getElementById("ourTeamEditDialog").showModal();
+    }
+
+    function setupOurTeamEditDialog() {
+      var dialog = document.getElementById("ourTeamEditDialog");
+      var form = document.getElementById("ourTeamEditForm");
+      var nameInput = document.getElementById("ourTeamEditName");
+      var error = document.getElementById("ourTeamEditError");
+      var saveButton = document.getElementById("ourTeamEditSave");
+
+      document.getElementById("ourTeamEditCancel").addEventListener("click", function() {
+        dialog.close();
+      });
+      document.getElementById("ourTeamEditClose").addEventListener("click", function() {
+        dialog.close();
+      });
+      dialog.addEventListener("click", function(event) {
+        if (event.target === dialog) dialog.close();
+      });
+      dialog.addEventListener("close", function() {
+        editingOurTeamMemberId = null;
+        if (ourTeamEditReturnFocus && ourTeamEditReturnFocus.isConnected) {
+          ourTeamEditReturnFocus.focus();
+        }
+        ourTeamEditReturnFocus = null;
+      });
+      nameInput.addEventListener("input", function() {
+        nameInput.setCustomValidity("");
+      });
+      form.addEventListener("submit", async function(event) {
+        event.preventDefault();
+        var name = nameInput.value.trim();
+        nameInput.setCustomValidity(name ? "" : "Enter a name for this team member.");
+        if (!form.reportValidity()) return;
+        if (!editingOurTeamMemberId) return;
+
+        error.hidden = true;
+        error.textContent = "";
+        saveButton.disabled = true;
+        saveButton.textContent = "Saving…";
+        try {
+          var id = editingOurTeamMemberId;
+          await apiFetch("/api/admin/our-team/" + encodeURIComponent(id), {
+            method: "PATCH",
+            body: JSON.stringify({
+              name: name,
+              role: document.getElementById("ourTeamEditRole").value.trim(),
+              bio: document.getElementById("ourTeamEditBio").value.trim(),
+              image_url: document.getElementById("ourTeamEditImage").value.trim(),
+              display_at_team: Number(document.getElementById("ourTeamEditVisibility").value)
+            })
+          });
+          dialog.close();
+          showSectionMessage("ourteam", "Team member updated.", "success");
+          await loadOurTeam();
+          var editedButton = Array.prototype.find.call(
+            document.querySelectorAll("[data-edit-member]"),
+            function(button) { return button.getAttribute("data-edit-member") === id; }
+          );
+          if (editedButton) editedButton.focus();
+        } catch (e) {
+          console.error("Our Team member update failed:", e);
+          var message = e.message || "Failed to update member.";
+          error.textContent = message;
+          error.hidden = false;
+          showSectionMessage("ourteam", message, "error");
+        } finally {
+          saveButton.disabled = false;
+          saveButton.textContent = "Save changes";
+        }
+      });
     }
 
     async function deleteOurTeamMember(id, name) {
@@ -915,6 +1042,7 @@
         setupSearch("donationSearch", "donationFilter", function() { if (currentSection === "donations") loadDonations(); });
         setupSearch("contactSearch", null, function() { if (currentSection === "contacts") loadContacts(); });
         setupSearch("ourTeamSearch", null, function() { if (currentSection === "ourteam") loadOurTeam(); });
+        setupOurTeamEditDialog();
         loadSummary().then(function() {
           var loader = document.getElementById("pageLoader");
           if (loader) loader.classList.remove("show");

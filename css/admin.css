@@ -496,6 +496,153 @@ th {
 }
 .confirm-btn-reject:hover { background: #b3261e; color: #fff; }
 
+/* ============ OUR TEAM EDIT DIALOG ============ */
+.team-edit-dialog {
+  width: min(600px, calc(100vw - 32px));
+  max-width: 600px;
+  max-height: min(88vh, 760px);
+  margin: auto;
+  padding: 28px;
+  overflow: auto;
+  color: #1f2d2a;
+  background: #fff;
+  border: 1px solid #e8efec;
+  border-radius: 16px;
+  box-shadow: 0 18px 45px rgba(16,42,35,0.22);
+}
+
+.team-edit-dialog::backdrop {
+  background: rgba(16,42,35,0.52);
+}
+
+.team-edit-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.team-edit-eyebrow {
+  color: #0d6e4f;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.team-edit-head h2 {
+  margin: 2px 0 0;
+  color: #0d6e4f;
+  font-family: "Playfair Display", serif;
+  font-size: 25px;
+}
+
+.team-edit-close {
+  width: 36px;
+  height: 36px;
+  flex: 0 0 auto;
+  border: 1px solid #d8e2dd;
+  border-radius: 50%;
+  background: #fff;
+  color: #1f2d2a;
+  font-size: 23px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.team-edit-description {
+  margin: 8px 0 20px;
+  color: #5a6b66;
+  font-size: 14px;
+}
+
+.team-edit-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 15px 16px;
+}
+
+.team-edit-field {
+  display: grid;
+  gap: 6px;
+  color: #1f2d2a;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.team-edit-field > span > span {
+  color: #b3261e;
+}
+
+.team-edit-field-wide {
+  grid-column: 1 / -1;
+}
+
+.team-edit-field .inline-field {
+  padding: 10px 12px;
+  font-size: 14px;
+}
+
+.team-edit-field textarea {
+  resize: vertical;
+  min-height: 104px;
+}
+
+.team-edit-field :focus-visible,
+.team-edit-close:focus-visible,
+.team-edit-actions button:focus-visible {
+  outline: 3px solid rgba(13,110,79,0.32);
+  outline-offset: 2px;
+}
+
+.team-edit-source {
+  display: grid;
+  gap: 3px;
+  margin-top: 16px;
+  padding: 11px 13px;
+  border: 1px solid #e8efec;
+  border-radius: 10px;
+  background: #f5f9f7;
+  font-size: 12px;
+}
+
+.team-edit-source > span {
+  color: #5a6b66;
+  font-weight: 600;
+}
+
+.team-edit-source output {
+  color: #1f2d2a;
+  overflow-wrap: anywhere;
+}
+
+.team-edit-error {
+  margin-top: 14px;
+  padding: 10px 12px;
+  border: 1px solid #f5c2bc;
+  border-radius: 9px;
+  background: #fdecea;
+  color: #b3261e;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.team-edit-error[hidden] {
+  display: none;
+}
+
+.team-edit-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.team-edit-actions button:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
 /* ============ LEGACY MODAL (kept for any existing usage) ============ */
 .modal-backdrop {
   position: fixed;
@@ -662,6 +809,11 @@ th {
   .welcome-strip { padding: 40px 0 50px; }
   .stats-row { gap: 12px; }
   .toolbar { flex-direction: column; }
+  .team-edit-dialog { padding: 22px 18px; }
+  .team-edit-fields { grid-template-columns: 1fr; }
+  .team-edit-field-wide { grid-column: auto; }
+  .team-edit-actions { flex-direction: column-reverse; }
+  .team-edit-actions button { width: 100%; }
 }
 
 /* ============ REDUCED MOTION ============ */

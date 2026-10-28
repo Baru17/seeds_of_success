@@ -700,15 +700,26 @@
           const res = await fetch(API_BASE_OURTEAM + "/api/our-team");
           if (!res.ok) return;
           const data = await res.json().catch(function(){ return {}; });
-          const members = data.members || [];
+          const members = Array.isArray(data.members) ? data.members : [];
           if (!members.length) return;
 
-          const hardcodedCards = document.querySelectorAll(".team-card");
-          hardcodedCards.forEach(function(card) { card.style.display = 'none'; });
+          const hero = document.querySelector(".page-hero");
+          if (!hero) return;
 
-          const grids = document.querySelectorAll(".team-grid");
-          if (!grids.length) return;
-          const container = grids[grids.length - 1];
+          document.querySelectorAll(".section").forEach(function(section) {
+            section.style.display = "none";
+            section.setAttribute("aria-hidden", "true");
+          });
+
+          const teamSection = document.createElement("section");
+          teamSection.className = "section published-team-section";
+          const teamContainer = document.createElement("div");
+          teamContainer.className = "container";
+          const teamGrid = document.createElement("div");
+          teamGrid.className = "team-grid";
+          teamContainer.appendChild(teamGrid);
+          teamSection.appendChild(teamContainer);
+          hero.insertAdjacentElement("afterend", teamSection);
 
           members.forEach(function(m) {
             const card = document.createElement("div");
@@ -719,7 +730,7 @@
               + '<span class="role">' + escapeHtmlOurTeam(m.role || '') + '</span>'
               + '<div class="member-details" style="display:none"><button type="button" class="member-close" aria-label="Close" title="Close">✕</button><p style="margin-top:12px;font-size:14px;line-height:1.7;color:#3e4d49;max-width:340px;margin-left:auto;margin-right:auto;">' + escapeHtmlOurTeam(m.bio || '') + '</p></div>';
             attachPopupHandlers(card);
-            container.appendChild(card);
+            teamGrid.appendChild(card);
           });
         } catch (e) {
           // ignore
