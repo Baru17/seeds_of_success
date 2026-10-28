@@ -256,6 +256,7 @@
             <tr>
               <th>Name</th>
               <th>Role</th>
+              <th>Biography</th>
               <th>Image</th>
               <th>Source</th>
               <th>Status</th>
@@ -263,7 +264,7 @@
             </tr>
           </thead>
           <tbody id="ourTeamBody">
-            <tr><td colspan="6" class="empty-row">Loading...</td></tr>
+            <tr><td colspan="7" class="empty-row">Loading...</td></tr>
           </tbody>
         </table>
       </div>
@@ -439,12 +440,33 @@
         el = document.getElementById("contactsCardCount");
         if (el) el.textContent = s.total_contacts || 0;
         var ourTeamCard = document.getElementById("ourTeamCardCount");
-        if (ourTeamCard) ourTeamCard.textContent = (typeof s.total_our_team !== "undefined" && s.total_our_team !== null) ? s.total_our_team : 0;
+        if (ourTeamCard) {
+          if (Number.isInteger(s.total_our_team) && s.total_our_team >= 0) {
+            ourTeamCard.textContent = s.total_our_team;
+          } else {
+            ourTeamCard.textContent = "Unavailable";
+            console.error("Dashboard summary did not include a valid Our Team count.");
+            showAlert("The Our Team member count could not be loaded.", "error");
+          }
+        }
         return s;
       } catch (e) {
         console.error("Dashboard summary failed:", e);
-        var ourTeamCard2 = document.getElementById("ourTeamCardCount");
-        if (ourTeamCard2) ourTeamCard2.textContent = "0";
+        [
+          "pendingTutorsStat",
+          "pendingVolunteersStat",
+          "pendingDonationsStat",
+          "verifiedDonationsStat",
+          "tutorsCardCount",
+          "volunteersCardCount",
+          "donationsCardCount",
+          "contactsCardCount",
+          "ourTeamCardCount"
+        ].forEach(function(id) {
+          var count = document.getElementById(id);
+          if (count) count.textContent = "Unavailable";
+        });
+        showAlert("Dashboard summary could not be loaded. Please try again.", "error");
         return {};
       }
     }
@@ -452,20 +474,28 @@
     /* =================== SECTIONS =================== */
     var currentSection = null;
     var searchTimers = {};
+    var sectionIds = {
+      tutors: "sectionTutors",
+      volunteers: "sectionVolunteers",
+      donations: "sectionDonations",
+      contacts: "sectionContacts",
+      ourteam: "sectionOurTeam"
+    };
 
     function openSection(name) {
+      var section = document.getElementById(sectionIds[name]);
+      if (!section) {
+        console.error("Unknown dashboard section:", name);
+        return;
+      }
       document.querySelector(".dashboard-cards").style.display = "none";
       var statsRow = document.querySelector(".stats-row");
       if (statsRow) statsRow.style.display = "none";
       document.querySelectorAll(".section-view").forEach(function(el) { el.classList.add("hidden"); });
-      var sectionId = "section" + name.charAt(0).toUpperCase() + name.slice(1);
-      var section = document.getElementById(sectionId);
-      if (section) {
-        section.classList.remove("hidden");
-        section.classList.remove("section-fade-in");
-        void section.offsetWidth;
-        section.classList.add("section-fade-in");
-      }
+      section.classList.remove("hidden");
+      section.classList.remove("section-fade-in");
+      void section.offsetWidth;
+      section.classList.add("section-fade-in");
       currentSection = name;
       if (name === "ourteam") {
         loadOurTeam();
@@ -474,7 +504,7 @@
       }
     }
 
-    function closeSection() {
+    function showDashboardView() {
       document.querySelectorAll(".section-view").forEach(function(el) {
         el.classList.add("hidden");
         el.classList.remove("section-fade-in");
@@ -483,6 +513,10 @@
       var statsRow = document.querySelector(".stats-row");
       if (statsRow) statsRow.style.display = "";
       currentSection = null;
+    }
+
+    function closeSection() {
+      showDashboardView();
       loadSummary();
     }
 
@@ -527,6 +561,7 @@
             + '</td></tr>';
         }).join("");
       } catch (e) {
+        console.error("Tutor applications failed:", e);
         body.innerHTML = '<tr><td colspan="7" class="empty-row">Error loading data.</td></tr>';
         showSectionMessage("tutors", e.message || "Failed to load tutors.", "error");
       }
@@ -565,6 +600,7 @@
             + '</td></tr>';
         }).join("");
       } catch (e) {
+        console.error("Volunteer applications failed:", e);
         body.innerHTML = '<tr><td colspan="7" class="empty-row">Error loading data.</td></tr>';
         showSectionMessage("volunteers", e.message || "Failed to load volunteers.", "error");
       }
@@ -605,6 +641,7 @@
             + '</td></tr>';
         }).join("");
       } catch (e) {
+        console.error("Donations failed:", e);
         body.innerHTML = '<tr><td colspan="7" class="empty-row">Error loading data.</td></tr>';
         showSectionMessage("donations", e.message || "Failed to load donations.", "error");
       }
@@ -649,6 +686,7 @@
             + '</tr>';
         }).join("");
       } catch (e) {
+        console.error("Contact submissions failed:", e);
         body.innerHTML = '<tr><td colspan="6" class="empty-row">Error loading data.</td></tr>';
         showSectionMessage("contacts", e.message || "Failed to load contacts.", "error");
       }
@@ -743,9 +781,10 @@
         await loadSummary();
         await loadSectionData(sectionMap[type]);
         if (type === 'tutor' || type === 'volunteer') {
-          try { await loadOurTeam(); } catch (e) {}
+          await loadOurTeam();
         }
       } catch (e) {
+        console.error("Application or donation status update failed:", e);
         showSectionMessage(sectionMap[type], e.message || "Failed to update status.", "error");
       }
     }
@@ -771,7 +810,7 @@
     async function loadOurTeam() {
       var body = document.getElementById("ourTeamBody");
       if (!body) return;
-      body.innerHTML = '<tr><td colspan="6" class="empty-row">Loading...</td></tr>';
+      body.innerHTML = '<tr><td colspan="7" class="empty-row">Loading...</td></tr>';
       try {
         var searchInput = document.getElementById("ourTeamSearch");
         var search = searchInput ? searchInput.value : "";
@@ -779,11 +818,12 @@
         if (search) params.set("search", search);
         var qs = params.toString();
         var res = await apiFetch("/api/admin/our-team" + (qs ? "?" + qs : ""));
-        var members = res.members || res.our_team || [];
-        var countEl = document.getElementById("ourTeamCardCount");
-        if (countEl) countEl.textContent = members.length;
+        if (!Array.isArray(res.members)) {
+          throw new Error("The Our Team response did not contain a member list.");
+        }
+        var members = res.members;
         if (!members.length) {
-          body.innerHTML = '<tr><td colspan="6" class="empty-row">No team members found.</td></tr>';
+          body.innerHTML = '<tr><td colspan="7" class="empty-row">No team members found.</td></tr>';
           return;
         }
         body.innerHTML = members.map(function(m) {
@@ -794,6 +834,7 @@
           return '<tr>'
             + '<td>' + escapeHTML(m.name || '-') + '</td>'
             + '<td>' + escapeHTML(m.role || '-') + '</td>'
+            + '<td class="message-cell">' + escapeHTML(m.bio || '-') + '</td>'
             + '<td>' + (m.image_url ? '<img src="' + escapeHTML(m.image_url) + '" alt="" style="width:40px;height:40px;border-radius:50%;object-fit:cover;">' : '-') + '</td>'
             + '<td>' + escapeHTML(source) + '</td>'
             + '<td>' + pill(status === "Shown" ? "approved" : "pending") + ' ' + escapeHTML(status) + '</td>'
@@ -806,7 +847,8 @@
             + '</td></tr>';
         }).join("");
       } catch (e) {
-        body.innerHTML = '<tr><td colspan="6" class="empty-row">Error loading data.</td></tr>';
+        console.error("Our Team failed:", e);
+        body.innerHTML = '<tr><td colspan="7" class="empty-row">Error loading team members.</td></tr>';
         showSectionMessage("ourteam", e.message || "Failed to load team members.", "error");
       }
     }
@@ -821,6 +863,7 @@
         await loadOurTeam();
         await loadSummary();
       } catch (e) {
+        console.error("Our Team visibility update failed:", e);
         showSectionMessage("ourteam", e.message || "Failed to update visibility.", "error");
       }
     }
@@ -842,6 +885,7 @@
         showSectionMessage("ourteam", "Team member updated.", "success");
         await loadOurTeam();
       } catch (e) {
+        console.error("Our Team member update failed:", e);
         showSectionMessage("ourteam", e.message || "Failed to update member.", "error");
       }
     }
@@ -856,6 +900,7 @@
         await loadOurTeam();
         await loadSummary();
       } catch (e) {
+        console.error("Our Team member deletion failed:", e);
         showSectionMessage("ourteam", e.message || "Failed to delete member.", "error");
       }
     }
@@ -863,6 +908,7 @@
     /* =================== INIT =================== */
     document.addEventListener("DOMContentLoaded", function() {
       try {
+        showDashboardView();
         if (!requireAuth()) return;
         setupSearch("tutorSearch", "tutorFilter", function() { if (currentSection === "tutors") loadTutors(); });
         setupSearch("volunteerSearch", "volunteerFilter", function() { if (currentSection === "volunteers") loadVolunteers(); });
@@ -872,7 +918,8 @@
         loadSummary().then(function() {
           var loader = document.getElementById("pageLoader");
           if (loader) loader.classList.remove("show");
-        }).catch(function() {
+        }).catch(function(e) {
+          console.error("Dashboard initialization failed:", e);
           var loader = document.getElementById("pageLoader");
           if (loader) loader.classList.remove("show");
         });
