@@ -421,19 +421,30 @@
       try {
         const res = await apiFetch("/api/admin/dashboard-summary");
         var s = res.summary || {};
-        document.getElementById("pendingTutorsStat").textContent = s.pending_tutors || 0;
-        document.getElementById("pendingVolunteersStat").textContent = s.pending_volunteers || 0;
-        document.getElementById("pendingDonationsStat").textContent = s.pending_donations || 0;
-        document.getElementById("verifiedDonationsStat").textContent = s.verified_donations || 0;
-        document.getElementById("tutorsCardCount").textContent = s.pending_tutors || 0;
-        document.getElementById("volunteersCardCount").textContent = s.pending_volunteers || 0;
-        document.getElementById("donationsCardCount").textContent = (s.pending_donations || 0) + (s.verified_donations || 0);
-        document.getElementById("contactsCardCount").textContent = s.total_contacts || 0;
+        var el;
+        el = document.getElementById("pendingTutorsStat");
+        if (el) el.textContent = s.pending_tutors || 0;
+        el = document.getElementById("pendingVolunteersStat");
+        if (el) el.textContent = s.pending_volunteers || 0;
+        el = document.getElementById("pendingDonationsStat");
+        if (el) el.textContent = s.pending_donations || 0;
+        el = document.getElementById("verifiedDonationsStat");
+        if (el) el.textContent = s.verified_donations || 0;
+        el = document.getElementById("tutorsCardCount");
+        if (el) el.textContent = s.pending_tutors || 0;
+        el = document.getElementById("volunteersCardCount");
+        if (el) el.textContent = s.pending_volunteers || 0;
+        el = document.getElementById("donationsCardCount");
+        if (el) el.textContent = (s.pending_donations || 0) + (s.verified_donations || 0);
+        el = document.getElementById("contactsCardCount");
+        if (el) el.textContent = s.total_contacts || 0;
         var ourTeamCard = document.getElementById("ourTeamCardCount");
         if (ourTeamCard) ourTeamCard.textContent = (typeof s.total_our_team !== "undefined" && s.total_our_team !== null) ? s.total_our_team : 0;
         return s;
       } catch (e) {
         console.error("Dashboard summary failed:", e);
+        var ourTeamCard2 = document.getElementById("ourTeamCardCount");
+        if (ourTeamCard2) ourTeamCard2.textContent = "0";
         return {};
       }
     }
@@ -851,15 +862,25 @@
 
     /* =================== INIT =================== */
     document.addEventListener("DOMContentLoaded", function() {
-      if (!requireAuth()) return;
-      setupSearch("tutorSearch", "tutorFilter", function() { if (currentSection === "tutors") loadTutors(); });
-      setupSearch("volunteerSearch", "volunteerFilter", function() { if (currentSection === "volunteers") loadVolunteers(); });
-      setupSearch("donationSearch", "donationFilter", function() { if (currentSection === "donations") loadDonations(); });
-      setupSearch("contactSearch", null, function() { if (currentSection === "contacts") loadContacts(); });
-      setupSearch("ourTeamSearch", null, function() { if (currentSection === "ourteam") loadOurTeam(); });
-      loadSummary().then(function() {
-        document.getElementById("pageLoader").classList.remove("show");
-      });
+      try {
+        if (!requireAuth()) return;
+        setupSearch("tutorSearch", "tutorFilter", function() { if (currentSection === "tutors") loadTutors(); });
+        setupSearch("volunteerSearch", "volunteerFilter", function() { if (currentSection === "volunteers") loadVolunteers(); });
+        setupSearch("donationSearch", "donationFilter", function() { if (currentSection === "donations") loadDonations(); });
+        setupSearch("contactSearch", null, function() { if (currentSection === "contacts") loadContacts(); });
+        setupSearch("ourTeamSearch", null, function() { if (currentSection === "ourteam") loadOurTeam(); });
+        loadSummary().then(function() {
+          var loader = document.getElementById("pageLoader");
+          if (loader) loader.classList.remove("show");
+        }).catch(function() {
+          var loader = document.getElementById("pageLoader");
+          if (loader) loader.classList.remove("show");
+        });
+      } catch (e) {
+        var loader = document.getElementById("pageLoader");
+        if (loader) loader.classList.remove("show");
+        console.error(e);
+      }
     });
   </script>
 
